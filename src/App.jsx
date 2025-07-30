@@ -1,10 +1,14 @@
+import { RouterProvider } from 'react-router-dom'
 import './App.css'
+import { GlobalStyles } from './styles/GlobalStyles'
+import router from './Router'
 
 function App() {
 
   return (
     <>
-    앱
+    <GlobalStyles/>
+    <RouterProvider router={router}/>
     </>
   )
 }
