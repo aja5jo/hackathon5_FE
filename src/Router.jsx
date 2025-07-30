@@ -4,10 +4,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 
 const router = createBrowserRouter([
-    {
-     path: "/",
-     element: <HeaderLayout />,
-    children: [
+    // {
+    //  path: "/",
+    //  element: <HeaderLayout />,
+    // children: [
       {
         path: "/",
         element: <Home />,
@@ -16,8 +16,8 @@ const router = createBrowserRouter([
         path: "login",
         element: <Login />,
       },
-    ],
-    }
+    // ],
+    // }
 ])
 
 export default router;
