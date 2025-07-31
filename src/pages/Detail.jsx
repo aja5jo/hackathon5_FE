@@ -3,7 +3,7 @@ import React from 'react'
 
 function Detail() {
   return (
-    <div>Detail</div>
+    <h1>Detail</h1>
   )
 }
 

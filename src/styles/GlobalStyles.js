@@ -16,6 +16,6 @@ export const GlobalStyles = createGlobalStyle`
 
     body {
         height: 100dvh;
-        //font-family: "Pretendard", sans-serif;
+        font-family: "Pretendard", sans-serif;
     }
 `;
