@@ -1,5 +1,4 @@
 import { RouterProvider } from 'react-router-dom'
-import './App.css'
 import "./styles/font.css";
 import { GlobalStyles } from './styles/GlobalStyles'
 import router from './Router'

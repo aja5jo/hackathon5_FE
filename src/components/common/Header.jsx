@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <HeaderContainer>
       <Left>
-        <Logo onClick = { ()=> navigate('/')}>로고</Logo>
+        <Logo src = "src/assets/logo.png" alt="로고" onClick = { ()=> navigate('/')}/>
         <Nav>
           <NavItem onClick ={()=>navigate('/category')}>카테고리</NavItem>
           <NavItem onClick ={()=>navigate('/event')}>이벤트</NavItem>
@@ -45,8 +45,8 @@ const Left = styled.div`
 const Right = styled.div``;
 
 
-const Logo = styled.div`
-  font-weight: bold;
+const Logo = styled.img`
+  height:30px ;
   cursor: pointer;
 `;
 
@@ -57,6 +57,7 @@ const Nav = styled.nav`
 
 const NavItem = styled.span`
   cursor: pointer;
+  font-size: 1.6rem;
 `;
 
 const LoginButton = styled.span`
