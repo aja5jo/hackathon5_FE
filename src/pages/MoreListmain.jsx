@@ -4,25 +4,16 @@ import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
 import EventCardList from '../components/common/EventCardList';
 import dummyEvents from '../assets/dummy.json'
-import HomeBannerSection from '../components/home/HomeBannerSection';
-import { useNavigate } from 'react-router-dom';
 
-function Home() {
-  const navigate = useNavigate();
+
+function MoreListmain() {
   return (
     <Container>
-      <HomeBannerSection />
-      {/* 검색 아직 안만듦 */}
-      <SearchLink onClick={() => navigate('/search')}>
-        <SearchBox />
-      </SearchLink>
-
+      <SearchBox />
       <SectionHeader>
         <Title>
-          <Subtitle>꼬꼬리스트</Subtitle>
           <Maintitle>나의 취향맞춤 가게 이벤트</Maintitle>
         </Title>
-        <MoreButton onClick={() => navigate('/morelistmain')}>자세히 보기&nbsp;&gt;</MoreButton>
       </SectionHeader>
       <EventCardList events={dummyEvents.categories}/>
       <Footer/>
@@ -30,7 +21,7 @@ function Home() {
   )
 }
 
-export default Home
+export default MoreListmain
 
 const Container = styled.main`
   padding: 2rem;
@@ -62,20 +53,5 @@ const Title = styled.div`
   display: flex;
   flex-direction: column;
 `;
-const MoreButton = styled.button`
-  background: none;
-  border: none;
-  color: #222222;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 0;
 
-  &:hover {
-    color: #FEE502;
-  }
-`;
-const SearchLink = styled.div`
-  cursor: text; 
-  &:hover { filter: brightness(0.98); }
-`;
 

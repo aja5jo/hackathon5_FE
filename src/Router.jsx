@@ -7,7 +7,10 @@ import Event from './pages/Event';
 import BucketList from './pages/BucketList';
 import PopUp from './pages/PopUp';
 import HeaderLayout from './layouts/HeaderLayout';
-import Detail from './pages/Detail';
+import MoreListmain from './pages/moreListmain';
+import MoreListcategory from './pages/moreListcategory';
+import EventDetail from './pages/EventDetail';
+import StoreDetail from './pages/StoreDetail';
 
 
 const router = createBrowserRouter([
@@ -20,8 +23,16 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "category",
+        path: "categories",
         element: <Category2 />,
+      },
+      {
+        path: "morelistmain",
+        element: <MoreListmain />,
+      },
+      {
+        path: "categories/:category",
+        element: <MoreListcategory />,
       },
       {
         path: "event",
@@ -40,9 +51,14 @@ const router = createBrowserRouter([
         element: <Login />,
       },
       {
-        path: "detail",
-        element: <Detail />,
+        path: "events/:eventId",
+        element: <EventDetail />,
       },
+      {
+        path: "stores/:storeId",
+        element: <StoreDetail />,
+      },
+
       
     ],
     }

@@ -2,7 +2,7 @@ import React from 'react'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import styled from 'styled-components'
 
-const BannerSection = () => {
+const HomeBannerSection = () => {
   return (
     <Wrapper>
         <ArrowButton><FaChevronLeft /></ArrowButton>
@@ -15,13 +15,14 @@ const BannerSection = () => {
   )
 }
 
-export default BannerSection
+export default HomeBannerSection
 
 const Wrapper = styled.section`
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 4rem 1rem;
+    aspect-ratio: 4 / 1;
     background-color: #f8f8f8;
 `;
 
