@@ -5,29 +5,24 @@ import { useNavigate } from 'react-router-dom'
 
 const EventCardListCategory = ({ events }) => {
   const navigate = useNavigate();
-    const groupedItems = events.reduce((acc, category) => {
-        const items = [
-          ...category.events.map(event => ({
-            ...event,
-            category: category.category,
-            type: "event"
-          })),
-          ...category.stores.map(store => ({
-            ...store,
-            category: category.category,
-            type: "store"
-          }))
-        ];
+  const groupedItems = events.reduce((acc, category) => {
+    if (!Array.isArray(category?.items)) return acc;
 
-        items.sort((a, b) => b.likeCount - a.likeCount);
+    const items = [...category.items]
+      .map((item) => ({
+        ...item,
+        category: category.category,
+      }))
+      .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
 
-        if (items.length > 0) {
-          acc.push({ category: category.category, items });
-        }
-    
-        return acc;
- }, []);
-    
+    if (items.length > 0) {
+      acc.push({ category: category.category, items });
+    }
+
+    return acc;
+  }, []);
+
+
 
   return (
     <Wrapper>
@@ -38,9 +33,8 @@ const EventCardListCategory = ({ events }) => {
             <MoreButton onClick={() => navigate(`/categories/${encodeURIComponent(group.category)}`)}>자세히 보기&nbsp;&gt;</MoreButton>
           </SectionHeader>
           <ListContainer>
-            {group.items.map((event, i) => (
-              <EventCard key={i} event={event} />
-            ))}
+          {group.items.map((item, i) => (
+              <EventCard key={`${group.category}-${item?.type || 'ITEM'}-${item?.id ?? i}`} event={item} />))}
           </ListContainer>
         </CategoryBlock>
       ))}
