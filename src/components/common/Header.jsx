@@ -14,13 +14,13 @@ const Header = () => {
         <Logo src = "src/assets/logo.png" alt="로고" onClick = { ()=> navigate('/')}/>
         <Nav>
           <NavItem onClick ={()=>navigate('/categories')}>카테고리</NavItem>
-          <NavItem onClick ={()=>navigate('/event')}>이벤트</NavItem>
+          <NavItem onClick ={()=>navigate('/events')}>이벤트</NavItem>
           <NavItem onClick ={()=>navigate('/popup')}>이번주 팝업 스테이션</NavItem>
           <NavItem onClick ={()=>navigate('/bucketlist')}>즐겨찾기/버킷리스트</NavItem>
         </Nav>
       </Left>
       <Right>
-        <ToggleSwitch isOn={isEnglish} handleToggle={handleToggle} />
+        <ToggleSwitch $isOn={isEnglish} handleToggle={handleToggle} />
        <LoginButton onClick ={()=>navigate('/login')}>로그인</LoginButton>
       </Right>
     </HeaderContainer>

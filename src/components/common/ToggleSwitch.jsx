@@ -6,7 +6,7 @@ export default function ToggleSwitch({ isOn, handleToggle }) {
       <Label>영어 번역</Label>
       <SwitchLabel>
         <HiddenCheckbox type="checkbox" checked={isOn} onChange={handleToggle} />
-        <Slider isOn={isOn} />
+        <Slider $isOn={isOn} />
       </SwitchLabel>
     </SwitchWrapper>
   );
@@ -41,7 +41,7 @@ const Slider = styled.span`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${({ isOn }) => (isOn ? '#FFD700' : '#ccc')};
+  background-color: ${({ $isOn }) => ($isOn ? '#FFD700' : '#ccc')};
   transition: 0.4s;
   border-radius: 34px;
 
@@ -55,6 +55,6 @@ const Slider = styled.span`
     background-color: white;
     transition: 0.4s;
     border-radius: 50%;
-    transform: ${({ isOn }) => (isOn ? 'translateX(18px)' : 'translateX(0)')};
+    transform: ${({ $isOn }) => ($isOn ? 'translateX(18px)' : 'translateX(0)')};
   }
 `;

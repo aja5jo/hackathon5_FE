@@ -30,17 +30,21 @@ const EventCard = ({ event }) => {
 
       <TextContainer>
         <TagContainer>
-            {event.category && <Tag>{event.category}</Tag>}
-            {event.type === "event" && <EventTag>EVENT</EventTag>}
+          {event.category && <Tag>{event.category}</Tag>}
+          {event.type?.toUpperCase() === "EVENT" && <EventTag>EVENT</EventTag>}
+          {event.type?.toUpperCase() === "POPUP" && <PopupTag>POPUP</PopupTag>}
+          {event.type?.toUpperCase() === "STORE" && <StoreTag>STORE</StoreTag>}
         </TagContainer>
         <Title>{event.name}</Title>
 
-        {/* desc도 이벤트항목에 있는건가?? -> 찾아보기 */}
-        {event.desc && <Text>{event.desc}</Text>}
+        
+        {(event.description ?? event.desc) && <Text>{event.description ?? event.desc}</Text>}
         <PeriodLine>
-          {event.type === "event" && event.startDate && event.endDate
-            ? `${event.startDate} ~ ${event.endDate}`
-            : ""}
+          {['EVENT', 'POPUP'].includes(event.type?.toUpperCase()) && (event.startDate || event.endDate)
+            ? event.startDate && event.endDate
+              ? `${event.startDate} ~ ${event.endDate}`
+              : `${event.startDate || event.endDate}`
+            : ''}
         </PeriodLine>
       </TextContainer>
     </Card>
@@ -103,8 +107,8 @@ const TextContainer=styled.section`
     flex-direction: column;
     gap: 9px;
     padding-top: 16px;
-    flex: 1;        /* 이미지 아래 영역이 카드 높이에 맞춰 유연하게 차도록 */
-    min-height: 0;  /* -webkit-line-clamp가 flex 컨테이너에서 제대로 동작하도록 */
+    flex: 1;       
+    min-height: 0;  
 `;
 const TagContainer = styled.section`
     display: flex;
@@ -129,6 +133,27 @@ const EventTag = styled.div`
     padding: 0.2rem 0.6rem;
     line-height: 1;
     align-self: flex-start;
+`;
+
+const PopupTag = styled.div`
+  display: inline-block;
+  font-size: 1rem;
+  color: #333;
+  background: #25a8f9;
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  line-height: 1;
+  align-self: flex-start;
+`;
+const StoreTag = styled.div`
+  display: inline-block;
+  font-size: 1rem;
+  color: #333;
+  background: #25f97f;
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  line-height: 1;
+  align-self: flex-start;
 `;
 
 const Title = styled.div`

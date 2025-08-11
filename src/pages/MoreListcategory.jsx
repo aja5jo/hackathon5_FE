@@ -12,27 +12,20 @@ import dummyEvents from '../assets/dummy.json';
 function MoreListcategory() {
   const { category } = useParams(); 
 
-  // URL 파라미터와 동일한 카테고리만 필터 (대소문자 무시)
   const filtered = (dummyEvents?.categories || []).filter(
     (c) => String(c.category).toLowerCase() === String(category).toLowerCase()
   );
 
-  // EventCardListCategory의 로직을 그대로 이 페이지에서 수행 (버튼 제거)
-  const groupedItems = filtered.reduce((acc, cat) => {
-    const items = [
-      ...(cat.events || []).map((event) => ({
-        ...event,
-        category: cat.category,
-        type: 'event',
-      })),
-      ...(cat.stores || []).map((store) => ({
-        ...store,
-        category: cat.category,
-        type: 'store',
-      })),
-    ];
 
-    items.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
+  const groupedItems = filtered.reduce((acc, cat) => {
+    if (!Array.isArray(cat?.items)) return acc;
+
+    const items = [...cat.items]
+      .map((item) => ({
+        ...item,
+        category: cat.category,
+      }))
+      .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
 
     if (items.length > 0) acc.push({ category: cat.category, items });
     return acc;
@@ -59,7 +52,6 @@ function MoreListcategory() {
             <CategoryBlock key={idx}>
               <HeaderRow>
                 <RowTitle>{group.category}</RowTitle>
-                {/* 더보기 버튼 제거됨 */}
               </HeaderRow>
               <ListContainer>
                 {group.items.map((item, i) => (
@@ -147,8 +139,9 @@ const RowTitle = styled.div`
 
 const ListContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, 260px);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 24px;
-  justify-content: center;
+  align-items: stretch;
+  justify-items: center;
   margin-top: 2rem;
 `;

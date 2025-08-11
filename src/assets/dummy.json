@@ -1,313 +1,457 @@
 {
-    "categories": [
-      {
-        "category": "CAFE",
-        "stores": [
-          {
-            "id": 1,
-            "name": "홍카페",
-            "thumbnail": "https://img.com/cafe1.jpg",
-            "likeCount": 15,
-            "liked": true
-          },
-          {
-            "id": 2,
-            "name": "무드브루",
-            "thumbnail": "https://img.com/cafe2.jpg",
-            "likeCount": 28,
-            "liked": false
-          },
-          {
-            "id": 3,
-            "name": "빈티지라떼",
-            "thumbnail": "https://img.com/cafe3.jpg",
-            "likeCount": 35,
-            "liked": true
-          }
-        ],
-        "events": [
-          {
-            "id": 11,
-            "name": "카페 투어 이벤트",
-            "thumbnail": "https://img.com/cafetour.jpg",
-            "desc": "마포구 카페들을 즐기는 특별한 이벤트!",
-            "likeCount": 15,
-            "liked": true,
-            "startDate": "2025-09-01",
-            "endDate": "2025-09-10"
-          },
-          {
-            "id": 12,
-            "name": "1+1 아메리카노 데이",
-            "thumbnail": "https://img.com/coffeeevent.jpg",
-            "desc": "특정 카페에서 아메리카노 1+1 제공!",
-            "likeCount": 21,
-            "liked": false,
-            "startDate": "2025-08-15",
-            "endDate": "2025-08-16"
-          }
-        ]
-      },
-      {
-        "category": "FOOD",
-        "stores": [
-          {
-            "id": 4,
-            "name": "맛있는 식당",
-            "thumbnail": "https://img.com/food1.jpg",
-            "likeCount": 30,
-            "liked": false
-          },
-          {
-            "id": 5,
-            "name": "치즈폭탄 피자",
-            "thumbnail": "https://img.com/food2.jpg",
-            "likeCount": 40,
-            "liked": true
-          },
-          {
-            "id": 6,
-            "name": "김치찌개 명가",
-            "thumbnail": "https://img.com/food3.jpg",
-            "likeCount": 18,
-            "liked": false
-          }
-        ],
-        "events": [
-          {
-            "id": 13,
-            "name": "맛집 할인 주간",
-            "thumbnail": "https://img.com/foodevent.jpg",
-            "desc": "인기 맛집에서 특별 할인을 즐겨보세요!",
-            "likeCount": 20,
-            "liked": true,
-            "startDate": "2025-09-05",
-            "endDate": "2025-09-15"
-          },
-          {
-            "id": 14,
-            "name": "혼밥 챌린지",
-            "thumbnail": "https://img.com/solo.jpg",
-            "desc": "혼밥 인증하고 쿠폰 받아가세요!",
-            "likeCount": 12,
-            "liked": true,
-            "startDate": "2025-08-20",
-            "endDate": "2025-08-31"
-          }
-        ]
-      },
-      {
-        "category": "SHOPPING",
-        "stores": [
-          {
-            "id": 7,
-            "name": "홍대 쇼핑몰",
-            "thumbnail": "https://img.com/shopping1.jpg",
-            "likeCount": 45,
-            "liked": true
-          },
-          {
-            "id": 8,
-            "name": "빈티지 마켓",
-            "thumbnail": "https://img.com/shopping2.jpg",
-            "likeCount": 33,
-            "liked": true
-          },
-          {
-            "id": 9,
-            "name": "소품샵 101",
-            "thumbnail": "https://img.com/shopping3.jpg",
-            "likeCount": 27,
-            "liked": false
-          }
-        ],
-        "events": [
-          {
-            "id": 15,
-            "name": "패션 세일",
-            "thumbnail": "https://img.com/sale.jpg",
-            "desc": "의류 및 액세서리 최대 50% 할인!",
-            "likeCount": 33,
-            "liked": false,
-            "startDate": "2025-08-25",
-            "endDate": "2025-09-05"
-          },
-          {
-            "id": 16,
-            "name": "굿즈 랜덤박스 이벤트",
-            "thumbnail": "https://img.com/goods.jpg",
-            "desc": "랜덤박스를 구매하면 특별 상품이?!",
-            "likeCount": 19,
-            "liked": true,
-            "startDate": "2025-09-03",
-            "endDate": "2025-09-07"
-          }
-        ]
-      },
-      {
-        "category": "ENTERTAINMENT",
-        "stores": [
-          {
-            "id": 10,
-            "name": "노래방 파티존",
-            "thumbnail": "https://img.com/karaoke.jpg",
-            "likeCount": 10,
-            "liked": false
-          },
-          {
-            "id": 11,
-            "name": "보드게임 카페",
-            "thumbnail": "https://img.com/boardgame.jpg",
-            "likeCount": 22,
-            "liked": true
-          }
-        ],
-        "events": [
-          {
-            "id": 17,
-            "name": "한밤의 콘서트",
-            "thumbnail": "https://img.com/concert.jpg",
-            "desc": "홍대에서 펼쳐지는 특별한 공연!",
-            "likeCount": 55,
-            "liked": true,
-            "startDate": "2025-09-10",
-            "endDate": "2025-09-11"
-          },
-          {
-            "id": 18,
-            "name": "방탈출 할인 이벤트",
-            "thumbnail": "https://img.com/escape.jpg",
-            "desc": "팀을 꾸려 탈출하라!",
-            "likeCount": 31,
-            "liked": false,
-            "startDate": "2025-08-12",
-            "endDate": "2025-08-20"
-          }
-        ]
-      },
-      {
-        "category": "K_POP",
-        "stores": [
-          {
-            "id": 12,
-            "name": "KPOP 굿즈샵",
-            "thumbnail": "https://img.com/kpop1.jpg",
-            "likeCount": 60,
-            "liked": true
-          },
-          {
-            "id": 13,
-            "name": "앨범 마켓",
-            "thumbnail": "https://img.com/kpop2.jpg",
-            "likeCount": 32,
-            "liked": false
-          }
-        ],
-        "events": [
-          {
-            "id": 19,
-            "name": "팬미팅 이벤트",
-            "thumbnail": "https://img.com/fanmeet.jpg",
-            "desc": "최애 아이돌과의 특별한 만남!",
-            "likeCount": 80,
-            "liked": true,
-            "startDate": "2025-09-20",
-            "endDate": "2025-09-21"
-          },
-          {
-            "id": 20,
-            "name": "랜덤 댄스 챌린지",
-            "thumbnail": "https://img.com/dance.jpg",
-            "desc": "랜덤 플레이 댄스를 완성해보세요!",
-            "likeCount": 45,
-            "liked": false,
-            "startDate": "2025-08-28",
-            "endDate": "2025-08-30"
-          }
-        ]
-      },
-      {
-        "category": "CLUB",
-        "stores": [
-          {
-            "id": 14,
-            "name": "클럽 파라다이스",
-            "thumbnail": "https://img.com/club1.jpg",
-            "likeCount": 22,
-            "liked": false
-          },
-          {
-            "id": 15,
-            "name": "일렉트로 나잇",
-            "thumbnail": "https://img.com/club2.jpg",
-            "likeCount": 18,
-            "liked": true
-          }
-        ],
-        "events": [
-          {
-            "id": 21,
-            "name": "EDM 나잇",
-            "thumbnail": "https://img.com/edm.jpg",
-            "desc": "DJ들과 함께하는 EDM 파티!",
-            "likeCount": 40,
-            "liked": true,
-            "startDate": "2025-09-08",
-            "endDate": "2025-09-08"
-          },
-          {
-            "id": 22,
-            "name": "테크노 파티 위크",
-            "thumbnail": "https://img.com/techno.jpg",
-            "desc": "일주일간 계속되는 클럽 대축제!",
-            "likeCount": 33,
-            "liked": false,
-            "startDate": "2025-09-01",
-            "endDate": "2025-09-07"
-          }
-        ]
-      },
-      {
-        "category": "ETC",
-        "stores": [
-          {
-            "id": 16,
-            "name": "기타 스토어",
-            "thumbnail": "https://img.com/etc1.jpg",
-            "likeCount": 5,
-            "liked": false
-          },
-          {
-            "id": 17,
-            "name": "소셜벤처 홍보관",
-            "thumbnail": "https://img.com/etc2.jpg",
-            "likeCount": 11,
-            "liked": true
-          }
-        ],
-        "events": [
-          {
-            "id": 23,
-            "name": "플리마켓 오픈",
-            "thumbnail": "https://img.com/flea.jpg",
-            "desc": "다양한 핸드메이드 제품이 한자리에!",
-            "likeCount": 12,
-            "liked": false,
-            "startDate": "2025-08-30",
-            "endDate": "2025-09-02"
-          },
-          {
-            "id": 24,
-            "name": "제로웨이스트 마켓",
-            "thumbnail": "https://img.com/zerowaste.jpg",
-            "desc": "지속가능한 소비를 경험해보세요!",
-            "likeCount": 9,
-            "liked": true,
-            "startDate": "2025-09-03",
-            "endDate": "2025-09-05"
-          }
-        ]
-      }
-    ]
-  }
-  
+  "categories": [
+    {
+      "category": "CAFE",
+      "items": [
+        {
+          "id": 1,
+          "name": "Sunrise Coffee",
+          "thumbnail": "https://img.com/cafe1.jpg",
+          "likeCount": 25,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 2,
+          "name": "Moonlight Espresso",
+          "thumbnail": "https://img.com/cafe2.jpg",
+          "likeCount": 40,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 101,
+          "name": "Spring Coffee Festival",
+          "thumbnail": "https://img.com/cafeevent1.jpg",
+          "description": "Enjoy special blends and discounts all week!",
+          "likeCount": 50,
+          "liked": true,
+          "startDate": "2025-04-01",
+          "endDate": "2025-04-07",
+          "type": "EVENT"
+        },
+        {
+          "id": 102,
+          "name": "Barista Workshop",
+          "thumbnail": "https://img.com/cafeevent2.jpg",
+          "description": "Learn to brew the perfect cup from experts.",
+          "likeCount": 35,
+          "liked": false,
+          "startDate": "2025-05-10",
+          "endDate": "2025-05-12",
+          "type": "EVENT"
+        },
+        {
+          "id": 1010,
+          "name": "Coffee Tasting Popup",
+          "thumbnail": "https://img.com/popupcoffee.jpg",
+          "likeCount": 15,
+          "liked": true,
+          "description": "Taste exclusive coffee blends at our popup stand!",
+          "startDate": "2025-04-05",
+          "endDate": "2025-04-10",
+          "type": "POPUP"
+        }
+      ]
+    },
+    {
+      "category": "FOOD",
+      "items": [
+        {
+          "id": 4,
+          "name": "맛있는 식당",
+          "thumbnail": "https://img.com/food1.jpg",
+          "likeCount": 30,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 5,
+          "name": "치즈폭탄 피자",
+          "thumbnail": "https://img.com/food2.jpg",
+          "likeCount": 40,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 6,
+          "name": "김치찌개 명가",
+          "thumbnail": "https://img.com/food3.jpg",
+          "likeCount": 18,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 13,
+          "name": "맛집 할인 주간",
+          "thumbnail": "https://img.com/foodevent.jpg",
+          "description": "인기 맛집에서 특별 할인을 즐겨보세요!",
+          "likeCount": 20,
+          "liked": true,
+          "startDate": "2025-09-05",
+          "endDate": "2025-09-15",
+          "type": "EVENT"
+        },
+        {
+          "id": 14,
+          "name": "혼밥 챌린지",
+          "thumbnail": "https://img.com/solo.jpg",
+          "description": "혼밥 인증하고 쿠폰 받아가세요!",
+          "likeCount": 12,
+          "liked": true,
+          "startDate": "2025-08-20",
+          "endDate": "2025-08-31",
+          "type": "EVENT"
+        },
+        {
+          "id": 1020,
+          "name": "Street Food Pop-up",
+          "thumbnail": "https://img.com/popupfood.jpg",
+          "likeCount": 28,
+          "liked": false,
+          "description": "Enjoy delicious street food from local vendors!",
+          "startDate": "2025-09-10",
+          "endDate": "2025-09-12",
+          "type": "POPUP"
+        }
+      ]
+    },
+    {
+      "category": "SHOPPING",
+      "items": [
+        {
+          "id": 7,
+          "name": "홍대 쇼핑몰",
+          "thumbnail": "https://img.com/shopping1.jpg",
+          "likeCount": 45,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 8,
+          "name": "빈티지 마켓",
+          "thumbnail": "https://img.com/shopping2.jpg",
+          "likeCount": 33,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 9,
+          "name": "소품샵 101",
+          "thumbnail": "https://img.com/shopping3.jpg",
+          "likeCount": 27,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 15,
+          "name": "패션 세일",
+          "thumbnail": "https://img.com/sale.jpg",
+          "description": "의류 및 액세서리 최대 50% 할인!",
+          "likeCount": 33,
+          "liked": false,
+          "startDate": "2025-08-25",
+          "endDate": "2025-09-05",
+          "type": "EVENT"
+        },
+        {
+          "id": 16,
+          "name": "굿즈 랜덤박스 이벤트",
+          "thumbnail": "https://img.com/goods.jpg",
+          "description": "랜덤박스를 구매하면 특별 상품이?!",
+          "likeCount": 19,
+          "liked": true,
+          "startDate": "2025-09-03",
+          "endDate": "2025-09-07",
+          "type": "EVENT"
+        },
+        {
+          "id": 1030,
+          "name": "Pop-up Boutique",
+          "thumbnail": "https://img.com/popupshop.jpg",
+          "likeCount": 22,
+          "liked": false,
+          "description": "Limited edition items available for a short time!",
+          "startDate": "2025-08-28",
+          "endDate": "2025-09-02",
+          "type": "POPUP"
+        }
+      ]
+    },
+    {
+      "category": "ENTERTAINMENT",
+      "items": [
+        {
+          "id": 10,
+          "name": "노래방 파티존",
+          "thumbnail": "https://img.com/karaoke.jpg",
+          "likeCount": 10,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 11,
+          "name": "보드게임 카페",
+          "thumbnail": "https://img.com/boardgame.jpg",
+          "likeCount": 22,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 17,
+          "name": "한밤의 콘서트",
+          "thumbnail": "https://img.com/concert.jpg",
+          "description": "홍대에서 펼쳐지는 특별한 공연!",
+          "likeCount": 55,
+          "liked": true,
+          "startDate": "2025-09-10",
+          "endDate": "2025-09-11",
+          "type": "EVENT"
+        },
+        {
+          "id": 18,
+          "name": "방탈출 할인 이벤트",
+          "thumbnail": "https://img.com/escape.jpg",
+          "description": "팀을 꾸려 탈출하라!",
+          "likeCount": 31,
+          "liked": false,
+          "startDate": "2025-08-12",
+          "endDate": "2025-08-20",
+          "type": "EVENT"
+        },
+        {
+          "id": 1040,
+          "name": "Pop-up Arcade",
+          "thumbnail": "https://img.com/popuparcade.jpg",
+          "likeCount": 25,
+          "liked": true,
+          "description": "Classic games and new challenges at the pop-up arcade!",
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-05",
+          "type": "POPUP"
+        }
+      ]
+    },
+    {
+      "category": "K_POP",
+      "items": [
+        {
+          "id": 12,
+          "name": "KPOP 굿즈샵",
+          "thumbnail": "https://img.com/kpop1.jpg",
+          "likeCount": 60,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 13,
+          "name": "앨범 마켓",
+          "thumbnail": "https://img.com/kpop2.jpg",
+          "likeCount": 32,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 19,
+          "name": "팬미팅 이벤트",
+          "thumbnail": "https://img.com/fanmeet.jpg",
+          "description": "최애 아이돌과의 특별한 만남!",
+          "likeCount": 80,
+          "liked": true,
+          "startDate": "2025-09-20",
+          "endDate": "2025-09-21",
+          "type": "EVENT"
+        },
+        {
+          "id": 20,
+          "name": "랜덤 댄스 챌린지",
+          "thumbnail": "https://img.com/dance.jpg",
+          "description": "랜덤 플레이 댄스를 완성해보세요!",
+          "likeCount": 45,
+          "liked": false,
+          "startDate": "2025-08-28",
+          "endDate": "2025-08-30",
+          "type": "EVENT"
+        },
+        {
+          "id": 1050,
+          "name": "KPOP Dance Pop-up",
+          "thumbnail": "https://img.com/popupkpop.jpg",
+          "likeCount": 50,
+          "liked": true,
+          "description": "Join the dance pop-up and learn new moves!",
+          "startDate": "2025-09-15",
+          "endDate": "2025-09-17",
+          "type": "POPUP"
+        }
+      ]
+    },
+    {
+      "category": "CLUB",
+      "items": [
+        {
+          "id": 14,
+          "name": "클럽 파라다이스",
+          "thumbnail": "https://img.com/club1.jpg",
+          "likeCount": 22,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 15,
+          "name": "일렉트로 나잇",
+          "thumbnail": "https://img.com/club2.jpg",
+          "likeCount": 18,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 21,
+          "name": "EDM 나잇",
+          "thumbnail": "https://img.com/edm.jpg",
+          "description": "DJ들과 함께하는 EDM 파티!",
+          "likeCount": 40,
+          "liked": true,
+          "startDate": "2025-09-08",
+          "endDate": "2025-09-08",
+          "type": "EVENT"
+        },
+        {
+          "id": 22,
+          "name": "테크노 파티 위크",
+          "thumbnail": "https://img.com/techno.jpg",
+          "description": "일주일간 계속되는 클럽 대축제!",
+          "likeCount": 33,
+          "liked": false,
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-07",
+          "type": "EVENT"
+        },
+        {
+          "id": 1060,
+          "name": "Nightlife Pop-up",
+          "thumbnail": "https://img.com/popupclub.jpg",
+          "likeCount": 38,
+          "liked": true,
+          "description": "Experience the best nightlife at our pop-up club!",
+          "startDate": "2025-09-05",
+          "endDate": "2025-09-06",
+          "type": "POPUP"
+        }
+      ]
+    },
+    {
+      "category": "ETC",
+      "items": [
+        {
+          "id": 16,
+          "name": "기타 스토어",
+          "thumbnail": "https://img.com/etc1.jpg",
+          "likeCount": 5,
+          "liked": false,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 17,
+          "name": "소셜벤처 홍보관",
+          "thumbnail": "https://img.com/etc2.jpg",
+          "likeCount": 11,
+          "liked": true,
+          "description": null,
+          "startDate": null,
+          "endDate": null,
+          "type": "STORE"
+        },
+        {
+          "id": 23,
+          "name": "플리마켓 오픈",
+          "thumbnail": "https://img.com/flea.jpg",
+          "description": "다양한 핸드메이드 제품이 한자리에!",
+          "likeCount": 12,
+          "liked": false,
+          "startDate": "2025-08-30",
+          "endDate": "2025-09-02",
+          "type": "EVENT"
+        },
+        {
+          "id": 24,
+          "name": "제로웨이스트 마켓",
+          "thumbnail": "https://img.com/zerowaste.jpg",
+          "description": "지속가능한 소비를 경험해보세요!",
+          "likeCount": 9,
+          "liked": true,
+          "startDate": "2025-09-03",
+          "endDate": "2025-09-05",
+          "type": "EVENT"
+        },
+        {
+          "id": 1070,
+          "name": "Community Pop-up",
+          "thumbnail": "https://img.com/popupetc.jpg",
+          "likeCount": 14,
+          "liked": false,
+          "description": "Meet and greet with local artisans and creators!",
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-04",
+          "type": "POPUP"
+        },
+        {
+          "id": 106,
+          "name": "팝업팝업팝업",
+          "thumbnail": "https://img.com/popupetc.jpg",
+          "likeCount": 14,
+          "liked": false,
+          "description": "Meet and greet with local artisans and creators!",
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-04",
+          "type": "POPUP"
+        }
+      ]
+    }
+  ]
+}
