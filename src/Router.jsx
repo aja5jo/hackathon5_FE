@@ -12,7 +12,7 @@ import MoreListmain from './pages/moreListmain';
 import MoreListcategory from './pages/moreListcategory';
 import EventDetail from './pages/EventDetail';
 import StoreDetail from './pages/StoreDetail';
-
+import PopupDetail from './pages/PopupDetail';
 
 const router = createBrowserRouter([
     {
@@ -52,7 +52,7 @@ const router = createBrowserRouter([
         element: <PopUp />,
       },
       {
-        path: "bucketlist",
+        path: "favorites",
         element: <BucketList />,
       },
       {
@@ -67,8 +67,10 @@ const router = createBrowserRouter([
         path: "stores/:storeId",
         element: <StoreDetail />,
       },
-
-      
+      {
+        path: "popup/:popupId",
+        element: <PopupDetail />,
+      },
     ],
     }
 ])

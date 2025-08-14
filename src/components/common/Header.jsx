@@ -106,7 +106,7 @@ const Header = () => {
           <NavItem onClick ={()=>navigate('/categories')}>카테고리</NavItem>
           <NavItem onClick ={()=>navigate('/events')}>이벤트</NavItem>
           <NavItem onClick ={()=>navigate('/popup')}>이번주 팝업 스테이션</NavItem>
-          <NavItem onClick ={()=>navigate('/bucketlist')}>즐겨찾기/버킷리스트</NavItem>
+          <NavItem onClick ={()=>navigate('/favorites')}>즐겨찾기/버킷리스트</NavItem>
         </Nav>
       </Left>
       <Right>

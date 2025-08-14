@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import offlike from '../../assets/offlike.svg'
 import onlike from '../../assets/onlike.svg'
+import { useNavigate } from 'react-router-dom';
 
 const EventCard = ({ event }) => {
+  const navigate = useNavigate();
   const [like, setLike] = useState(event.liked);
   const [likeCount, setLikeCount] = useState(event.likeCount);
 
@@ -17,8 +19,16 @@ const EventCard = ({ event }) => {
     }
   };
 
+  const getDetailPath = () => {
+    const t = (event.type || '').toString().toLowerCase();
+    if (t === 'store') return `/store/${event.id}`;
+    if (t === 'popup') return `/popup/${event.id}`;
+    if (t === 'event') return `/event/${event.id}`;
+    return `/event/${event.id}`; // fallback
+  };
+
   return (
-    <Card>
+    <Card onClick={() => navigate(getDetailPath())}>
       <Image>
         <LikeContainer>
           <LikeButton onClick={toggleLike}>
