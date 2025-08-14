@@ -2,6 +2,7 @@ import React from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Category1 from './pages/Category1';
 import Category2 from './pages/Category2';
 import Event from './pages/Event';
 import BucketList from './pages/BucketList';
@@ -24,6 +25,14 @@ const router = createBrowserRouter([
       },
       {
         path: "categories",
+        element: <Category2 />,
+      },
+      {
+        path: "category1",
+        element: <Category1 />,
+      },
+      {
+        path: "category2",
         element: <Category2 />,
       },
       {
