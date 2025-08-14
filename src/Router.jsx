@@ -44,7 +44,7 @@ const router = createBrowserRouter([
         element: <MoreListcategory />,
       },
       {
-        path: "event",
+        path: "events",
         element: <Event />,
       },
       {
