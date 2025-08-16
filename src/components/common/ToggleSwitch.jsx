@@ -3,7 +3,7 @@ import styled from 'styled-components'
 export default function ToggleSwitch({ isOn, handleToggle }) {
   return (
     <SwitchWrapper>
-      <Label>영어 번역</Label>
+      <Label>언어</Label>
       <SwitchLabel>
         <HiddenCheckbox type="checkbox" checked={isOn} onChange={handleToggle} />
         <Slider isOn={isOn} />

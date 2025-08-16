@@ -2,60 +2,43 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
-function Login() {
+function Signup() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [role, setRole] = useState('') // 'USER' 또는 'MERCHANT'
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // ===== 더미데이터 로그인 테스트용 (백엔드 배포 후 삭제) =====
-  const dummyUsers = [
-    { email: 'test@test.com', password: '123456', role: 'user' },
-    { email: 'admin@test.com', password: 'admin123', role: 'admin' },
-    { email: 'merchant@test.com', password: 'merchant123', role: 'merchant' }
-  ]
-
-  // 로그인 성공 후 페이지 이동 로직
-  const handleLoginSuccess = (userData) => {
-    // 사용자 정보를 세션 스토리지에 저장 (필요시)
-    sessionStorage.setItem('user', JSON.stringify(userData))
-
-    // 최초 로그인 여부 확인
-    const hasLoggedInBefore = localStorage.getItem('hasLoggedInBefore')
-    // 카테고리 선택 여부 확인
-    const hasSelectedCategories = localStorage.getItem('hasSelectedCategories')
-
-    // 헤더의 로그인 상태 업데이트를 위한 이벤트 발생
-    window.dispatchEvent(new Event('loginStatusChanged'))
-
-    if (!hasLoggedInBefore) {
-      // 최초 로그인: Category1.jsx로 이동
-      localStorage.setItem('hasLoggedInBefore', 'true') // 플래그 설정
-      console.log('최초 로그인: Category1.jsx로 이동')
-      navigate('/category1')
-    } else if (!hasSelectedCategories) {
-      // 최초 로그인은 아니지만 카테고리를 선택하지 않은 경우: Category1.jsx로 이동
-      console.log('카테고리 미선택: Category1.jsx로 이동')
-      navigate('/category1')
-    } else {
-      // 이후 로그인이고 카테고리도 선택한 경우: Category2.jsx로 이동
-      console.log('이후 로그인: Category2.jsx로 이동')
-      navigate('/category2')
+  // ===== 더미데이터 회원가입 테스트용 (백엔드 배포 후 삭제) =====
+  const handleDummySignup = () => {
+    // 비밀번호 확인 검증
+    if (password !== confirmPassword) {
+      setErrorMessage('비밀번호가 일치하지 않습니다.')
+      return
     }
-  }
 
-  const handleDummyLogin = () => {
-    const user = dummyUsers.find(u => u.email === email && u.password === password)
-    if (user) {
-      alert(`더미 로그인 성공!\n이메일: ${user.email}\n역할: ${user.role}`)
-      handleLoginSuccess(user) // 로그인 성공 처리 함수 호출
-    } else {
-      setErrorMessage('더미 계정 정보가 올바르지 않습니다.\n\n테스트 계정:\n- test@test.com / 123456\n- admin@test.com / admin123\n- merchant@test.com / merchant123')
+    // 비밀번호 길이 검증 (6-20자)
+    if (password.length < 6 || password.length > 20) {
+      setErrorMessage('비밀번호는 6자 이상 20자 이하로 입력해주세요.')
+      return
     }
+
+    // 이메일 중복 체크 (더미)
+    const existingEmails = ['test@test.com', 'admin@test.com', 'merchant@test.com']
+    if (existingEmails.includes(email)) {
+      setErrorMessage(`이미 사용 중인 이메일입니다: ${email}`)
+      return
+    }
+
+    // 성공 시뮬레이션
+    alert(`더미 회원가입 성공!\n이메일: ${email}\n역할: ${role}`)
+    navigate('/login')
   }
-  // ===== 더미데이터 로그인 테스트용 끝 =====
+  // ===== 더미데이터 회원가입 테스트용 끝 =====
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -64,53 +47,71 @@ function Login() {
     
     // 입력값 검증 (API 명세서에 맞춘 에러 메시지)
     if (!email.trim()) {
-      setErrorMessage('이메일은 필수 입력값입니다.')
+      setErrorMessage('이메일은 필수입니다.')
       setIsLoading(false)
       return
     }
     
     if (!password.trim()) {
-      setErrorMessage('비밀번호는 필수 입력값입니다.')
+      setErrorMessage('비밀번호는 필수입니다.')
       setIsLoading(false)
       return
     }
 
-    // ===== 더미데이터 로그인 테스트용 (백엔드 배포 후 삭제) =====
-    // 백엔드 서버가 없을 때 더미 로그인 실행
+    if (!role) {
+      setErrorMessage('역할(role)은 필수입니다.')
+      setIsLoading(false)
+      return
+    }
+
+    // 비밀번호 확인 검증
+    if (password !== confirmPassword) {
+      setErrorMessage('비밀번호가 일치하지 않습니다.')
+      setIsLoading(false)
+      return
+    }
+
+    // 비밀번호 길이 검증 (6-20자)
+    if (password.length < 6 || password.length > 20) {
+      setErrorMessage('비밀번호는 6자 이상 20자 이하로 입력해주세요.')
+      setIsLoading(false)
+      return
+    }
+
+    // ===== 더미데이터 회원가입 테스트용 (백엔드 배포 후 삭제) =====
     setTimeout(() => {
-      handleDummyLogin()
+      handleDummySignup()
       setIsLoading(false)
     }, 1000)
     return
-    // ===== 더미데이터 로그인 테스트용 끝 =====
+    // ===== 더미데이터 회원가입 테스트용 끝 =====
 
     // ===== 실제 API 호출 (백엔드 배포 후 주석 해제) =====
     /*
     try {
-      const response = await fetch('http://localhost:8080/api/login', { // API 명세서에 맞게 엔드포인트 수정
+      const response = await fetch('http://localhost:8080/api/users/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // 세션 기반 인증
         body: JSON.stringify({
           email: email.trim(),
-          password: password
-          // userType은 백엔드에서 세션에 저장된 정보로 처리
+          password: password,
+          role: role
         })
       })
 
       const result = await response.json()
       
       if (result.success) {
-        console.log('로그인 성공:', result.data)
-        handleLoginSuccess(result.data) // 로그인 성공 처리 함수 호출
+        console.log('회원가입 성공:', result.data)
+        alert('회원가입이 완료되었습니다!')
+        navigate('/login')
       } else {
-        // API 명세서에 맞춘 에러 메시지 처리
-        setErrorMessage(result.message || '로그인에 실패했습니다.')
+        setErrorMessage(result.message || '회원가입에 실패했습니다.')
       }
     } catch (error) {
-      console.error('Login failed:', error)
+      console.error('Signup failed:', error)
       setErrorMessage('서버 연결에 실패했습니다. 다시 시도해주세요.')
     } finally {
       setIsLoading(false)
@@ -127,12 +128,16 @@ function Login() {
     setPassword('')
   }
 
+  const clearConfirmPassword = () => {
+    setConfirmPassword('')
+  }
+
   return (
     <Container>
       
 
       <MainContent>
-        <Title>로그인</Title>
+        <Title>회원가입</Title>
         <Subtitle>계정 정보를 입력하세요</Subtitle>
         
         <Form onSubmit={handleSubmit}>
@@ -149,6 +154,10 @@ function Login() {
                 <ClearButton onClick={clearEmail}>+</ClearButton>
               )}
             </InputWrapper>
+            <DuplicateCheck>
+              <DuplicateText>아이디 중복확인</DuplicateText>
+              <DuplicateIcon>●</DuplicateIcon>
+            </DuplicateCheck>
           </InputGroup>
 
           <InputGroup>
@@ -169,17 +178,52 @@ function Login() {
             </InputWrapper>
           </InputGroup>
 
-          <ForgotPassword>
-            계정이 기억나지 않나요? <SignupLink onClick={() => navigate('/signup')}>가입하기</SignupLink>
-          </ForgotPassword>
+          <InputGroup>
+            <InputWrapper>
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="비밀번호를 입력하세요"
+                required
+              />
+              <PasswordToggle onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                👁️
+              </PasswordToggle>
+              {confirmPassword && (
+                <ClearButton onClick={clearConfirmPassword}>+</ClearButton>
+              )}
+            </InputWrapper>
+          </InputGroup>
 
-                     {errorMessage && (
-             <ErrorMessage>{errorMessage}</ErrorMessage>
-           )}
+          <RoleSection>
+            <RoleTitle>사용자 유형</RoleTitle>
+            <RoleButtons>
+              <RoleButton
+                type="button"
+                selected={role === 'USER'}
+                onClick={() => setRole('USER')}
+              >
+                유저
+              </RoleButton>
+              <RoleButton
+                type="button"
+                selected={role === 'MERCHANT'}
+                onClick={() => setRole('MERCHANT')}
+              >
+                소상공인
+              </RoleButton>
+            </RoleButtons>
+            <RoleHint>로그인 유형을 선택하세요.</RoleHint>
+          </RoleSection>
 
-                      <LoginButton type="submit" disabled={isLoading}>
-             {isLoading ? '로그인 중...' : '로그인'}
-           </LoginButton>
+          {errorMessage && (
+            <ErrorMessage>{errorMessage}</ErrorMessage>
+          )}
+
+          <SignupButton type="submit" disabled={isLoading}>
+            {isLoading ? '회원가입 중...' : '회원가입'}
+          </SignupButton>
         </Form>
       </MainContent>
 
@@ -194,7 +238,7 @@ function Login() {
   )
 }
 
-export default Login
+export default Signup
 
 const Container = styled.div`
   min-height: 100vh;
@@ -205,13 +249,12 @@ const Container = styled.div`
 
 const Header = styled.header`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 2rem 3rem;
   background-color: white;
   border-bottom: 1px solid #E5E5E5;
 `
-
 
 
 
@@ -313,21 +356,63 @@ const PasswordToggle = styled.button`
   padding: 0.5rem;
 `
 
-const ForgotPassword = styled.div`
-  text-align: center;
-  font-size: 1.4rem;
-  color: #666;
-  margin-top: 1rem;
+const DuplicateCheck = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 `
 
-const SignupLink = styled.span`
-  color: #FEE502;
+const DuplicateText = styled.span`
+  font-size: 1.2rem;
+  color: #666;
+`
+
+const DuplicateIcon = styled.span`
+  font-size: 1rem;
+  color: #000;
+`
+
+const RoleSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`
+
+const RoleTitle = styled.h3`
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+`
+
+const RoleButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+`
+
+const RoleButton = styled.button`
+  flex: 1;
+  padding: 2rem;
+  border: 2px solid ${props => props.selected ? '#FEE502' : '#E5E5E5'};
+  border-radius: 8px;
+  background-color: ${props => props.selected ? '#FEE502' : 'white'};
+  color: #262626;
+  font-size: 1.6rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
 
   &:hover {
-    text-decoration: underline;
+    border-color: #FEE502;
+    background-color: ${props => props.selected ? '#FEE502' : '#FFF9CC'};
   }
+`
+
+const RoleHint = styled.div`
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
 `
 
 const ErrorMessage = styled.div`
@@ -340,7 +425,7 @@ const ErrorMessage = styled.div`
   border: 1px solid #FFE4D6;
 `
 
-const LoginButton = styled.button`
+const SignupButton = styled.button`
   width: 100%;
   padding: 2rem;
   background-color: #FEE502;

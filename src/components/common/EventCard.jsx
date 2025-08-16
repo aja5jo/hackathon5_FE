@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
 import offlike from '../../assets/offlike.svg'
 import onlike from '../../assets/onlike.svg'
 
 const EventCard = ({ event }) => {
+  const navigate = useNavigate();
   const [like, setLike] = useState(event.liked);
   const [likeCount, setLikeCount] = useState(event.likeCount);
 
-  const toggleLike = () => {
+  const toggleLike = (e) => {
+    e.stopPropagation(); // 카드 클릭 이벤트 방지
     if (like) {
       setLike(false);
       setLikeCount(prev => prev - 1);
@@ -17,8 +20,13 @@ const EventCard = ({ event }) => {
     }
   };
 
+  const handleCardClick = () => {
+    // 카테고리와 아이템 정보를 URL 파라미터로 전달
+    navigate(`/lookmore/${event.category}/${event.type}/${event.id}`);
+  };
+
   return (
-    <Card>
+    <Card onClick={handleCardClick}>
       <Image>
         <LikeContainer>
           <LikeButton onClick={toggleLike}>
@@ -61,6 +69,13 @@ const Card = styled.div`
     overflow: hidden; 
     flex: none;
     width: 260px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 `;
 
 const LikeButton = styled.button`
