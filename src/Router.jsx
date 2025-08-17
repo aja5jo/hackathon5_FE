@@ -18,6 +18,7 @@ import PopupDetail from './pages/PopupDetail';
 import MerchantStore from './pages/merchant/MerchantStore';
 import MerchantEvent from './pages/merchant/MerchantEvent';
 import MerchantPopup from './pages/merchant/MerchantPopup';
+import MerchantMypage from './pages/merchant/MerchantMypage';
 
 const router = createBrowserRouter([
     {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "categories/:category",
         element: <MoreListcategory />,
+      },
+      {
+        path: "mypage",
+        element: <MerchantMypage />,
       },
       {
         path: "events",

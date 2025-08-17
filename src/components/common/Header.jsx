@@ -147,6 +147,7 @@ const Header = () => {
           <NavItem onClick ={()=>navigate('/events')}>{currentTexts.events}</NavItem>
           <NavItem onClick ={()=>navigate('/popup')}>{currentTexts.popup}</NavItem>
           <NavItem onClick ={()=>navigate('/favorites')}>{currentTexts.bucketlist}</NavItem>
+          <NavItem onClick ={()=>navigate('/mypage')}>임시마이페이지</NavItem>
         </Nav>
       </Left>
       <Right>
