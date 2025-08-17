@@ -244,7 +244,7 @@ const MainContent = styled.main`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  margin-top: 64px;
+  //margin-top: 64px;
 `;
 
 const LoadingContainer = styled.div`

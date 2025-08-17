@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import Footer from '../components/common/Footer';
 import CategoryBannerSection from '../components/category2/CategoryBannerSection';
 import dummyEvents from '../assets/dummy.json'
-import EventCardList from '../components/common/EventCardList';
 import EventCardListCategory from '../components/category2/EventCardListCategory.jsx';
 
 function Category2() {
@@ -103,28 +102,30 @@ function Category2() {
   return (
     <Container>
       <CategoryBannerSection />
-      <SectionHeader>
-        <Subtitle>나의 카테고리</Subtitle>
-        <ButtonWrapper>
-          {categoryList.map((cat,idx)=>(
-            <CategoryButton
-              key={idx}
-              selected ={selected.includes(cat)}
-              onClick={()=>toggle(cat)} >
+      <FilterSection>
+        <FilterTitle>나의 카테고리 보기</FilterTitle>
+          <FilterContainer>
+            {categoryList.map((cat, idx) => (
+              <FilterButton
+                key={idx}
+                active={selected.includes(cat)}
+                onClick={() => toggle(cat)}
+              >
                 {cat}
-            </CategoryButton>
-          ))}
-        </ButtonWrapper>
-      </SectionHeader>
-
-      <CategorySection>
-        <CategoryTitle>카테고리 별 모아보기</CategoryTitle>
+              </FilterButton>
+            ))}
+          </FilterContainer>
+      </FilterSection>
+      <ListSection>
+        <SectionHeader>
+          <CategoryTitle>카테고리 별 모아보기</CategoryTitle>
+        </SectionHeader>
         {/* ===== 수정: 필터링된 이벤트만 표시 ===== */}
-        <EventCardListCategory events={filteredEvents}/>
+        <EventCardListCategory events={filteredEvents} maxItems={3}/>
         {/* ===== 기존 코드: 모든 이벤트 표시 (주석 처리) ===== */}
         {/* <EventCardListCategory events={dummyEvents.categories}/> */}
         {/* ===== 수정 끝 ===== */}
-      </CategorySection>
+      </ListSection>
       {/* <EventCardList events={dummyEvents}/> */}
       <Footer/>
     </Container>
@@ -134,49 +135,35 @@ function Category2() {
 export default Category2
 
 // ===== 기존 스타일 컴포넌트들 유지 =====
-const Container = styled.main`
-  padding: 2rem;
-`;
-const SectionHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 2rem;
-  gap: 1rem;
-`;
-const Subtitle = styled.div`
+const FilterTitle = styled.div`
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
   color: #262626;
-  font-size: 2.6rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 32.5px;
 `;
-const ButtonWrapper = styled.div`
+const Container = styled.div`
+  min-height: 100vh;
+  background-color: #ffffff;
+  position: relative;
+`;
+
+const ListSection = styled.section`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0; /* gutters are handled by inner CardGrid */
+`;
+
+const SectionHeader = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto 0 auto;
+  padding: 1.5rem 0; /* vertical only; horizontal gutters come from CardGrid */
   display: flex;
-  //justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 1rem;
-`;
-
-const CategoryButton = styled.button`
-  padding: 0.6rem 1.4rem;
-  border-radius: 20px;
-  border: 2px solid #000;
-  background-color: ${props => (props.selected ? ' rgba(254, 229, 32, 0.50);' : 'white')};
-  color: ${props => (props.selected ? 'black' : 'black')};
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    opacity: 0.85;
-  }
-`;
-
-const CategorySection = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 2rem;
-  gap: 1rem;
+  align-items: center;
+  justify-content: center; /* centers Title */
 `;
 
 const CategoryTitle = styled.div`
@@ -187,3 +174,37 @@ const CategoryTitle = styled.div`
   font-size: 2.6rem;
 `
 // ===== 기존 스타일 컴포넌트들 유지 끝 =====
+
+const FilterSection = styled.div`
+  background-color: white;
+  padding: 2rem 0;
+  border-bottom: 1px solid #e9ecef;
+`;
+
+const FilterContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+`;
+
+const FilterButton = styled.button`
+  padding: 1rem 2rem;
+  background-color: ${props => (props.active ? '#FEE502' : 'transparent')};
+  color: #262626;
+  border: 2px solid ${props => (props.active ? '#FEE502' : '#E5E5E5')};
+  border-radius: 25px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #FEE502;
+    background-color: ${props => (props.active ? '#FEE502' : '#FFF9C4')};
+    transform: translateY(-2px);
+  }
+`;

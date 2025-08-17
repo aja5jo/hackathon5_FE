@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import bannerImg from '../assets/banner.png';
+import PopupBannerSection from '../components/popup/PopupBannerSection';
 
 function PopUp() {
   const navigate = useNavigate();
@@ -137,13 +137,7 @@ function PopUp() {
       <Header />
       
       {/* 배너 섹션 */}
-      <BannerSection>
-        <BannerContent>
-          <BannerTitle>이번주 팝업 스테이션</BannerTitle>
-          <BannerSubtitle>홍대에서 진행되는 특별한 팝업들을 만나보세요</BannerSubtitle>
-        </BannerContent>
-      </BannerSection>
-
+      <PopupBannerSection/>
       {/* 필터 섹션 */}
       <FilterSection>
         <FilterContainer>
@@ -206,43 +200,6 @@ const Container = styled.div`
   min-height: 100vh;
   background-color: #ffffff;
   position: relative;
-`;
-
-const BannerSection = styled.div`
-  width: 100%;
-  height: 300px;
-  background: 
-    linear-gradient(0deg, rgba(102, 92, 14, 0.3) 0%, rgba(102, 92, 14, 0.3) 100%),
-    url(${bannerImg});
-  background-size: cover;
-  background-position: center;
-  margin-top: 64px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const BannerContent = styled.div`
-  text-align: center;
-  color: white;
-`;
-
-const BannerTitle = styled.h1`
-  font-size: 5rem;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 1rem 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  letter-spacing: -2px;
-`;
-
-const BannerSubtitle = styled.p`
-  font-size: 1.8rem;
-  font-weight: 400;
-  color: white;
-  margin: 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 `;
 
 const FilterSection = styled.div`

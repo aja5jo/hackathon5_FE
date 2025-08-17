@@ -15,6 +15,9 @@ import MoreListcategory from './pages/moreListcategory';
 import EventDetail from './pages/EventDetail';
 import StoreDetail from './pages/StoreDetail';
 import PopupDetail from './pages/PopupDetail';
+import MerchantStore from './pages/merchant/MerchantStore';
+import MerchantEvent from './pages/merchant/MerchantEvent';
+import MerchantPopup from './pages/merchant/MerchantPopup';
 
 const router = createBrowserRouter([
     {
@@ -74,12 +77,24 @@ const router = createBrowserRouter([
         element: <EventDetail />,
       },
       {
-        path: "stores/:storeId",
+        path: "store/:storeId",
         element: <StoreDetail />,
       },
       {
         path: "popup/:popupId",
         element: <PopupDetail />,
+      },
+      {
+        path: "merchants/stores",
+        element: <MerchantStore />,
+      },
+      {
+        path: "merchants/stores/events",
+        element: <MerchantEvent />,
+      },
+      {
+        path: "merchants/popups",
+        element: <MerchantPopup />,
       },
     ],
     }

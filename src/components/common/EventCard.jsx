@@ -20,8 +20,16 @@ const EventCard = ({ event }) => {
     }
   };
   const handleCardClick = () => {
-    // 카테고리와 아이템 정보를 URL 파라미터로 전달
-    navigate(`/lookmore/${event.category}/${event.type}/${event.id}`);
+    const type = (event.type || '').toLowerCase();
+    if (type === 'store') {
+      navigate(`/store/${event.id}`);
+    } else if (type === 'popup') {
+      navigate(`/popup/${event.id}`);
+    } else if (type === 'event') {
+      navigate(`/events/${event.id}`);
+    } else {
+      navigate(`/events/${event.id}`);
+    }
   };
 
 
@@ -63,23 +71,19 @@ export default EventCard;
 
 // 높이 360, 폭 260 고정값
 const Card = styled.div`
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    height: 360px; 
-    overflow: hidden; 
-    flex: none;
-    width: 260px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  }
 `;
 
 const LikeButton = styled.button`
@@ -94,9 +98,13 @@ const LikeButton = styled.button`
     }
 `;
 const LikeCount = styled.div`
-    font-size: 12px;
-    color: gray;
-    margin-top: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
 `;
 const LikeContainer = styled.div`
     display: flex;
@@ -108,26 +116,27 @@ const LikeContainer = styled.div`
 `;
 
 const Image = styled.div`
-  background-color: #ccc;
-  aspect-ratio: 4 / 3;
-  border-radius: 4px;
-  display: flex;
-  justify-content: flex-end;
-  padding: 10.5px;
   position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background-color: #ccc;
+  border-bottom: 1px solid #eee;
+  padding: 10.5px; /* 유지: Like 버튼 여백 */
 `;
 
-const TextContainer=styled.section`
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    padding-top: 16px;
-    flex: 1;       
-    min-height: 0;  
+const TextContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 2rem; /* PopupContent와 동일 패딩 */
+  flex: 1;
+  min-height: 0;
 `;
 const TagContainer = styled.section`
-    display: flex;
-    gap: 4px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 `;
 const Tag = styled.div`
     display: inline-block;

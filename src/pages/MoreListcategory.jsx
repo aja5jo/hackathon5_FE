@@ -35,13 +35,9 @@ function MoreListcategory() {
 
   return (
     <Container>
-      <SearchBox />
 
       <SectionHeader>
-        <TitleWrap>
-          <Maintitle>{title}</Maintitle>
-          <Subtitle>해당 카테고리의 전체 목록</Subtitle>
-        </TitleWrap>
+        <Maintitle>{title}</Maintitle>
       </SectionHeader>
 
       {groupedItems.length === 0 ? (
@@ -50,9 +46,6 @@ function MoreListcategory() {
         <Wrapper>
           {groupedItems.map((group, idx) => (
             <CategoryBlock key={idx}>
-              <HeaderRow>
-                <RowTitle>{group.category}</RowTitle>
-              </HeaderRow>
               <ListContainer>
                 {group.items.map((item, i) => (
                   <EventCard key={`${group.category}-${item.id}-${i}`} event={item} />
@@ -79,16 +72,9 @@ const SectionHeader = styled.div`
   margin-top: 2rem;
   padding: 1rem;
   gap: 1rem;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: center;
 `;
 
-const Subtitle = styled.div`
-  color: #262626;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 24px;
-`;
 
 const Maintitle = styled.div`
   color: #262626;
@@ -97,10 +83,6 @@ const Maintitle = styled.div`
   line-height: 32.5px;
 `;
 
-const TitleWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const Info = styled.div`
   text-align: center;
@@ -138,10 +120,11 @@ const RowTitle = styled.div`
 `;
 
 const ListContainer = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
-  align-items: stretch;
-  justify-items: center;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2.5rem;
 `;

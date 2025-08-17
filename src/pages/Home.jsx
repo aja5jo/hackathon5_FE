@@ -120,7 +120,8 @@ function Home() {
             </Title>
             <MoreButton onClick={() => navigate('/morelistmain')}>자세히 보기&nbsp;&gt;</MoreButton>
           </SectionHeader>
-          <EventCardList events={dummyEvents.categories}/>
+          {/* 더보기 누르기 전까지는 6개만 보이게 */}
+          <EventCardList events={dummyEvents.categories} maxItems={6}/>
         </>
       )}
       
@@ -135,13 +136,14 @@ const Container = styled.main`
   padding: 2rem;
 `;
 const SectionHeader = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto 0 auto;
+  padding: 2rem; /* keep in sync with card lists */
   display: flex;
-  margin-top: 2rem;
-  padding: 1rem;
-  gap: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center; /* centers Title */
 `;
 const Subtitle = styled.div`
   color: #262626;
@@ -160,6 +162,8 @@ const Maintitle = styled.div`
 const Title = styled.div`
   display: flex;
   flex-direction: column;
+  text-align: center;  /* center texts */
+  margin: 0 auto;      /* keep centered inside SectionHeader */
 `;
 const MoreButton = styled.button`
   background: none;
@@ -168,6 +172,8 @@ const MoreButton = styled.button`
   font-size: 14px;
   cursor: pointer;
   padding: 0;
+  position: absolute;
+  right: 2rem; /* match SectionHeader horizontal padding */
 
   &:hover {
     color: #FEE502;

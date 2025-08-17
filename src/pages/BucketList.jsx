@@ -5,6 +5,7 @@ import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import NaverMap from '../components/map/NaverMap';
 import bannerImg from '../assets/banner.png';
+import BucketlistBannerSection from '../components/bucketlist/BucketlistBannerSection';
 
 function BucketList() {
   const navigate = useNavigate();
@@ -170,14 +171,8 @@ function BucketList() {
   return (
     <Container>
       <Header />
+      <BucketlistBannerSection />
       
-      {/* 배너 섹션 */}
-      <BannerSection>
-        <BannerContent>
-          <BannerTitle>즐겨찾기 & 버킷리스트</BannerTitle>
-          <BannerSubtitle>나만의 특별한 장소와 경험을 모아보세요</BannerSubtitle>
-        </BannerContent>
-      </BannerSection>
 
       {/* 탭 섹션 */}
       <TabSection>
@@ -355,42 +350,6 @@ const Container = styled.div`
   position: relative;
 `;
 
-const BannerSection = styled.div`
-  width: 100%;
-  height: 300px;
-  background: 
-    linear-gradient(0deg, rgba(102, 92, 14, 0.3) 0%, rgba(102, 92, 14, 0.3) 100%),
-    url(${bannerImg});
-  background-size: cover;
-  background-position: center;
-  margin-top: 64px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const BannerContent = styled.div`
-  text-align: center;
-  color: white;
-`;
-
-const BannerTitle = styled.h1`
-  font-size: 5rem;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 1rem 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  letter-spacing: -2px;
-`;
-
-const BannerSubtitle = styled.p`
-  font-size: 1.8rem;
-  font-weight: 400;
-  color: white;
-  margin: 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-`;
 
 const TabSection = styled.div`
   background-color: white;

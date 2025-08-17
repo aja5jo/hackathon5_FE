@@ -5,40 +5,49 @@ import bannerImg from '../../assets/banner.png'
 
 const PopupBannerSection = () => {
   return (
-    <Wrapper>
-        <BannerText>
-            이번주 팝업스테이션
-        </BannerText>
-    </Wrapper>
+    <BannerSection>
+        <BannerContent>
+          <BannerTitle>이번주 팝업 스테이션</BannerTitle>
+          <BannerSubtitle>홍대에서 진행되는 특별한 팝업들을 만나보세요</BannerSubtitle>
+        </BannerContent>
+      </BannerSection>
   )
 }
 
 export default PopupBannerSection
 
-const Wrapper = styled.section`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem 1rem;
-    aspect-ratio: 4 / 1;
-    background: 
+const BannerSection = styled.div`
+  width: 100%;
+  height: 300px;
+  background: 
     linear-gradient(0deg, rgba(102, 92, 14, 0.3) 0%, rgba(102, 92, 14, 0.3) 100%),
     url(${bannerImg});
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-const BannerText = styled.div`
+const BannerContent = styled.div`
   text-align: center;
-  flex: 1;
   color: white;
-  display: block;
+`;
+
+const BannerTitle = styled.h1`
   font-size: 5rem;
-  margin-bottom: 0.5rem;
-  font-style: normal;
   font-weight: 700;
-  line-height: normal;
+  color: white;
+  margin: 0 0 1rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   letter-spacing: -2px;
+`;
+
+const BannerSubtitle = styled.p`
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: white;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 `;

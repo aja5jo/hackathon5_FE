@@ -9,7 +9,6 @@ import dummyEvents from '../assets/dummy.json'
 function MoreListmain() {
   return (
     <Container>
-      <SearchBox />
       <SectionHeader>
         <Title>
           <Maintitle>나의 취향맞춤 가게 이벤트</Maintitle>
@@ -31,9 +30,7 @@ const SectionHeader = styled.div`
   margin-top: 2rem;
   padding: 1rem;
   gap: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: center;
 `;
 const Subtitle = styled.div`
   color: #262626;
