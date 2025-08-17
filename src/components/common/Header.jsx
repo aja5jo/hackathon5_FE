@@ -143,10 +143,10 @@ const Header = () => {
       <Left>
         <Logo src = {logo} alt="로고" onClick = { ()=> navigate('/')}/>
         <Nav>
-        <NavItem onClick ={()=>navigate('/categories')}>{currentTexts.categories}</NavItem>
-          <NavItem onClick ={()=>navigate('/event')}>{currentTexts.events}</NavItem>
+          <NavItem onClick ={()=>navigate('/categories')}>{currentTexts.categories}</NavItem>
+          <NavItem onClick ={()=>navigate('/events')}>{currentTexts.events}</NavItem>
           <NavItem onClick ={()=>navigate('/popup')}>{currentTexts.popup}</NavItem>
-          <NavItem onClick ={()=>navigate('/bucketlist')}>{currentTexts.bucketlist}</NavItem>
+          <NavItem onClick ={()=>navigate('/favorites')}>{currentTexts.bucketlist}</NavItem>
         </Nav>
       </Left>
       <Right>
@@ -189,7 +189,6 @@ const Header = () => {
           <LoginButton onClick={handleLoginClick}>{currentTexts.login}</LoginButton>
         )}
         {/* ===== 로그인/로그아웃 버튼 끝 ===== */}
-
       </Right>
     </HeaderContainer>
   );
