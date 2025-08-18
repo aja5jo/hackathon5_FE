@@ -154,18 +154,21 @@ const EventCard = ({ event, excludeStatuses = [] }) => {
             <LikeCount>{likeCount}</LikeCount>
           </LikeContainer>
           
-          {/* 즐겨찾기 버튼 */}
+          {/* 즐겨찾기 버튼
           <FavoriteContainer>
             <FavoriteButton onClick={toggleLike}>
               {like ? '⭐' : '☆'}
             </FavoriteButton>
-          </FavoriteContainer>
+          </FavoriteContainer> */}
         </ButtonContainer>
         {shouldShowStatus && <StatusBadge status={event.status}>{event.status}</StatusBadge>}
       </EventImage>
       
       <EventContent>
-        <CategoryTag>{event.category}</CategoryTag>
+        <CategoryTags>
+          <CategoryTag>{event.category}</CategoryTag>
+          <CategoryTag>{event.type}</CategoryTag>
+        </CategoryTags>
         <EventTitle>{event.name}</EventTitle>
         <EventDescription>{event.description || event.desc}</EventDescription>
         <EventInfo>
@@ -300,6 +303,13 @@ const EventContent = styled.div`
   padding: 2rem;
 `;
 
+const CategoryTags = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 1rem;
+`;
+
 const CategoryTag = styled.div`
   display: inline-block;
   padding: 0.4rem 1rem;
@@ -308,7 +318,6 @@ const CategoryTag = styled.div`
   border-radius: 15px;
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 1rem;
 `;
 
 const EventTitle = styled.h3`
