@@ -11,48 +11,18 @@ import { useTranslation } from '../utils/translations';
 
 function Home() {
   const navigate = useNavigate();
-<<<<<<< HEAD
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-=======
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   // const [homeData, setHomeData] = useState(null); // 백엔드 배포 시 사용
->>>>>>> main
 
   // 더미 검색 데이터
   const searchableData = [];
   
   // 더미 데이터에서 검색 가능한 데이터 구성
   dummyEvents.categories.forEach(categoryData => {
-<<<<<<< HEAD
-    // 가게 데이터 추가
-    if (categoryData.stores) {
-      categoryData.stores.forEach(store => {
-        searchableData.push({
-          ...store,
-          category: categoryData.category,
-          type: 'store',
-          description: store.desc || '홍대의 인기 가게입니다',
-          image: store.thumbnail
-        });
-      });
-    }
-    
-    // 이벤트 데이터 추가
-    if (categoryData.events) {
-      categoryData.events.forEach(event => {
-        searchableData.push({
-          ...event,
-          category: categoryData.category,
-          type: 'event',
-          description: event.desc || '특별한 이벤트입니다',
-          image: event.thumbnail
-=======
     // items 배열에서 모든 항목 추가
     if (categoryData.items) {
       categoryData.items.forEach(item => {
@@ -62,14 +32,11 @@ function Home() {
           type: item.type || 'store',
           description: item.desc || item.description || '홍대의 인기 가게입니다',
           image: item.thumbnail
->>>>>>> main
         });
       });
     }
   });
 
-<<<<<<< HEAD
-=======
   // 백엔드 배포 시 사용할 데이터 로드 함수
   /*
   useEffect(() => {
@@ -87,41 +54,37 @@ function Home() {
   }, []);
   */
 
->>>>>>> main
   const handleSearch = (term) => {
     setSearchTerm(term);
     setIsSearching(true);
     
-<<<<<<< HEAD
-=======
     // ===== 현재 더미 데이터 검색 (실제 사용 중) =====
->>>>>>> main
     // 검색 로직
     const results = searchableData.filter(item => 
       item.name.toLowerCase().includes(term.toLowerCase()) ||
-      item.category.toLowerCase().includes(term.toLowerCase()) ||
-      (item.description && item.description.toLowerCase().includes(term.toLowerCase()))
+      item.description.toLowerCase().includes(term.toLowerCase()) ||
+      item.category.toLowerCase().includes(term.toLowerCase())
     );
     
     setSearchResults(results);
-<<<<<<< HEAD
-=======
+    setIsSearching(false);
     
-    // ===== 실제 백엔드 배포 시 검색 API 사용 (주석처리) =====
+    // ===== 백엔드 배포 시 API 검색 (주석처리) =====
     /*
     const performSearch = async () => {
       try {
-        const searchResults = await ApiService.search(term);
-        setSearchResults(searchResults.data || []);
+        const results = await ApiService.search(term);
+        setSearchResults(results);
       } catch (error) {
         console.error('검색 실패:', error);
         setSearchResults([]);
+      } finally {
+        setIsSearching(false);
       }
     };
     
     performSearch();
     */
->>>>>>> main
   };
 
   const handleClearSearch = () => {
@@ -135,57 +98,44 @@ function Home() {
     navigate(`/lookmore/${category}/${item.type}/${item.id}`);
   };
 
-<<<<<<< HEAD
-=======
-  // 업데이트 버튼 클릭 핸들러
-  const handleUpdateClick = async () => {
+  const handleUpdateClick = () => {
     setIsUpdating(true);
     
-    try {
-      // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
-      // 간단한 새로고침 - 더미 데이터이므로 즉시 새로고침
+    // ===== 현재 더미 데이터 새로고침 (실제 사용 중) =====
+    // 페이지 새로고침으로 더미 데이터 리셋
+    setTimeout(() => {
       window.location.reload();
-      
-      // ===== 실제 백엔드 배포 시 버전 (주석처리) =====
-      /*
-      // 백엔드 API에서 최신 데이터 가져오기
-      const updatedData = await ApiService.updateHomeData();
-      
-      // 새로운 데이터로 상태 업데이트
-      setHomeData(updatedData);
-      
-      // 성공 메시지 표시
-      alert('업데이트가 완료되었습니다!');
-      
-      // 페이지 새로고침 (선택사항)
-      // window.location.reload();
-      */
-      
-    } catch (error) {
-      console.error('업데이트 중 오류:', error);
-      alert('업데이트 중 오류가 발생했습니다. 다시 시도해주세요.');
-    } finally {
-      setIsUpdating(false);
-    }
+    }, 1000);
+    
+    // ===== 백엔드 배포 시 API 업데이트 (주석처리) =====
+    /*
+    const updateData = async () => {
+      try {
+        await ApiService.updateHomeData();
+        // 성공 시 데이터 다시 로드
+        window.location.reload();
+      } catch (error) {
+        console.error('데이터 업데이트 실패:', error);
+        alert('데이터 업데이트에 실패했습니다.');
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+    
+    updateData();
+    */
   };
 
->>>>>>> main
   return (
     <Container>
       {/* 메인 배너 섹션 */}
       <HomeBannerSection />
-<<<<<<< HEAD
-      {/* 검색 기능 */}
-      <SearchBox onSearch={handleSearch} />
-
-=======
 
       {/* 검색 및 필터 섹션 */}
       <SearchSection>
         <SearchBox onSearch={handleSearch} />
       </SearchSection>
 
->>>>>>> main
       {isSearching ? (
         // 검색 결과 표시
         <SearchResultsSection>
@@ -221,19 +171,6 @@ function Home() {
           )}
         </SearchResultsSection>
       ) : (
-<<<<<<< HEAD
-        // 기본 홈 화면
-        <>
-          <SectionHeader>
-            <Title>
-              <Subtitle>꼬꼬리스트</Subtitle>
-              <Maintitle>나의 취향맞춤 가게 이벤트</Maintitle>
-            </Title>
-            <MoreButton onClick={() => navigate('/morelistmain')}>자세히 보기&nbsp;&gt;</MoreButton>
-          </SectionHeader>
-          <EventCardList events={dummyEvents.categories}/>
-        </>
-=======
         // 기본 홈 화면 - 카드 그리드
         <MainContent>
           {/* 상단 헤더 */}
@@ -254,15 +191,12 @@ function Home() {
           {/* 카드 그리드 */}
           <EventCardList events={dummyEvents.categories} maxItems={6}/>
         </MainContent>
->>>>>>> main
       )}
       
       <Footer/>
     </Container>
   )
 }
-
-export default Home
 
 // 스타일 컴포넌트들
 const Container = styled.div`
@@ -377,16 +311,10 @@ const MoreButton = styled.button`
   }
 `;
 
-<<<<<<< HEAD
-const SearchResultsSection = styled.section`
-  margin: 2rem 0;
-  padding: 0 1rem;
-=======
 const SearchResultsSection = styled.div`
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
->>>>>>> main
 `;
 
 const SearchHeader = styled.div`
@@ -394,56 +322,22 @@ const SearchHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-<<<<<<< HEAD
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-`;
-
-const SearchTitle = styled.h2`
-  font-size: 2rem;
-=======
 `;
 
 const SearchTitle = styled.h2`
   font-size: 2.4rem;
->>>>>>> main
   font-weight: 600;
   color: #262626;
   margin: 0;
 `;
 
 const SearchQuery = styled.span`
-<<<<<<< HEAD
-  color: #FEE502;
-=======
   color: #007bff;
->>>>>>> main
   font-weight: 700;
 `;
 
 const SearchCount = styled.span`
   color: #666;
-<<<<<<< HEAD
-  font-size: 1.4rem;
-  font-weight: 400;
-  margin-left: 0.5rem;
-`;
-
-const ClearButton = styled.button`
-  background-color: #FEE502;
-  color: #262626;
-  border: none;
-  border-radius: 6px;
-  padding: 0.8rem 1.5rem;
-  font-size: 1.4rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #E6CF00;
-=======
   font-weight: 400;
 `;
 
@@ -458,53 +352,31 @@ const ClearButton = styled.button`
 
   &:hover {
     background-color: #f8f9fa;
->>>>>>> main
   }
 `;
 
 const SearchResultsGrid = styled.div`
   display: grid;
-<<<<<<< HEAD
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 1rem;
-=======
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
->>>>>>> main
 `;
 
 const SearchResultCard = styled.div`
   background: white;
   border-radius: 12px;
   overflow: hidden;
-<<<<<<< HEAD
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-=======
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   cursor: pointer;
   transition: transform 0.3s ease;
 
   &:hover {
     transform: translateY(-4px);
->>>>>>> main
   }
 `;
 
 const ResultImage = styled.div`
   position: relative;
-<<<<<<< HEAD
-  width: 100%;
-  height: 160px;
-=======
   height: 200px;
->>>>>>> main
   overflow: hidden;
 
   img {
@@ -514,17 +386,6 @@ const ResultImage = styled.div`
   }
 `;
 
-<<<<<<< HEAD
-const CategoryBadge = styled.div`
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 0.4rem 0.8rem;
-  background-color: #FEE502;
-  color: #262626;
-  border-radius: 12px;
-  font-size: 1.1rem;
-=======
 const CategoryBadge = styled.span`
   position: absolute;
   top: 1rem;
@@ -534,7 +395,6 @@ const CategoryBadge = styled.span`
   padding: 0.4rem 0.8rem;
   border-radius: 4px;
   font-size: 1.2rem;
->>>>>>> main
   font-weight: 600;
 `;
 
@@ -543,16 +403,6 @@ const ResultContent = styled.div`
 `;
 
 const ResultTitle = styled.h3`
-<<<<<<< HEAD
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: #262626;
-  margin: 0 0 0.8rem 0;
-`;
-
-const ResultDescription = styled.p`
-  font-size: 1.3rem;
-=======
   font-size: 1.8rem;
   font-weight: 600;
   color: #262626;
@@ -561,7 +411,6 @@ const ResultDescription = styled.p`
 
 const ResultDescription = styled.p`
   font-size: 1.4rem;
->>>>>>> main
   color: #666;
   margin: 0;
   line-height: 1.4;
@@ -570,12 +419,9 @@ const ResultDescription = styled.p`
 const EmptyResults = styled.div`
   text-align: center;
   padding: 4rem 2rem;
-<<<<<<< HEAD
-=======
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
->>>>>>> main
 `;
 
 const EmptyIcon = styled.div`
@@ -587,11 +433,7 @@ const EmptyTitle = styled.h3`
   font-size: 2rem;
   font-weight: 600;
   color: #666;
-<<<<<<< HEAD
-  margin: 0 0 1rem 0;
-=======
   margin: 0 0 0.5rem 0;
->>>>>>> main
 `;
 
 const EmptyDescription = styled.p`
@@ -599,4 +441,6 @@ const EmptyDescription = styled.p`
   color: #888;
   margin: 0;
 `;
+
+export default Home;
 

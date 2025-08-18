@@ -19,7 +19,7 @@ const LayoutWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.main`
-    padding-top: 60px;//header의 높이만큼 내리기
+    padding-top: 60px; /* header의 높이만큼 내리기 */
 `;
 
 export default HeaderLayout

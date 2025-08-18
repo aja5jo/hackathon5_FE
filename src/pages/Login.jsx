@@ -23,7 +23,7 @@ function Login() {
   // 로그인 성공 후 페이지 이동 로직
   const handleLoginSuccess = (userData) => {
     // AuthContext의 login 함수 사용
-    const userType = userData.role === 'MERCHANT' ? 'merchant' : 'user';
+    const userType = userData.userType === 'MERCHANT' ? 'merchant' : 'user';
     login(userData, userType);
 
     // 최초 로그인 여부 확인
@@ -50,19 +50,8 @@ function Login() {
   const handleDummyLogin = () => {
     const user = dummyUsers.find(u => u.email === email && u.password === password)
     if (user) {
-<<<<<<< HEAD
-      alert(`더미 로그인 성공!\n이메일: ${user.email}\n역할: ${user.role}`)
+      alert(`더미 로그인 성공!\n이메일: ${user.email}\n역할: ${user.userType}`)
       handleLoginSuccess(user) // 로그인 성공 처리 함수 호출
-=======
-      // AuthContext의 login 함수 사용
-      const userType = user.userType === 'MERCHANT' ? 'merchant' : 'user';
-      login(user, userType);
-      
-      alert(`더미 로그인 성공!\n이메일: ${user.email}\n유저타입: ${user.userType}\n이름: ${user.name}`)
-      
-      // 홈으로 이동
-      navigate('/');
->>>>>>> main
     } else {
       setErrorMessage('더미 계정 정보가 올바르지 않습니다.\n\n테스트 계정:\n- test@test.com / 123456 (일반 사용자)\n- admin@test.com / admin123 (일반 사용자)\n- merchant@test.com / merchant123 (소상공인)')
     }
@@ -129,8 +118,6 @@ function Login() {
     }
     */
 
-<<<<<<< HEAD
-=======
     // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
     /*
     try {
@@ -152,7 +139,6 @@ function Login() {
     */
   }
 
->>>>>>> main
   const clearEmail = () => {
     setEmail('')
   }
@@ -161,8 +147,6 @@ function Login() {
     setPassword('')
   }
 
-<<<<<<< HEAD
-=======
   // 테스트용 함수들
   const handleTestUserLogin = () => {
     const userData = {
@@ -194,17 +178,12 @@ function Login() {
     navigate('/');
   }
 
->>>>>>> main
   return (
     <Container>
-      
-
       <MainContent>
         <Title>로그인</Title>
         <Subtitle>계정 정보를 입력하세요</Subtitle>
         
-<<<<<<< HEAD
-=======
         {/* 테스트용 버튼들 */}
         <TestSection>
           <TestTitle>🧪 테스트용 로그인</TestTitle>
@@ -218,7 +197,6 @@ function Login() {
           </TestButtons>
         </TestSection>
         
->>>>>>> main
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <InputWrapper>
@@ -416,58 +394,6 @@ const SignupLink = styled.span`
 
 const ErrorMessage = styled.div`
   color: #FF6B35;
-<<<<<<< HEAD
-  font-size: 1.4rem;
-  text-align: center;
-  padding: 1rem;
-  background-color: #FFF5F2;
-  border-radius: 8px;
-  border: 1px solid #FFE4D6;
-`
-
-const LoginButton = styled.button`
-  width: 100%;
-  padding: 2rem;
-  background-color: #FEE502;
-  color: #262626;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover:not(:disabled) {
-    background-color: #E6CF00;
-  }
-
-  &:disabled {
-    background-color: #CCC;
-    cursor: not-allowed;
-  }
-`
-
-const Footer = styled.footer`
-  padding: 2rem 3rem;
-  background-color: white;
-  border-top: 1px solid #E5E5E5;
-`
-
-const FooterLinks = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-`
-
-const FooterLink = styled.span`
-  font-size: 1.4rem;
-  color: #666;
-  cursor: pointer;
-
-  &:hover {
-    color: #262626;
-    text-decoration: underline;
-=======
   font-size: 1.4rem;
   text-align: center;
   padding: 1rem;
@@ -559,6 +485,5 @@ const TestButton = styled.button`
   &:hover {
     background: ${props => props.merchant ? '#059669' : '#2563EB'};
     transform: translateY(-2px);
->>>>>>> main
   }
 `

@@ -4,10 +4,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import dummyEvents from '../assets/dummy.json';
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../utils/translations';
 
 function Lookmore() {
   const { category, itemId, itemType } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [itemData, setItemData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -167,24 +171,7 @@ function Lookmore() {
 
         // ===== 실제 API 호출 (백엔드 배포 후 주석 해제) =====
         /*
-<<<<<<< HEAD
         const response = await fetch(`http://localhost:8080/api/categories/${normalizedCategory}/${normalizedType}/${itemId}`, {
-=======
-        // 카테고리별 상세 조회 API 호출
-        let apiUrl;
-        if (normalizedType === 'store') {
-          apiUrl = `http://localhost:8080/api/stores/${itemId}`;
-        } else if (normalizedType === 'event') {
-          apiUrl = `http://localhost:8080/api/events/${itemId}`;
-        } else if (normalizedType === 'popup') {
-          apiUrl = `http://localhost:8080/api/popups/${itemId}`;
-        } else {
-          // 기본적으로 카테고리 기반 조회
-          apiUrl = `http://localhost:8080/api/categories/${normalizedCategory}`;
-        }
-
-        const response = await fetch(apiUrl, {
->>>>>>> main
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
