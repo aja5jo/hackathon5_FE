@@ -68,9 +68,9 @@ function UserMypage() {
             </CardHeader>
             <CardDesc>나만의 특별한 장소와 이벤트 관리</CardDesc>
             <ButtonRow>
-              <PrimaryButton onClick={() => navigate('/favorites')}>
+              {/* <PrimaryButton onClick={() => navigate('/favorites')}>
                 즐겨찾기 보기
-              </PrimaryButton>
+              </PrimaryButton> */}
               <GhostButton onClick={() => navigate('/favorites')}>
                 버킷리스트 관리
               </GhostButton>
@@ -78,7 +78,7 @@ function UserMypage() {
           </NavCard>
 
           {/* 내 활동 */}
-          <NavCard>
+          {/* <NavCard>
             <CardHeader>
               <CardTitle>내 활동</CardTitle>
               <ActivityStats>
@@ -104,7 +104,7 @@ function UserMypage() {
                 내 평점
               </GhostButton>
             </ButtonRow>
-          </NavCard>
+          </NavCard> */}
 
           {/* 설정 */}
           <NavCard>

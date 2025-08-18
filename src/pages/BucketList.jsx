@@ -7,6 +7,7 @@ import NaverMap from '../components/map/NaverMap';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../utils/translations';
 import bannerImg from '../assets/banner.png';
+import EventCard from '../components/common/EventCard';
 
 function BucketList() {
   const navigate = useNavigate();
@@ -186,12 +187,12 @@ function BucketList() {
       {/* 탭 섹션 */}
       <TabSection>
         <TabContainer>
-          <TabButton 
+          {/* <TabButton 
             active={activeTab === 'favorites'} 
             onClick={() => handleTabChange('favorites')}
           >
             ❤️ 즐겨찾기 ({favorites.length})
-          </TabButton>
+          </TabButton> */}
           <TabButton 
             active={activeTab === 'bucketlist'} 
             onClick={() => handleTabChange('bucketlist')}
@@ -260,88 +261,89 @@ function BucketList() {
           </EmptyState>
         ) : (
           filteredItems.map((item) => (
-            <ItemCard 
-              key={item.id} 
-              onClick={() => handleItemClick(item)}
-              completed={item.completed}
-            >
-              <ItemImage>
-                <img src={item.image} alt={item.name} />
-                <ItemActions>
-                  {activeTab === 'favorites' ? (
-                    <ActionButton 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveFavorite(item.id);
-                      }}
-                      color="#FF6B6B"
-                    >
-                      💔
-                    </ActionButton>
-                  ) : (
-                    <>
-                      <ActionButton 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleBucketComplete(item.id);
-                        }}
-                        color="#10B981"
-                      >
-                        {item.completed ? '✅' : '⭕'}
-                      </ActionButton>
-                      <ActionButton 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveBucketItem(item.id);
-                        }}
-                        color="#FF6B6B"
-                      >
-                        🗑️
-                      </ActionButton>
-                    </>
-                  )}
-                </ItemActions>
-                <CategoryTag>{item.category}</CategoryTag>
-                {item.priority && (
-                  <PriorityBadge priority={item.priority}>
-                    {item.priority === 'high' ? '🔥' : item.priority === 'medium' ? '⚡' : '📌'}
-                  </PriorityBadge>
-                )}
-              </ItemImage>
+            // <ItemCard 
+            //   key={item.id} 
+            //   onClick={() => handleItemClick(item)}
+            //   completed={item.completed}
+            // >
+            //   <ItemImage>
+            //     <img src={item.image} alt={item.name} />
+            //     <ItemActions>
+            //       {activeTab === 'favorites' ? (
+            //         <ActionButton 
+            //           onClick={(e) => {
+            //             e.stopPropagation();
+            //             handleRemoveFavorite(item.id);
+            //           }}
+            //           color="#FF6B6B"
+            //         >
+            //           💔
+            //         </ActionButton>
+            //       ) : (
+            //         <>
+            //           <ActionButton 
+            //             onClick={(e) => {
+            //               e.stopPropagation();
+            //               handleToggleBucketComplete(item.id);
+            //             }}
+            //             color="#10B981"
+            //           >
+            //             {item.completed ? '✅' : '⭕'}
+            //           </ActionButton>
+            //           <ActionButton 
+            //             onClick={(e) => {
+            //               e.stopPropagation();
+            //               handleRemoveBucketItem(item.id);
+            //             }}
+            //             color="#FF6B6B"
+            //           >
+            //             🗑️
+            //           </ActionButton>
+            //         </>
+            //       )}
+            //     </ItemActions>
+            //     <CategoryTag>{item.category}</CategoryTag>
+            //     {item.priority && (
+            //       <PriorityBadge priority={item.priority}>
+            //         {item.priority === 'high' ? '🔥' : item.priority === 'medium' ? '⚡' : '📌'}
+            //       </PriorityBadge>
+            //     )}
+            //   </ItemImage>
               
-              <ItemContent>
-                <ItemTitle completed={item.completed}>{item.name}</ItemTitle>
-                <ItemDescription>{item.description}</ItemDescription>
+            //   <ItemContent>
+            //     <ItemTitle completed={item.completed}>{item.name}</ItemTitle>
+            //     <ItemDescription>{item.description}</ItemDescription>
                 
-                <ItemInfo>
-                  <InfoRow>
-                    <InfoLabel>추가일:</InfoLabel>
-                    <InfoValue>{item.addedDate}</InfoValue>
-                  </InfoRow>
+            //     <ItemInfo>
+            //       <InfoRow>
+            //         <InfoLabel>추가일:</InfoLabel>
+            //         <InfoValue>{item.addedDate}</InfoValue>
+            //       </InfoRow>
                   
-                  {activeTab === 'favorites' && item.likeCount && (
-                    <InfoRow>
-                      <InfoLabel>좋아요:</InfoLabel>
-                      <InfoValue>{item.likeCount}개</InfoValue>
-                    </InfoRow>
-                  )}
+            //       {activeTab === 'favorites' && item.likeCount && (
+            //         <InfoRow>
+            //           <InfoLabel>좋아요:</InfoLabel>
+            //           <InfoValue>{item.likeCount}개</InfoValue>
+            //         </InfoRow>
+            //       )}
                   
-                  {activeTab === 'favorites' && item.endDate && (
-                    <InfoRow>
-                      <InfoLabel>마감:</InfoLabel>
-                      <InfoValue>{item.endDate}</InfoValue>
-                    </InfoRow>
-                  )}
+            //       {activeTab === 'favorites' && item.endDate && (
+            //         <InfoRow>
+            //           <InfoLabel>마감:</InfoLabel>
+            //           <InfoValue>{item.endDate}</InfoValue>
+            //         </InfoRow>
+            //       )}
                   
-                  {activeTab === 'bucketlist' && item.targetDate && (
-                    <InfoRow>
-                      <InfoLabel>목표일:</InfoLabel>
-                      <InfoValue>{item.targetDate}</InfoValue>
-                    </InfoRow>
-                  )}
-                </ItemInfo>
-              </ItemContent>
-            </ItemCard>
+            //       {activeTab === 'bucketlist' && item.targetDate && (
+            //         <InfoRow>
+            //           <InfoLabel>목표일:</InfoLabel>
+            //           <InfoValue>{item.targetDate}</InfoValue>
+            //         </InfoRow>
+            //       )}
+            //     </ItemInfo>
+            //   </ItemContent>
+            // </ItemCard>
+            <EventCard event={{ ...item, thumbnail: item.image }} />
           ))
         )}
       </ItemGrid>
