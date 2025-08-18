@@ -3,10 +3,14 @@ import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../utils/translations';
 
 function StoreDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   const [storeDetail, setStoreDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,6 +76,12 @@ function StoreDetail() {
   };
 
   const handleLikeToggle = () => {
+    if (!isAuthenticated) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+    
     setLiked((prev) => !prev);
     setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
     // TODO: 좋아요 API 연동

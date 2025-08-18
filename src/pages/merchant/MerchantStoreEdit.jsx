@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
-// import ApiService from '../../services/api';
+import ApiService from '../../services/api';
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -13,10 +14,14 @@ const CATEGORIES = [
   { key: 'ENTERTAINMENT', label: '오락' },
 ];
 
-function MerchantStore() {
+function MerchantStoreEdit() {
+  const { storeId } = useParams();
+  const navigate = useNavigate();
+  
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
-  const [category, setCategory] = useState(''); // 단일 선택
+  const [category, setCategory] = useState('');
   const [openAt, setOpenAt] = useState('09:00');
   const [closeAt, setCloseAt] = useState('22:00');
   const [heroImage, setHeroImage] = useState(null);
@@ -26,6 +31,45 @@ function MerchantStore() {
   const [useAi, setUseAi] = useState(false);
 
   const disabled = useMemo(() => !name || !address || !category, [name, address, category]);
+
+  useEffect(() => {
+    fetchStoreData();
+  }, [storeId]);
+
+  const fetchStoreData = async () => {
+    try {
+      setLoading(true);
+      // TODO: API 연동
+      // const response = await ApiService.getStore(storeId);
+      
+      // 임시 더미 데이터
+      const storeData = {
+        name: '카페 모모',
+        address: '서울시 마포구 홍대입구역 123-45',
+        category: 'CAFE',
+        openAt: '09:00',
+        closeAt: '22:00',
+        extraInfo: '룸 가능, 금연',
+        intro: '홍대의 아늑한 카페입니다.',
+        useAi: true
+      };
+      
+      setName(storeData.name);
+      setAddress(storeData.address);
+      setCategory(storeData.category);
+      setOpenAt(storeData.openAt);
+      setCloseAt(storeData.closeAt);
+      setExtraInfo(storeData.extraInfo);
+      setIntro(storeData.intro);
+      setUseAi(storeData.useAi);
+    } catch (error) {
+      console.error('Failed to fetch store data:', error);
+      alert('가게 정보를 불러오는데 실패했습니다.');
+      navigate('/mypage/stores');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onDropImage = (e, setter) => {
     e.preventDefault();
@@ -43,7 +87,6 @@ function MerchantStore() {
     if (disabled) return;
 
     try {
-      // 폼 데이터 구성
       const form = new FormData();
       form.append('name', name);
       form.append('address', address);
@@ -56,25 +99,36 @@ function MerchantStore() {
       if (heroImage) form.append('heroImage', heroImage);
       if (extraImage) form.append('extraImage', extraImage);
 
-      // API 연동 (주석 해제 시 실제 API 호출)
-      // await ApiService.createStore(form);
-      
-      alert('가게가 성공적으로 등록되었습니다!');
-      // 성공 시 가게 목록으로 이동
-      window.location.href = '/mypage/stores';
+      await ApiService.updateStore(storeId, form);
+      alert('가게 정보가 수정되었습니다.');
+      navigate('/mypage/stores');
     } catch (error) {
-      console.error('Failed to create store:', error);
-      alert('가게 등록에 실패했습니다. 다시 시도해주세요.');
+      console.error('Failed to update store:', error);
+      alert('가게 정보 수정에 실패했습니다.');
     }
   };
+
+  if (loading) {
+    return (
+      <Page>
+        <Header />
+        <LoadingContainer>
+          <LoadingText>가게 정보를 불러오는 중...</LoadingText>
+        </LoadingContainer>
+      </Page>
+    );
+  }
 
   return (
     <Page>
       <Header />
       <Main>
         <LeftPane>
-          <PageTitle>가게 등록하기</PageTitle>
-          <PageDesc>가게를 등록하면 가게 및 이벤트 홍보가 가능합니다!</PageDesc>
+          <PageTitle>가게 정보 수정</PageTitle>
+          <PageDesc>가게 정보를 수정하여 최신 상태로 유지하세요!</PageDesc>
+          <BackButton onClick={() => navigate('/mypage/stores')}>
+            ← 가게 목록으로 돌아가기
+          </BackButton>
         </LeftPane>
 
         <RightPane>
@@ -231,7 +285,7 @@ function MerchantStore() {
 
             <SubmitBar>
               <Submit type="submit" disabled={disabled}>
-                가게 등록하기
+                가게 정보 수정하기
               </Submit>
             </SubmitBar>
           </Form>
@@ -241,7 +295,7 @@ function MerchantStore() {
   );
 }
 
-export default MerchantStore;
+export default MerchantStoreEdit;
 
 // ===== util =====
 const timeOptions = Array.from({ length: 24 }, (_, h) => {
@@ -255,6 +309,18 @@ const timeOptions = Array.from({ length: 24 }, (_, h) => {
 const Page = styled.div`
   min-height: 100vh;
   background: #fff;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+`;
+
+const LoadingText = styled.div`
+  font-size: 1.6rem;
+  color: #666;
 `;
 
 const Main = styled.main`
@@ -287,7 +353,23 @@ const PageTitle = styled.h1`
 
 const PageDesc = styled.p`
   color: #6b7280;
-  margin: 0;
+  margin: 0 0 2rem 0;
+`;
+
+const BackButton = styled.button`
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+
+  &:hover {
+    background: #e9ecef;
+  }
 `;
 
 const RightPane = styled.div`

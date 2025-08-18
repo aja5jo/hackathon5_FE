@@ -3,10 +3,14 @@ import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../utils/translations';
 
 function EventDetail() {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [eventDetail, setEventDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,6 +81,12 @@ function EventDetail() {
   };
 
   const handleLikeToggle = () => {
+    if (!isAuthenticated) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+    
     setLiked(!liked);
     setLikeCount(prev => liked ? prev - 1 : prev + 1);
     // 실제 좋아요 API 호출 로직 추가
@@ -244,7 +254,7 @@ const MainContent = styled.main`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  //margin-top: 64px;
+  margin-top: 64px;
 `;
 
 const LoadingContainer = styled.div`

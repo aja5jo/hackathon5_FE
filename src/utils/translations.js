@@ -1,3 +1,5 @@
+import React from 'react';
+
 // 다국어 지원을 위한 번역 객체
 export const translations = {
   ko: {
@@ -9,8 +11,11 @@ export const translations = {
     login: '로그인',
     logout: '로그아웃',
     
+    // 즐겨찾기 관련
+    favoriteLoginMsg: '즐겨찾기 기능을 사용하려면 로그인이 필요합니다.',
+    
     // 홈페이지
-    searchPlaceholder: '원하는 가게나 이벤트를 검색해보세요',
+    searchPlaceholder: '가게이름/이벤트를 검색하세요',
     brandName: '꼬꼬리스트',
     homeSubtitle: '나의 취향맞춤 가게 이벤트',
     seeMore: '자세히 보기',
@@ -28,6 +33,28 @@ export const translations = {
     kpop: 'KPOP',
     club: '클럽',
     etc: '기타',
+    
+    // 카테고리명 (API용)
+    categoryCAFE: '카페',
+    categoryFOOD: '음식점',
+    categoryKPOP: 'KPOP',
+    categoryENTERTAINMENT: '오락',
+    categorySHOPPING: '쇼핑',
+    categoryCLUB: '클럽',
+    categoryETC: '기타',
+    
+    // 타입별 텍스트
+    typeSTORE: '가게',
+    typeEVENT: '이벤트',
+    typePOPUP: '팝업',
+    
+    // 즐겨찾기 페이지
+    myFavorites: '내 즐겨찾기 모음:',
+    noFavorites: '즐겨찾기한 항목이 없습니다',
+    noFavoritesDesc: '관심있는 가게나 이벤트에 하트를 눌러보세요!',
+    favoriteLocation: '즐겨찾기 위치',
+    favoriteLocationDesc: '즐겨찾기한 장소들이 지도에 표시됩니다',
+    removeFromFavorites: '즐겨찾기에서 제거',
     
     // 공통
     loading: '로딩 중...',
@@ -50,10 +77,13 @@ export const translations = {
     login: 'Login',
     logout: 'Logout',
     
+    // Favorites
+    favoriteLoginMsg: 'Login required to use favorites feature.',
+    
     // Homepage
-    searchPlaceholder: 'Search for stores or events you want',
+    searchPlaceholder: 'Search for stores or events',
     brandName: 'KOKO List',
-    homeSubtitle: 'Customized Store Events for Your Taste',
+    homeSubtitle: 'My personalized stores and events',
     seeMore: 'See More',
     
     // Category Selection Page
@@ -69,6 +99,28 @@ export const translations = {
     kpop: 'K-POP',
     club: 'Club',
     etc: 'Others',
+    
+    // Categories (API)
+    categoryCAFE: 'Cafe',
+    categoryFOOD: 'Food',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: 'Entertainment',
+    categorySHOPPING: 'Shopping',
+    categoryCLUB: 'Club',
+    categoryETC: 'Others',
+    
+    // Types
+    typeSTORE: 'Store',
+    typeEVENT: 'Event',
+    typePOPUP: 'Pop-up',
+    
+    // Favorites page
+    myFavorites: 'My Favorites:',
+    noFavorites: 'No favorites yet',
+    noFavoritesDesc: 'Try hearting some stores or events you like!',
+    favoriteLocation: 'Favorite Locations',
+    favoriteLocationDesc: 'Your favorite places are shown on the map',
+    removeFromFavorites: 'Remove from favorites',
     
     // Common
     loading: 'Loading...',
@@ -91,8 +143,11 @@ export const translations = {
     login: 'ログイン',
     logout: 'ログアウト',
     
+    // Favorites
+    favoriteLoginMsg: 'お気に入り機能を使用するにはログインが必要です。',
+    
     // Homepage
-    searchPlaceholder: 'お店やイベントを検索してください',
+    searchPlaceholder: '店舗やイベントを検索してください',
     brandName: 'KOKO リスト',
     homeSubtitle: 'あなたの好みに合わせた店舗イベント',
     seeMore: '詳細を見る',
@@ -110,6 +165,28 @@ export const translations = {
     kpop: 'K-POP',
     club: 'クラブ',
     etc: 'その他',
+    
+    // Categories (API)
+    categoryCAFE: 'カフェ',
+    categoryFOOD: '飲食店',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: 'エンターテイメント',
+    categorySHOPPING: 'ショッピング',
+    categoryCLUB: 'クラブ',
+    categoryETC: 'その他',
+    
+    // Types
+    typeSTORE: '店舗',
+    typeEVENT: 'イベント',
+    typePOPUP: 'ポップアップ',
+    
+    // Favorites page
+    myFavorites: 'お気に入り:',
+    noFavorites: 'お気に入りがありません',
+    noFavoritesDesc: '気になる店舗やイベントにハートを押してみてください！',
+    favoriteLocation: 'お気に入り位置',
+    favoriteLocationDesc: 'お気に入りの場所が地図に表示されます',
+    removeFromFavorites: 'お気に入りから削除',
     
     // Common
     loading: '読み込み中...',
@@ -132,10 +209,13 @@ export const translations = {
     login: '登录',
     logout: '登出',
     
+    // Favorites
+    favoriteLoginMsg: '使用收藏功能需要登录。',
+    
     // Homepage
-    searchPlaceholder: '搜索您想要的商店或活动',
+    searchPlaceholder: '搜索商店或活动',
     brandName: 'KOKO 列表',
-    homeSubtitle: '为您量身定制的商店活动',
+    homeSubtitle: '我的个性化商店和活动',
     seeMore: '查看更多',
     
     // Category Selection Page
@@ -151,6 +231,28 @@ export const translations = {
     kpop: 'K-POP',
     club: '俱乐部',
     etc: '其他',
+    
+    // Categories (API)
+    categoryCAFE: '咖啡厅',
+    categoryFOOD: '餐厅',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: '娱乐',
+    categorySHOPPING: '购物',
+    categoryCLUB: '俱乐部',
+    categoryETC: '其他',
+    
+    // Types
+    typeSTORE: '商店',
+    typeEVENT: '活动',
+    typePOPUP: '快闪',
+    
+    // Favorites page
+    myFavorites: '我的收藏:',
+    noFavorites: '暂无收藏',
+    noFavoritesDesc: '试试给喜欢的商店或活动点个心吧！',
+    favoriteLocation: '收藏位置',
+    favoriteLocationDesc: '收藏的地点会显示在地图上',
+    removeFromFavorites: '从收藏中移除',
     
     // Common
     loading: '加载中...',
@@ -247,27 +349,39 @@ export const translations = {
   }
 };
 
-// 현재 선택된 언어 가져오기
+// 현재 언어 상태 관리
+let currentLanguage = 'ko';
+
+// 언어 설정 함수
+export const setCurrentLanguage = (language) => {
+  currentLanguage = language;
+  localStorage.setItem('selectedLanguage', language);
+};
+
+// 현재 언어 가져오기 함수
 export const getCurrentLanguage = () => {
-  return localStorage.getItem('selectedLanguage') || 'ko';
+  const savedLanguage = localStorage.getItem('selectedLanguage');
+  return savedLanguage || currentLanguage;
 };
 
-// 언어 설정 저장
-export const setCurrentLanguage = (languageCode) => {
-  localStorage.setItem('selectedLanguage', languageCode);
+// 번역 함수
+export const getTranslation = (key, language = getCurrentLanguage()) => {
+  const lang = translations[language] || translations['ko'];
+  return lang[key] || key;
 };
 
-// 번역 텍스트 가져오기
-export const getTranslation = (key, languageCode = null) => {
-  const lang = languageCode || getCurrentLanguage();
-  return translations[lang]?.[key] || translations.ko[key] || key;
-};
-
-// 번역 훅 (React 컴포넌트에서 사용)
+// useTranslation 훅
 export const useTranslation = () => {
-  const currentLang = getCurrentLanguage();
+  const [language, setLanguage] = React.useState(getCurrentLanguage());
   
-  const t = (key) => getTranslation(key, currentLang);
+  const t = React.useCallback((key) => {
+    return getTranslation(key, language);
+  }, [language]);
   
-  return { t, currentLanguage: currentLang };
+  const changeLanguage = React.useCallback((newLanguage) => {
+    setCurrentLanguage(newLanguage);
+    setLanguage(newLanguage);
+  }, []);
+  
+  return { t, language, changeLanguage };
 };

@@ -4,10 +4,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import dummyEvents from '../assets/dummy.json';
+import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../utils/translations';
 
 function Lookmore() {
   const { category, itemId, itemType } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [itemData, setItemData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
