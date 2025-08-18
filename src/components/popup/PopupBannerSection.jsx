@@ -3,18 +3,18 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import styled from 'styled-components'
 import bannerImg from '../../assets/banner.png'
 
-const EventBannerSection = () => {
+const PopupBannerSection = () => {
   return (
     <BannerSection>
         <BannerContent>
-          <BannerTitle>이벤트 한눈에 몰아보기</BannerTitle>
-          <BannerSubtitle>홍대에서 진행되는 특별한 이벤트들을 만나보세요</BannerSubtitle>
+          <BannerTitle>이번주 팝업 스테이션</BannerTitle>
+          <BannerSubtitle>홍대에서 진행되는 특별한 팝업들을 만나보세요</BannerSubtitle>
         </BannerContent>
       </BannerSection>
   )
 }
 
-export default EventBannerSection
+export default PopupBannerSection
 
 const BannerSection = styled.div`
   width: 100%;

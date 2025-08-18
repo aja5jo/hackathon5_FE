@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
+<<<<<<< HEAD
+=======
+// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
+>>>>>>> main
 
 function Signup() {
   const navigate = useNavigate()
@@ -78,22 +82,41 @@ function Signup() {
       return
     }
 
+<<<<<<< HEAD
     // ===== 더미데이터 회원가입 테스트용 (백엔드 배포 후 삭제) =====
+=======
+    // ===== 현재 더미데이터 버전 (실제 사용 중) =====
+>>>>>>> main
     setTimeout(() => {
       handleDummySignup()
       setIsLoading(false)
     }, 1000)
+<<<<<<< HEAD
     return
     // ===== 더미데이터 회원가입 테스트용 끝 =====
 
     // ===== 실제 API 호출 (백엔드 배포 후 주석 해제) =====
     /*
     try {
+=======
+    
+    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+    /*
+    try {
+      // API 명세서에 맞는 요청 구조
+      const signupData = {
+        email: email.trim(),
+        password: password,
+        role: role
+      };
+
+>>>>>>> main
       const response = await fetch('http://localhost:8080/api/users/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+<<<<<<< HEAD
         body: JSON.stringify({
           email: email.trim(),
           password: password,
@@ -118,6 +141,50 @@ function Signup() {
     }
     */
     // ===== 실제 API 호출 끝 =====
+=======
+        credentials: 'include',
+        body: JSON.stringify(signupData)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('회원가입 성공:', result.data);
+        alert('회원가입이 완료되었습니다!');
+        navigate('/login');
+      } else {
+        // API 명세서에 따른 에러 메시지 처리
+        setErrorMessage(result.message || '회원가입에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Signup failed:', error);
+      setErrorMessage('서버 연결에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
+    */
+
+    // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
+    /*
+    try {
+      const result = await ApiService.signup(email, password, role);
+      
+      if (result.success) {
+        console.log('회원가입 성공:', result.data);
+        alert('회원가입이 완료되었습니다!');
+        navigate('/login');
+      } else {
+        // API 명세서에 따른 에러 메시지 처리
+        setErrorMessage(result.message || '회원가입에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Signup failed:', error);
+      setErrorMessage('서버 연결에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
+    */
+>>>>>>> main
   }
 
   const clearEmail = () => {

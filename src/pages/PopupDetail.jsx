@@ -1,103 +1,93 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 
-function EventDetail() {
-  const { eventId } = useParams();
+function PopupDetail() {
+  const { popupId } = useParams();
   const navigate = useNavigate();
-  const [eventDetail, setEventDetail] = useState(null);
+
+  const [popupDetail, setPopupDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // 더미 이벤트 상세 데이터
-  const dummyEventDetail = {
-    id: 10,
-    name: "여름 한정 아이스 아메리카노 1+1",
-    description: "무더운 여름을 시원하게!",
-    intro: "여름 시즌을 맞이하여 아이스 음료 1+1 이벤트를 진행합니다. 참여 매장에서만 가능하며, 소진 시 종료됩니다.",
-    thumbnail: "https://picsum.photos/seed/event10/800/400",
+  // 더미 팝업 상세 (응답 예시를 반영)
+  const dummyPopupDetail = {
+    id: 17,
+    userId: 5,
+    category: 'K_POP',
+    name: '뉴진스 팝업',
+    description: '앨범 굿즈 한정 판매',
+    intro: '한 줄 소개',
+    thumbnail: 'https://picsum.photos/seed/popup-thumb-17/800/400',
     images: [
-      "https://picsum.photos/seed/event10-1/800/400",
-      "https://picsum.photos/seed/event10-2/800/400",
-      "https://picsum.photos/seed/event10-3/800/400"
+      'https://picsum.photos/seed/popup17-1/800/400',
+      'https://picsum.photos/seed/popup17-2/800/400',
     ],
-    startDate: "2025-08-10",
-    endDate: "2025-08-20",
-    startTime: "10:00:00",
-    endTime: "22:00:00",
-    likeCount: 156,
-    liked: false,
-    store: {
-      storeId: 3,
-      storeName: "홍카페",
-      address: "서울 마포구 서교동 123-45",
-      phone: "02-1234-5678",
-      storeImageUrl: "https://picsum.photos/seed/store3/300/200"
-    }
+    startDate: '2025-08-01',
+    endDate: '2025-08-14',
+    startTime: '10:00:00',
+    endTime: '20:00:00',
+    address: '서울시 강남구 테헤란로 123',
+    likeCount: 123,
+    liked: true,
   };
 
   useEffect(() => {
-    fetchEventDetail();
-  }, [eventId]);
+    fetchPopupDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popupId]);
 
-  const fetchEventDetail = async () => {
+  const fetchPopupDetail = async () => {
     setIsLoading(true);
     try {
-      // 더미 데이터로 시뮬레이션
+      // 더미 데이터 시뮬레이션
       setTimeout(() => {
-        setEventDetail(dummyEventDetail);
-        setLiked(dummyEventDetail.liked);
-        setLikeCount(dummyEventDetail.likeCount);
+        const data = dummyPopupDetail;
+        setPopupDetail(data);
+        setLiked(Boolean(data.liked));
+        setLikeCount(Number(data.likeCount || 0));
         setIsLoading(false);
-      }, 1000);
+      }, 600);
 
-      // 실제 API 호출 (백엔드 연결 시 주석 해제)
+      // 실제 API 연결 시 주석 해제
       /*
-      const response = await fetch(`/api/events/${eventId}`);
-      const result = await response.json();
-      
-      if (result.success) {
-        setEventDetail(result.data);
-        setLiked(result.data.liked);
-        setLikeCount(result.data.likeCount);
+      const res = await fetch(`/api/popups/${popupId}`);
+      const json = await res.json();
+      if (json?.success) {
+        const data = json.data;
+        setPopupDetail(data);
+        setLiked(Boolean(data.liked));
+        setLikeCount(Number(data.likeCount || 0));
       } else {
-        setError(result.message);
+        setError(json?.message || '팝업 정보를 불러오는데 실패했습니다.');
       }
       setIsLoading(false);
       */
-    } catch (err) {
-      setError('이벤트 정보를 불러오는데 실패했습니다.');
+    } catch (e) {
+      setError('팝업 정보를 불러오는데 실패했습니다.');
       setIsLoading(false);
     }
   };
 
   const handleLikeToggle = () => {
-    setLiked(!liked);
-    setLikeCount(prev => liked ? prev - 1 : prev + 1);
-    // 실제 좋아요 API 호출 로직 추가
-  };
-
-  const handleStoreClick = () => {
-    if (eventDetail?.store) {
-      navigate(`/store/${eventDetail.store.storeId}`);
-    }
+    setLiked((prev) => !prev);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+    // TODO: 좋아요 API 연동
   };
 
   const handlePrevImage = () => {
-    setCurrentImageIndex(prev => 
-      prev === 0 ? eventDetail.images.length - 1 : prev - 1
-    );
+    if (!popupDetail?.images?.length) return;
+    setCurrentImageIndex((prev) => (prev === 0 ? popupDetail.images.length - 1 : prev - 1));
   };
 
   const handleNextImage = () => {
-    setCurrentImageIndex(prev => 
-      prev === eventDetail.images.length - 1 ? 0 : prev + 1
-    );
+    if (!popupDetail?.images?.length) return;
+    setCurrentImageIndex((prev) => (prev === popupDetail.images.length - 1 ? 0 : prev + 1));
   };
 
   if (isLoading) {
@@ -105,7 +95,7 @@ function EventDetail() {
       <Container>
         <Header />
         <LoadingContainer>
-          <LoadingText>이벤트 정보를 불러오는 중...</LoadingText>
+          <LoadingText>팝업 정보를 불러오는 중...</LoadingText>
         </LoadingContainer>
         <Footer />
       </Container>
@@ -125,12 +115,12 @@ function EventDetail() {
     );
   }
 
-  if (!eventDetail) {
+  if (!popupDetail) {
     return (
       <Container>
         <Header />
         <ErrorContainer>
-          <ErrorText>이벤트를 찾을 수 없습니다.</ErrorText>
+          <ErrorText>팝업을 찾을 수 없습니다.</ErrorText>
           <BackButton onClick={() => navigate(-1)}>돌아가기</BackButton>
         </ErrorContainer>
         <Footer />
@@ -138,32 +128,26 @@ function EventDetail() {
     );
   }
 
+  const mainImage = popupDetail.images?.[currentImageIndex] || popupDetail.thumbnail;
+
   return (
     <Container>
       <Header />
-      
       <MainContent>
-        {/* 이벤트 이미지 섹션 */}
+        {/* 이미지 섹션 */}
         <ImageSection>
           <ImageContainer>
-            <MainImage 
-              src={eventDetail.images?.[currentImageIndex] || eventDetail.thumbnail} 
-              alt={eventDetail.name}
-            />
-            {eventDetail.images && eventDetail.images.length > 1 && (
+            <MainImage src={mainImage} alt={popupDetail.name} />
+            {popupDetail.images && popupDetail.images.length > 1 && (
               <>
-                <ImageNavButton left onClick={handlePrevImage}>
-                  ◀
-                </ImageNavButton>
-                <ImageNavButton right onClick={handleNextImage}>
-                  ▶
-                </ImageNavButton>
+                <ImageNavButton left onClick={handlePrevImage}>◀</ImageNavButton>
+                <ImageNavButton right onClick={handleNextImage}>▶</ImageNavButton>
                 <ImageIndicators>
-                  {eventDetail.images.map((_, index) => (
-                    <Indicator 
-                      key={index}
-                      active={index === currentImageIndex}
-                      onClick={() => setCurrentImageIndex(index)}
+                  {popupDetail.images.map((_, idx) => (
+                    <Indicator
+                      key={idx}
+                      active={idx === currentImageIndex}
+                      onClick={() => setCurrentImageIndex(idx)}
                     />
                   ))}
                 </ImageIndicators>
@@ -172,54 +156,39 @@ function EventDetail() {
           </ImageContainer>
         </ImageSection>
 
-        {/* 이벤트 정보 섹션 */}
+        {/* 정보 섹션 */}
         <InfoSection>
-          <EventHeader>
-            <EventTitle>{eventDetail.name}</EventTitle>
+          <PopupHeader>
+            <PopupTitle>{popupDetail.name}</PopupTitle>
             <LikeContainer>
               <LikeButton onClick={handleLikeToggle} liked={liked}>
                 {liked ? '❤️' : '🤍'}
               </LikeButton>
               <LikeCount>{likeCount}</LikeCount>
             </LikeContainer>
-          </EventHeader>
+          </PopupHeader>
 
-          <EventDescription>{eventDetail.description}</EventDescription>
-          
-          <EventIntro>{eventDetail.intro}</EventIntro>
+          <PopupDescription>{popupDetail.description}</PopupDescription>
+          <PopupIntro>{popupDetail.intro}</PopupIntro>
 
-          <EventDetails>
+          <PopupDetails>
             <DetailRow>
               <DetailLabel>📅 기간</DetailLabel>
               <DetailValue>
-                {eventDetail.startDate} ~ {eventDetail.endDate}
+                {popupDetail.startDate} ~ {popupDetail.endDate}
               </DetailValue>
             </DetailRow>
             <DetailRow>
               <DetailLabel>🕐 시간</DetailLabel>
               <DetailValue>
-                {eventDetail.startTime} ~ {eventDetail.endTime}
+                {popupDetail.startTime} ~ {popupDetail.endTime}
               </DetailValue>
             </DetailRow>
-          </EventDetails>
-
-          {/* 매장 정보 섹션 */}
-          {eventDetail.store && (
-            <StoreSection>
-              <SectionTitle>매장 정보</SectionTitle>
-              <StoreCard onClick={handleStoreClick}>
-                <StoreImage>
-                  <img src={eventDetail.store.storeImageUrl} alt={eventDetail.store.storeName} />
-                </StoreImage>
-                <StoreInfo>
-                  <StoreName>{eventDetail.store.storeName}</StoreName>
-                  <StoreAddress>{eventDetail.store.address}</StoreAddress>
-                  <StorePhone>{eventDetail.store.phone}</StorePhone>
-                </StoreInfo>
-                <StoreArrow>▶</StoreArrow>
-              </StoreCard>
-            </StoreSection>
-          )}
+            <DetailRow>
+              <DetailLabel>📍 위치</DetailLabel>
+              <DetailValue>{popupDetail.address}</DetailValue>
+            </DetailRow>
+          </PopupDetails>
 
           <ActionButtons>
             <ShareButton>공유하기</ShareButton>
@@ -227,14 +196,14 @@ function EventDetail() {
           </ActionButtons>
         </InfoSection>
       </MainContent>
-
       <Footer />
     </Container>
   );
 }
 
-export default EventDetail;
+export default PopupDetail;
 
+// ===== styles (EventDetail과 유사) =====
 const Container = styled.div`
   min-height: 100vh;
   background-color: #f8f9fa;
@@ -244,11 +213,7 @@ const MainContent = styled.main`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-<<<<<<< HEAD
-  margin-top: 64px;
-=======
   //margin-top: 64px;
->>>>>>> main
 `;
 
 const LoadingContainer = styled.div`
@@ -317,7 +282,7 @@ const ImageNavButton = styled.button`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  ${props => props.left ? 'left: 1rem;' : 'right: 1rem;'}
+  ${props => (props.left ? 'left: 1rem;' : 'right: 1rem;')}
   background: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
@@ -350,7 +315,7 @@ const Indicator = styled.button`
   height: 8px;
   border-radius: 50%;
   border: none;
-  background-color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.5)'};
+  background-color: ${props => (props.active ? 'white' : 'rgba(255, 255, 255, 0.5)')};
   cursor: pointer;
   transition: background-color 0.3s ease;
 `;
@@ -362,14 +327,14 @@ const InfoSection = styled.section`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 `;
 
-const EventHeader = styled.div`
+const PopupHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 2rem;
 `;
 
-const EventTitle = styled.h1`
+const PopupTitle = styled.h1`
   font-size: 3rem;
   font-weight: 700;
   color: #262626;
@@ -402,21 +367,21 @@ const LikeCount = styled.span`
   font-weight: 500;
 `;
 
-const EventDescription = styled.p`
+const PopupDescription = styled.p`
   font-size: 2rem;
   color: #444;
   font-weight: 600;
   margin: 0 0 2rem 0;
 `;
 
-const EventIntro = styled.p`
+const PopupIntro = styled.p`
   font-size: 1.6rem;
   color: #666;
   line-height: 1.6;
   margin: 0 0 3rem 0;
 `;
 
-const EventDetails = styled.div`
+const PopupDetails = styled.div`
   margin-bottom: 3rem;
 `;
 
@@ -437,74 +402,6 @@ const DetailValue = styled.span`
   font-size: 1.4rem;
   color: #262626;
   font-weight: 500;
-`;
-
-const StoreSection = styled.div`
-  margin-bottom: 3rem;
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 2rem;
-  font-weight: 600;
-  color: #262626;
-  margin: 0 0 1.5rem 0;
-`;
-
-const StoreCard = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 2rem;
-  background-color: #f8f9fa;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: #e9ecef;
-    transform: translateY(-2px);
-  }
-`;
-
-const StoreImage = styled.div`
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-right: 1.5rem;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const StoreInfo = styled.div`
-  flex: 1;
-`;
-
-const StoreName = styled.h3`
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #262626;
-  margin: 0 0 0.5rem 0;
-`;
-
-const StoreAddress = styled.p`
-  font-size: 1.4rem;
-  color: #666;
-  margin: 0 0 0.3rem 0;
-`;
-
-const StorePhone = styled.p`
-  font-size: 1.4rem;
-  color: #666;
-  margin: 0;
-`;
-
-const StoreArrow = styled.div`
-  font-size: 1.6rem;
-  color: #999;
 `;
 
 const ActionButtons = styled.div`

@@ -9,12 +9,21 @@ export const translations = {
     login: '로그인',
     logout: '로그아웃',
     
+<<<<<<< HEAD
     // 홈페이지
     searchPlaceholder: '원하는 가게나 이벤트를 검색해보세요',
+=======
+    // 즐겨찾기 관련
+    favoriteLoginMsg: '즐겨찾기 기능을 사용하려면 로그인이 필요합니다.',
+    
+    // 홈페이지
+    searchPlaceholder: '가게이름/이벤트를 검색하세요',
+>>>>>>> main
     brandName: '꼬꼬리스트',
     homeSubtitle: '나의 취향맞춤 가게 이벤트',
     seeMore: '자세히 보기',
     
+<<<<<<< HEAD
     // 카테고리 선택 페이지
     categorySelection: '카테고리 선택',
     categoryDescription: '관심 카테고리 최대 3개까지 선택하면 취향에 맞는 가게/이벤트들을 추천해드려요',
@@ -39,6 +48,29 @@ export const translations = {
     review: '리뷰',
     writeReview: '내 리뷰 작성 (with 별점 제도)',
     photos: '관련 사진들'
+=======
+    // 카테고리명
+    categoryCAFE: '카페',
+    categoryFOOD: '음식점',
+    categoryKPOP: 'KPOP',
+    categoryENTERTAINMENT: '오락',
+    categorySHOPPING: '쇼핑',
+    categoryCLUB: '클럽',
+    categoryETC: '기타',
+    
+    // 타입별 텍스트
+    typeSTORE: '가게',
+    typeEVENT: '이벤트',
+    typePOPUP: '팝업',
+    
+    // 즐겨찾기 페이지
+    myFavorites: '내 즐겨찾기 모음:',
+    noFavorites: '즐겨찾기한 항목이 없습니다',
+    noFavoritesDesc: '관심있는 가게나 이벤트에 하트를 눌러보세요!',
+    favoriteLocation: '즐겨찾기 위치',
+    favoriteLocationDesc: '즐겨찾기한 장소들이 지도에 표시됩니다',
+    removeFromFavorites: '즐겨찾기에서 제거',
+>>>>>>> main
   },
   
   en: {
@@ -50,6 +82,7 @@ export const translations = {
     login: 'Login',
     logout: 'Logout',
     
+<<<<<<< HEAD
     // Homepage
     searchPlaceholder: 'Search for stores or events you want',
     brandName: 'KOKO List',
@@ -80,6 +113,38 @@ export const translations = {
     review: 'Review',
     writeReview: 'Write My Review (with Rating System)',
     photos: 'Related Photos'
+=======
+    // Favorites
+    favoriteLoginMsg: 'Login required to use favorites feature.',
+    
+    // Homepage
+    searchPlaceholder: 'Search for stores or events',
+    brandName: 'KOKO List',
+    homeSubtitle: 'My personalized stores and events',
+    seeMore: 'See More',
+    
+    // Categories
+    categoryCAFE: 'Cafe',
+    categoryFOOD: 'Food',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: 'Entertainment',
+    categorySHOPPING: 'Shopping',
+    categoryCLUB: 'Club',
+    categoryETC: 'Others',
+    
+    // Types
+    typeSTORE: 'Store',
+    typeEVENT: 'Event',
+    typePOPUP: 'Pop-up',
+    
+    // Favorites page
+    myFavorites: 'My Favorites:',
+    noFavorites: 'No favorites yet',
+    noFavoritesDesc: 'Try hearting some stores or events you like!',
+    favoriteLocation: 'Favorite Locations',
+    favoriteLocationDesc: 'Your favorite places are shown on the map',
+    removeFromFavorites: 'Remove from favorites',
+>>>>>>> main
   },
   
   ja: {
@@ -91,12 +156,21 @@ export const translations = {
     login: 'ログイン',
     logout: 'ログアウト',
     
+<<<<<<< HEAD
     // Homepage
     searchPlaceholder: 'お店やイベントを検索してください',
+=======
+    // Favorites
+    favoriteLoginMsg: 'お気に入り機能を使用するにはログインが必要です。',
+    
+    // Homepage
+    searchPlaceholder: '店舗やイベントを検索してください',
+>>>>>>> main
     brandName: 'KOKO リスト',
     homeSubtitle: 'あなたの好みに合わせた店舗イベント',
     seeMore: '詳細を見る',
     
+<<<<<<< HEAD
     // Category Selection Page
     categorySelection: 'カテゴリ選択',
     categoryDescription: '興味のあるカテゴリを最大3つまで選択すると、あなたの好みに合った店舗/イベントをおすすめします',
@@ -121,6 +195,29 @@ export const translations = {
     review: 'レビュー',
     writeReview: 'レビューを書く（評価システム付き）',
     photos: '関連写真'
+=======
+    // Categories
+    categoryCAFE: 'カフェ',
+    categoryFOOD: '飲食店',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: 'エンターテイメント',
+    categorySHOPPING: 'ショッピング',
+    categoryCLUB: 'クラブ',
+    categoryETC: 'その他',
+    
+    // Types
+    typeSTORE: '店舗',
+    typeEVENT: 'イベント',
+    typePOPUP: 'ポップアップ',
+    
+    // Favorites page
+    myFavorites: 'お気に入り:',
+    noFavorites: 'お気に入りがありません',
+    noFavoritesDesc: '気になる店舗やイベントにハートを押してみてください！',
+    favoriteLocation: 'お気に入り位置',
+    favoriteLocationDesc: 'お気に入りの場所が地図に表示されます',
+    removeFromFavorites: 'お気に入りから削除',
+>>>>>>> main
   },
   
   zh: {
@@ -132,6 +229,7 @@ export const translations = {
     login: '登录',
     logout: '登出',
     
+<<<<<<< HEAD
     // Homepage
     searchPlaceholder: '搜索您想要的商店或活动',
     brandName: 'KOKO 列表',
@@ -162,6 +260,38 @@ export const translations = {
     review: '评价',
     writeReview: '写我的评价（带评分系统）',
     photos: '相关照片'
+=======
+    // Favorites
+    favoriteLoginMsg: '使用收藏功能需要登录。',
+    
+    // Homepage
+    searchPlaceholder: '搜索商店或活动',
+    brandName: 'KOKO 列表',
+    homeSubtitle: '我的个性化商店和活动',
+    seeMore: '查看更多',
+    
+    // Categories
+    categoryCAFE: '咖啡厅',
+    categoryFOOD: '餐厅',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: '娱乐',
+    categorySHOPPING: '购物',
+    categoryCLUB: '俱乐部',
+    categoryETC: '其他',
+    
+    // Types
+    typeSTORE: '商店',
+    typeEVENT: '活动',
+    typePOPUP: '快闪',
+    
+    // Favorites page
+    myFavorites: '我的收藏:',
+    noFavorites: '暂无收藏',
+    noFavoritesDesc: '试试给喜欢的商店或活动点个心吧！',
+    favoriteLocation: '收藏位置',
+    favoriteLocationDesc: '收藏的地点会显示在地图上',
+    removeFromFavorites: '从收藏中移除',
+>>>>>>> main
   },
   
   es: {
@@ -173,6 +303,7 @@ export const translations = {
     login: 'Iniciar Sesión',
     logout: 'Cerrar Sesión',
     
+<<<<<<< HEAD
     // Homepage
     searchPlaceholder: 'Busca tiendas o eventos que desees',
     brandName: 'Lista KOKO',
@@ -203,6 +334,38 @@ export const translations = {
     review: 'Reseña',
     writeReview: 'Escribir Mi Reseña (con Sistema de Calificación)',
     photos: 'Fotos Relacionadas'
+=======
+    // Favorites
+    favoriteLoginMsg: 'Se requiere iniciar sesión para usar la función de favoritos.',
+    
+    // Homepage
+    searchPlaceholder: 'Buscar tiendas o eventos',
+    brandName: 'Lista KOKO',
+    homeSubtitle: 'Mis tiendas y eventos personalizados',
+    seeMore: 'Ver Más',
+    
+    // Categories
+    categoryCAFE: 'Café',
+    categoryFOOD: 'Comida',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: 'Entretenimiento',
+    categorySHOPPING: 'Compras',
+    categoryCLUB: 'Club',
+    categoryETC: 'Otros',
+    
+    // Types
+    typeSTORE: 'Tienda',
+    typeEVENT: 'Evento',
+    typePOPUP: 'Pop-up',
+    
+    // Favorites page
+    myFavorites: 'Mis Favoritos:',
+    noFavorites: 'No hay favoritos aún',
+    noFavoritesDesc: '¡Intenta darle corazón a algunas tiendas o eventos que te gusten!',
+    favoriteLocation: 'Ubicaciones Favoritas',
+    favoriteLocationDesc: 'Tus lugares favoritos se muestran en el mapa',
+    removeFromFavorites: 'Eliminar de favoritos',
+>>>>>>> main
   },
   
   fr: {
@@ -214,6 +377,7 @@ export const translations = {
     login: 'Se Connecter',
     logout: 'Se Déconnecter',
     
+<<<<<<< HEAD
     // Homepage
     searchPlaceholder: 'Recherchez les magasins ou événements souhaités',
     brandName: 'Liste KOKO',
@@ -244,6 +408,38 @@ export const translations = {
     review: 'Avis',
     writeReview: 'Écrire Mon Avis (avec Système de Note)',
     photos: 'Photos Associées'
+=======
+    // Favorites
+    favoriteLoginMsg: 'La connexion est requise pour utiliser la fonction favoris.',
+    
+    // Homepage
+    searchPlaceholder: 'Rechercher des magasins ou événements',
+    brandName: 'Liste KOKO',
+    homeSubtitle: 'Mes magasins et événements personnalisés',
+    seeMore: 'Voir Plus',
+    
+    // Categories
+    categoryCAFE: 'Café',
+    categoryFOOD: 'Nourriture',
+    categoryKPOP: 'K-POP',
+    categoryENTERTAINMENT: 'Divertissement',
+    categorySHOPPING: 'Shopping',
+    categoryCLUB: 'Club',
+    categoryETC: 'Autres',
+    
+    // Types
+    typeSTORE: 'Magasin',
+    typeEVENT: 'Événement',
+    typePOPUP: 'Pop-up',
+    
+    // Favorites page
+    myFavorites: 'Mes Favoris:',
+    noFavorites: 'Aucun favori pour le moment',
+    noFavoritesDesc: 'Essayez de donner un cœur à quelques magasins ou événements que vous aimez !',
+    favoriteLocation: 'Emplacements Favoris',
+    favoriteLocationDesc: 'Vos endroits favoris sont affichés sur la carte',
+    removeFromFavorites: 'Retirer des favoris',
+>>>>>>> main
   }
 };
 

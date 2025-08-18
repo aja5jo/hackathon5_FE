@@ -12,27 +12,20 @@ import dummyEvents from '../assets/dummy.json';
 function MoreListcategory() {
   const { category } = useParams(); 
 
-  // URL 파라미터와 동일한 카테고리만 필터 (대소문자 무시)
   const filtered = (dummyEvents?.categories || []).filter(
     (c) => String(c.category).toLowerCase() === String(category).toLowerCase()
   );
 
-  // EventCardListCategory의 로직을 그대로 이 페이지에서 수행 (버튼 제거)
-  const groupedItems = filtered.reduce((acc, cat) => {
-    const items = [
-      ...(cat.events || []).map((event) => ({
-        ...event,
-        category: cat.category,
-        type: 'event',
-      })),
-      ...(cat.stores || []).map((store) => ({
-        ...store,
-        category: cat.category,
-        type: 'store',
-      })),
-    ];
 
-    items.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
+  const groupedItems = filtered.reduce((acc, cat) => {
+    if (!Array.isArray(cat?.items)) return acc;
+
+    const items = [...cat.items]
+      .map((item) => ({
+        ...item,
+        category: cat.category,
+      }))
+      .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
 
     if (items.length > 0) acc.push({ category: cat.category, items });
     return acc;
@@ -42,13 +35,9 @@ function MoreListcategory() {
 
   return (
     <Container>
-      <SearchBox />
 
       <SectionHeader>
-        <TitleWrap>
-          <Maintitle>{title}</Maintitle>
-          <Subtitle>해당 카테고리의 전체 목록</Subtitle>
-        </TitleWrap>
+        <Maintitle>{title}</Maintitle>
       </SectionHeader>
 
       {groupedItems.length === 0 ? (
@@ -57,10 +46,6 @@ function MoreListcategory() {
         <Wrapper>
           {groupedItems.map((group, idx) => (
             <CategoryBlock key={idx}>
-              <HeaderRow>
-                <RowTitle>{group.category}</RowTitle>
-                {/* 더보기 버튼 제거됨 */}
-              </HeaderRow>
               <ListContainer>
                 {group.items.map((item, i) => (
                   <EventCard key={`${group.category}-${item.id}-${i}`} event={item} />
@@ -87,16 +72,9 @@ const SectionHeader = styled.div`
   margin-top: 2rem;
   padding: 1rem;
   gap: 1rem;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: center;
 `;
 
-const Subtitle = styled.div`
-  color: #262626;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 24px;
-`;
 
 const Maintitle = styled.div`
   color: #262626;
@@ -105,10 +83,6 @@ const Maintitle = styled.div`
   line-height: 32.5px;
 `;
 
-const TitleWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const Info = styled.div`
   text-align: center;
@@ -146,9 +120,11 @@ const RowTitle = styled.div`
 `;
 
 const ListContainer = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fill, 260px);
-  gap: 24px;
-  justify-content: center;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2.5rem;
 `;

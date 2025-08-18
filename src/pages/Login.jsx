@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
 
 function Login() {
   const navigate = useNavigate()
+  const { login, loginAsUser, loginAsMerchant } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -12,23 +15,21 @@ function Login() {
 
   // ===== 더미데이터 로그인 테스트용 (백엔드 배포 후 삭제) =====
   const dummyUsers = [
-    { email: 'test@test.com', password: '123456', role: 'user' },
-    { email: 'admin@test.com', password: 'admin123', role: 'admin' },
-    { email: 'merchant@test.com', password: 'merchant123', role: 'merchant' }
+    { email: 'test@test.com', password: '123456', userType: 'USER', name: '일반 사용자' },
+    { email: 'admin@test.com', password: 'admin123', userType: 'USER', name: '관리자' },
+    { email: 'merchant@test.com', password: 'merchant123', userType: 'MERCHANT', name: '소상공인' }
   ]
 
   // 로그인 성공 후 페이지 이동 로직
   const handleLoginSuccess = (userData) => {
-    // 사용자 정보를 세션 스토리지에 저장 (필요시)
-    sessionStorage.setItem('user', JSON.stringify(userData))
+    // AuthContext의 login 함수 사용
+    const userType = userData.role === 'MERCHANT' ? 'merchant' : 'user';
+    login(userData, userType);
 
     // 최초 로그인 여부 확인
     const hasLoggedInBefore = localStorage.getItem('hasLoggedInBefore')
     // 카테고리 선택 여부 확인
     const hasSelectedCategories = localStorage.getItem('hasSelectedCategories')
-
-    // 헤더의 로그인 상태 업데이트를 위한 이벤트 발생
-    window.dispatchEvent(new Event('loginStatusChanged'))
 
     if (!hasLoggedInBefore) {
       // 최초 로그인: Category1.jsx로 이동
@@ -49,10 +50,21 @@ function Login() {
   const handleDummyLogin = () => {
     const user = dummyUsers.find(u => u.email === email && u.password === password)
     if (user) {
+<<<<<<< HEAD
       alert(`더미 로그인 성공!\n이메일: ${user.email}\n역할: ${user.role}`)
       handleLoginSuccess(user) // 로그인 성공 처리 함수 호출
+=======
+      // AuthContext의 login 함수 사용
+      const userType = user.userType === 'MERCHANT' ? 'merchant' : 'user';
+      login(user, userType);
+      
+      alert(`더미 로그인 성공!\n이메일: ${user.email}\n유저타입: ${user.userType}\n이름: ${user.name}`)
+      
+      // 홈으로 이동
+      navigate('/');
+>>>>>>> main
     } else {
-      setErrorMessage('더미 계정 정보가 올바르지 않습니다.\n\n테스트 계정:\n- test@test.com / 123456\n- admin@test.com / admin123\n- merchant@test.com / merchant123')
+      setErrorMessage('더미 계정 정보가 올바르지 않습니다.\n\n테스트 계정:\n- test@test.com / 123456 (일반 사용자)\n- admin@test.com / admin123 (일반 사용자)\n- merchant@test.com / merchant123 (소상공인)')
     }
   }
   // ===== 더미데이터 로그인 테스트용 끝 =====
@@ -75,50 +87,72 @@ function Login() {
       return
     }
 
-    // ===== 더미데이터 로그인 테스트용 (백엔드 배포 후 삭제) =====
+    // ===== 현재 더미데이터 버전 (실제 사용 중) =====
     // 백엔드 서버가 없을 때 더미 로그인 실행
     setTimeout(() => {
       handleDummyLogin()
       setIsLoading(false)
     }, 1000)
-    return
-    // ===== 더미데이터 로그인 테스트용 끝 =====
-
-    // ===== 실제 API 호출 (백엔드 배포 후 주석 해제) =====
+    
+    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
     /*
     try {
-      const response = await fetch('http://localhost:8080/api/login', { // API 명세서에 맞게 엔드포인트 수정
+      // API 명세서에 맞는 요청 구조
+      const loginData = {
+        email: email.trim(),
+        password: password
+      };
+
+      const response = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include', // 세션 기반 인증
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password
-          // userType은 백엔드에서 세션에 저장된 정보로 처리
-        })
-      })
+        body: JSON.stringify(loginData)
+      });
 
-      const result = await response.json()
+      const result = await response.json();
       
       if (result.success) {
-        console.log('로그인 성공:', result.data)
-        handleLoginSuccess(result.data) // 로그인 성공 처리 함수 호출
+        console.log('로그인 성공:', result.data);
+        handleLoginSuccess(result.data); // 로그인 성공 처리 함수 호출
       } else {
         // API 명세서에 맞춘 에러 메시지 처리
-        setErrorMessage(result.message || '로그인에 실패했습니다.')
+        setErrorMessage(result.message || '로그인에 실패했습니다.');
       }
     } catch (error) {
-      console.error('Login failed:', error)
-      setErrorMessage('서버 연결에 실패했습니다. 다시 시도해주세요.')
+      console.error('Login failed:', error);
+      setErrorMessage('서버 연결에 실패했습니다. 다시 시도해주세요.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
     */
-    // ===== 실제 API 호출 끝 =====
+
+<<<<<<< HEAD
+=======
+    // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
+    /*
+    try {
+      const result = await ApiService.login(email, password);
+      
+      if (result.success) {
+        console.log('로그인 성공:', result.data);
+        handleLoginSuccess(result.data);
+      } else {
+        // API 명세서에 맞춘 에러 메시지 처리
+        setErrorMessage(result.message || '로그인에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      setErrorMessage('서버 연결에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
+    */
   }
 
+>>>>>>> main
   const clearEmail = () => {
     setEmail('')
   }
@@ -127,6 +161,40 @@ function Login() {
     setPassword('')
   }
 
+<<<<<<< HEAD
+=======
+  // 테스트용 함수들
+  const handleTestUserLogin = () => {
+    const userData = {
+      id: 1,
+      email: 'user@test.com',
+      userType: 'USER',
+      name: '일반 사용자'
+    };
+    
+    // AuthContext의 login 함수 사용
+    login(userData, 'user');
+    
+    alert('일반 사용자로 로그인되었습니다!');
+    navigate('/');
+  }
+
+  const handleTestMerchantLogin = () => {
+    const userData = {
+      id: 2,
+      email: 'merchant@test.com',
+      userType: 'MERCHANT',
+      name: '소상공인 사용자'
+    };
+    
+    // AuthContext의 login 함수 사용
+    login(userData, 'merchant');
+    
+    alert('소상공인으로 로그인되었습니다!');
+    navigate('/');
+  }
+
+>>>>>>> main
   return (
     <Container>
       
@@ -135,6 +203,22 @@ function Login() {
         <Title>로그인</Title>
         <Subtitle>계정 정보를 입력하세요</Subtitle>
         
+<<<<<<< HEAD
+=======
+        {/* 테스트용 버튼들 */}
+        <TestSection>
+          <TestTitle>🧪 테스트용 로그인</TestTitle>
+          <TestButtons>
+            <TestButton onClick={handleTestUserLogin}>
+              일반 사용자로 로그인
+            </TestButton>
+            <TestButton onClick={handleTestMerchantLogin} merchant>
+              소상공인으로 로그인
+            </TestButton>
+          </TestButtons>
+        </TestSection>
+        
+>>>>>>> main
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <InputWrapper>
@@ -332,6 +416,7 @@ const SignupLink = styled.span`
 
 const ErrorMessage = styled.div`
   color: #FF6B35;
+<<<<<<< HEAD
   font-size: 1.4rem;
   text-align: center;
   padding: 1rem;
@@ -382,5 +467,98 @@ const FooterLink = styled.span`
   &:hover {
     color: #262626;
     text-decoration: underline;
+=======
+  font-size: 1.4rem;
+  text-align: center;
+  padding: 1rem;
+  background-color: #FFF5F2;
+  border-radius: 8px;
+  border: 1px solid #FFE4D6;
+`
+
+const LoginButton = styled.button`
+  width: 100%;
+  padding: 2rem;
+  background-color: #FEE502;
+  color: #262626;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #E6CF00;
+  }
+
+  &:disabled {
+    background-color: #CCC;
+    cursor: not-allowed;
+  }
+`
+
+const Footer = styled.footer`
+  padding: 2rem 3rem;
+  background-color: white;
+  border-top: 1px solid #E5E5E5;
+`
+
+const FooterLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+`
+
+const FooterLink = styled.span`
+  font-size: 1.4rem;
+  color: #666;
+  cursor: pointer;
+
+  &:hover {
+    color: #262626;
+    text-decoration: underline;
+  }
+`
+
+// 테스트용 스타일들
+const TestSection = styled.div`
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+`
+
+const TestTitle = styled.h3`
+  font-size: 1.6rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  font-weight: 600;
+`
+
+const TestButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+`
+
+const TestButton = styled.button`
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: ${props => props.merchant ? '#10B981' : '#3B82F6'};
+  color: white;
+
+  &:hover {
+    background: ${props => props.merchant ? '#059669' : '#2563EB'};
+    transform: translateY(-2px);
+>>>>>>> main
   }
 `

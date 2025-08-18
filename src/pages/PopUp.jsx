@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import bannerImg from '../assets/banner.png';
+=======
+import Footer from '../components/common/Footer';
+import PopupBannerSection from '../components/popup/PopupBannerSection';
+import EventCard from '../components/common/EventCard';
+>>>>>>> main
 
 function PopUp() {
   const navigate = useNavigate();
@@ -20,6 +26,7 @@ function PopUp() {
       name: '사자 베이커리 팝업스토어',
       category: '카페',
       status: '진행중',
+<<<<<<< HEAD
       period: '2025.01.15 - 2025.01.21',
       location: '홍대 걷고싶은거리',
       description: '신선한 빵과 커피를 만나볼 수 있는 특별한 팝업스토어',
@@ -27,12 +34,24 @@ function PopUp() {
       likeCount: 245,
       liked: false,
       week: '이번주'
+=======
+      startDate: '2025.01.15',
+      endDate: '2025.01.21',
+      location: '홍대 걷고싶은거리',
+      description: '신선한 빵과 커피를 만나볼 수 있는 특별한 팝업스토어',
+      thumbnail: 'https://picsum.photos/seed/popup1/400/300',
+      likeCount: 245,
+      liked: false,
+      week: '이번주',
+      type: 'popup'
+>>>>>>> main
     },
     {
       id: 2,
       name: 'K-POP 굿즈 팝업',
       category: 'KPOP',
       status: '예정',
+<<<<<<< HEAD
       period: '2025.01.22 - 2025.01.28',
       location: '홍대 AK플라자',
       description: '최신 K-POP 아티스트 굿즈와 포토존이 준비된 팝업',
@@ -40,12 +59,24 @@ function PopUp() {
       likeCount: 892,
       liked: true,
       week: '다음주'
+=======
+      startDate: '2025.01.22',
+      endDate: '2025.01.28',
+      location: '홍대 AK플라자',
+      description: '최신 K-POP 아티스트 굿즈와 포토존이 준비된 팝업',
+      thumbnail: 'https://picsum.photos/seed/popup2/400/300',
+      likeCount: 892,
+      liked: true,
+      week: '다음주',
+      type: 'popup'
+>>>>>>> main
     },
     {
       id: 3,
       name: '빈티지 패션 마켓',
       category: '쇼핑',
       status: '진행중',
+<<<<<<< HEAD
       period: '2025.01.13 - 2025.01.19',
       location: '홍대 상상마당',
       description: '독특한 빈티지 아이템들을 만날 수 있는 패션 팝업',
@@ -53,12 +84,24 @@ function PopUp() {
       likeCount: 156,
       liked: false,
       week: '이번주'
+=======
+      startDate: '2025.01.13',
+      endDate: '2025.01.19',
+      location: '홍대 상상마당',
+      description: '독특한 빈티지 아이템들을 만날 수 있는 패션 팝업',
+      thumbnail: 'https://picsum.photos/seed/popup3/400/300',
+      likeCount: 156,
+      liked: false,
+      week: '이번주',
+      type: 'popup'
+>>>>>>> main
     },
     {
       id: 4,
       name: '스트리트 아트 전시',
       category: '문화생활',
       status: '예정',
+<<<<<<< HEAD
       period: '2025.01.25 - 2025.02.01',
       location: '홍대 홍익대학교',
       description: '젊은 아티스트들의 스트리트 아트 작품 전시',
@@ -66,12 +109,24 @@ function PopUp() {
       likeCount: 324,
       liked: true,
       week: '다음주'
+=======
+      startDate: '2025.01.25',
+      endDate: '2025.02.01',
+      location: '홍대 홍익대학교',
+      description: '젊은 아티스트들의 스트리트 아트 작품 전시',
+      thumbnail: 'https://picsum.photos/seed/popup4/400/300',
+      likeCount: 324,
+      liked: true,
+      week: '다음주',
+      type: 'popup'
+>>>>>>> main
     },
     {
       id: 5,
       name: '클럽 파티 팝업',
       category: '클럽',
       status: '진행중',
+<<<<<<< HEAD
       period: '2025.01.16 - 2025.01.18',
       location: '홍대 클럽타운',
       description: '특별한 DJ와 함께하는 주말 클럽 파티',
@@ -79,12 +134,24 @@ function PopUp() {
       likeCount: 567,
       liked: false,
       week: '이번주'
+=======
+      startDate: '2025.01.16',
+      endDate: '2025.01.18',
+      location: '홍대 클럽타운',
+      description: '특별한 DJ와 함께하는 주말 클럽 파티',
+      thumbnail: 'https://picsum.photos/seed/popup5/400/300',
+      likeCount: 567,
+      liked: false,
+      week: '이번주',
+      type: 'popup'
+>>>>>>> main
     },
     {
       id: 6,
       name: '음식점 페스티벌',
       category: '음식점',
       status: '예정',
+<<<<<<< HEAD
       period: '2025.01.29 - 2025.02.05',
       location: '홍대 연남동',
       description: '홍대 맛집들이 모인 특별한 음식 페스티벌',
@@ -92,6 +159,17 @@ function PopUp() {
       likeCount: 678,
       liked: true,
       week: '다음주'
+=======
+      startDate: '2025.01.29',
+      endDate: '2025.02.05',
+      location: '홍대 연남동',
+      description: '홍대 맛집들이 모인 특별한 음식 페스티벌',
+      thumbnail: 'https://picsum.photos/seed/popup6/400/300',
+      likeCount: 678,
+      liked: true,
+      week: '다음주',
+      type: 'popup'
+>>>>>>> main
     }
   ];
 
@@ -100,6 +178,7 @@ function PopUp() {
   }, [activeFilter]);
 
   const filterPopups = (filter) => {
+<<<<<<< HEAD
     let filtered = dummyPopupData;
     
     if (filter !== '전체') {
@@ -111,12 +190,26 @@ function PopUp() {
     }
     
     setPopupEvents(filtered);
+=======
+    if (filter === '전체') {
+      setPopupEvents(dummyPopupData);
+    } else if (filter === '이번주') {
+      setPopupEvents(dummyPopupData.filter(popup => popup.week === '이번주'));
+    } else if (filter === '다음주') {
+      setPopupEvents(dummyPopupData.filter(popup => popup.week === '다음주'));
+    } else if (filter === '진행중') {
+      setPopupEvents(dummyPopupData.filter(popup => popup.status === '진행중'));
+    } else if (filter === '예정') {
+      setPopupEvents(dummyPopupData.filter(popup => popup.status === '예정'));
+    }
+>>>>>>> main
   };
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
   };
 
+<<<<<<< HEAD
   const handleLikeToggle = (id) => {
     setPopupEvents(prev => 
       prev.map(popup => 
@@ -144,6 +237,12 @@ function PopUp() {
         </BannerContent>
       </BannerSection>
 
+=======
+  return (
+    <Container>
+      {/* 배너 섹션 */}
+      <PopupBannerSection/>
+>>>>>>> main
       {/* 필터 섹션 */}
       <FilterSection>
         <FilterContainer>
@@ -168,6 +267,7 @@ function PopUp() {
       {/* 팝업 그리드 */}
       <PopupGrid>
         {popupEvents.map((popup) => (
+<<<<<<< HEAD
           <PopupCard key={popup.id} onClick={() => handlePopupClick(popup)}>
             <PopupImage>
               <img src={popup.image} alt={popup.name} />
@@ -192,6 +292,13 @@ function PopUp() {
               </PopupInfo>
             </PopupContent>
           </PopupCard>
+=======
+          <EventCard 
+            key={popup.id} 
+            event={popup}
+            excludeStatuses={[]}
+          />
+>>>>>>> main
         ))}
       </PopupGrid>
 
@@ -208,6 +315,7 @@ const Container = styled.div`
   position: relative;
 `;
 
+<<<<<<< HEAD
 const BannerSection = styled.div`
   width: 100%;
   height: 300px;
@@ -245,6 +353,8 @@ const BannerSubtitle = styled.p`
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 `;
 
+=======
+>>>>>>> main
 const FilterSection = styled.div`
   background-color: white;
   padding: 2rem 0;
@@ -305,6 +415,7 @@ const EventCount = styled.div`
 
 const PopupGrid = styled.div`
   display: grid;
+<<<<<<< HEAD
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2.5rem;
   max-width: 1200px;
@@ -443,4 +554,11 @@ const InfoItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+=======
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+>>>>>>> main
 `;
