@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import NaverMap from '../components/map/NaverMap';
+import KakaoMap from '../components/map/KakaoMap';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../utils/translations';
 import bannerImg from '../assets/banner.png';
@@ -231,13 +231,13 @@ function BucketList() {
         )}
       </StatusSection>
 
-      {/* 네이버 지도 섹션 */}
+      {/* 카카오 지도 섹션 */}
       <MapSection>
         <SectionTitle>🗺️ 홍대 지역 지도</SectionTitle>
         <MapDescription>
           즐겨찾기와 버킷리스트의 장소들이 위치한 홍대 지역을 확인해보세요
         </MapDescription>
-        <NaverMap 
+        <KakaoMap 
           width="100%" 
           height="300px" 
           center={{ lat: 37.5563, lng: 126.9244 }} 
