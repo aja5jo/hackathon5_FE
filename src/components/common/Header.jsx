@@ -1,143 +1,86 @@
-import React, { useState, useEffect } from 'react'; // useEffect 추가
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-// import ToggleSwitch from './ToggleSwitch'; // 더 이상 사용하지 않음
-import logo from '../../assets/logo.png'; // 로고 import 추가
-import { getTranslation, getCurrentLanguage, setCurrentLanguage } from '../../utils/translations';
+import React, { useState, useEffect } from 'react'
+import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
+import logo from '../../assets/logo.png'
+import { useTranslation } from '../../utils/translations'
+import { useAuth } from '../../contexts/AuthContext'
 
-const Header = () => {
+function Header() {
   const navigate = useNavigate();
-  const [selectedLanguage, setSelectedLanguage] = useState(getCurrentLanguage());
+  const { t } = useTranslation();
+  const { isAuthenticated, isMerchant, user, logout } = useAuth();
+  
+  const [selectedLanguage, setSelectedLanguage] = useState('ko');
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [currentTexts, setCurrentTexts] = useState({});
-  
-  // 언어 옵션
+
+  // 디버깅용 로그
+  console.log('Header - isAuthenticated:', isAuthenticated);
+  console.log('Header - user:', user);
+  console.log('Header - isMerchant:', isMerchant);
+
+  // 언어 설정
   const languages = [
     { code: 'ko', name: '한국어', flag: '🇰🇷' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'ja', name: '日本語', flag: '🇯🇵' },
-    { code: 'zh', name: '中文', flag: '🇨🇳' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'pt', name: 'Português', flag: '🇵🇹' },
-    { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦' }
+    { code: 'zh', name: '中文', flag: '🇨🇳' }
   ];
-  
-  const currentLanguage = languages.find(lang => lang.code === selectedLanguage);
-  
-  const handleLanguageSelect = (languageCode) => {
-    setSelectedLanguage(languageCode);
-    setCurrentLanguage(languageCode);
-    setIsLanguageDropdownOpen(false);
-    updateTexts(languageCode);
-    // 언어 변경 이벤트 발생
-    window.dispatchEvent(new CustomEvent('languageChanged', { detail: languageCode }));
-  };
-  
-  const updateTexts = (lang) => {
+
+  const currentLanguage = languages.find(lang => lang.code === selectedLanguage) || languages[0];
+
+  useEffect(() => {
+    updateTexts();
+  }, [selectedLanguage]);
+
+  const updateTexts = () => {
     setCurrentTexts({
-      categories: getTranslation('categories', lang),
-      events: getTranslation('events', lang),
-      popup: getTranslation('popup', lang),
-      bucketlist: getTranslation('bucketlist', lang),
-      login: getTranslation('login', lang),
-      logout: getTranslation('logout', lang)
+      categories: t('categories'),
+      events: t('events'),
+      popup: t('popup'),
+      bucketlist: t('bucketlist'),
+      login: t('login'),
+      logout: t('logout')
     });
   };
 
-  // ===== 로그인 상태 관리 추가 =====
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태
-  const [userData, setUserData] = useState(null); // 사용자 데이터
-
-  // ===== 수정: 로그인 상태 확인 함수 개선 =====
-  const checkLoginStatus = () => {
-    const hasLoggedInBefore = localStorage.getItem('hasLoggedInBefore');
-    const user = sessionStorage.getItem('user');
-    
-    // ===== 수정: user 데이터가 있으면 로그인된 것으로 판단 =====
-    if (user) {
-      setIsLoggedIn(true);
-      setUserData(JSON.parse(user));
-    } else {
-      setIsLoggedIn(false);
-      setUserData(null);
-    }
+  const handleLanguageSelect = (languageCode) => {
+    setSelectedLanguage(languageCode);
+    setIsLanguageDropdownOpen(false);
   };
-  // ===== 수정 끝 =====
 
-  // 컴포넌트 마운트 시 로그인 상태 확인 및 텍스트 초기화
-  useEffect(() => {
-    checkLoginStatus();
-    updateTexts(selectedLanguage);
-
-    // 로그인 상태 변경 이벤트 리스너 추가
-    window.addEventListener('loginStatusChanged', checkLoginStatus);
-
-    return () => {
-      window.removeEventListener('loginStatusChanged', checkLoginStatus);
-    };
-  }, [selectedLanguage]);
-
-  // 로그인 버튼 클릭 핸들러
   const handleLoginClick = () => {
     navigate('/login');
   };
 
-  // ===== 수정: 로그아웃 버튼 클릭 핸들러 - API 호출 추가 =====
   const handleLogoutClick = async () => {
     try {
-      // ===== 실제 API 호출 (백엔드 배포 후 주석 해제) =====
-      /*
-      const response = await fetch('http://localhost:8080/api/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 세션 기반 인증
-      });
-
-      const result = await response.json();
-      
-      if (!result.success) {
-        console.error('로그아웃 실패:', result.message);
-        alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
-        return;
-      }
-      */
-      // ===== 실제 API 호출 끝 =====
-
-      // ===== 더미 로그아웃 처리 (백엔드 배포 후 삭제) =====
-      console.log('더미 로그아웃 처리 중...');
-      // ===== 더미 로그아웃 처리 끝 =====
-
-      // 로그아웃 성공 시 모든 로그인 관련 데이터 삭제
-      localStorage.removeItem('hasLoggedInBefore');
-      localStorage.removeItem('hasSelectedCategories');
-      localStorage.removeItem('selectedCategories');
-      sessionStorage.removeItem('user');
-      
-      // 상태 초기화
-      setIsLoggedIn(false);
-      setUserData(null);
-      
-      // 로그인 상태 변경 이벤트 발생
-      window.dispatchEvent(new Event('loginStatusChanged'));
-      
-      // 홈으로 이동
-      navigate('/');
-      
-      alert('로그아웃되었습니다.');
-      
+      await logout();
     } catch (error) {
-      console.error('로그아웃 중 오류 발생:', error);
+      console.error('로그아웃 오류:', error);
       alert('로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
-  // ===== 수정 끝 =====
-  // ===== 로그인 상태 관리 끝 =====
+  
+  // 마이페이지 클릭 핸들러 - 사용자 유형에 따라 다른 페이지로 이동
+  const handleMyPageClick = () => {
+    if (isMerchant) {
+      navigate('/merchants/mypage');
+    } else {
+      navigate('/mypage');
+    }
+  };
 
+  // 즐겨찾기 클릭 핸들러 - 로그인 상태 확인
+  const handleFavoritesClick = () => {
+    if (!isAuthenticated) {
+      alert('즐겨찾기 기능을 사용하려면 로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    navigate('/favorites');
+  };
+  
   return (
     <HeaderContainer>
       <Left>
@@ -146,8 +89,11 @@ const Header = () => {
           <NavItem onClick ={()=>navigate('/categories')}>{currentTexts.categories}</NavItem>
           <NavItem onClick ={()=>navigate('/events')}>{currentTexts.events}</NavItem>
           <NavItem onClick ={()=>navigate('/popup')}>{currentTexts.popup}</NavItem>
-          <NavItem onClick ={()=>navigate('/favorites')}>{currentTexts.bucketlist}</NavItem>
-          <NavItem onClick ={()=>navigate('/mypage')}>임시마이페이지</NavItem>
+          <NavItem onClick={handleFavoritesClick}>{currentTexts.bucketlist}</NavItem>
+          {/* 로그인 상태에 따른 마이페이지 조건부 렌더링 */}
+          {isAuthenticated && (
+            <NavItem onClick={handleMyPageClick}>마이페이지</NavItem>
+          )}
         </Nav>
       </Left>
       <Right>
@@ -177,11 +123,11 @@ const Header = () => {
           )}
         </LanguageSelector>
         {/* ===== 로그인/로그아웃 버튼 조건부 렌더링 ===== */}
-        {isLoggedIn ? (
+        {isAuthenticated ? (
           // 로그인된 상태: 사용자 정보 + 로그아웃 버튼 표시
           <UserSection>
             <UserInfo>
-              {userData?.email || '사용자'}
+              {user?.email || '사용자'}
             </UserInfo>
             <LogoutButton onClick={handleLogoutClick}>{currentTexts.logout}</LogoutButton>
           </UserSection>

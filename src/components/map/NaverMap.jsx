@@ -1,9 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-const NaverMap = ({ width = '100%', height = '400px', center = { lat: 37.5563, lng: 126.9244 } }) => {
+const NaverMap = ({ 
+  width = '100%', 
+  height = '400px', 
+  center = { lat: 37.5563, lng: 126.9244 },
+  markers = []
+}) => {
   const mapElement = useRef(null);
   const mapInstance = useRef(null);
+  const markersRef = useRef([]);
 
   useEffect(() => {
     if (!window.naver || !window.naver.maps) {
@@ -31,7 +37,11 @@ const NaverMap = ({ width = '100%', height = '400px', center = { lat: 37.5563, l
 
     mapInstance.current = new naver.maps.Map(mapElement.current, mapOptions);
 
-    // 홍대입구역 마커 추가
+    // 기존 마커들 제거
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    // 홍대입구역 마커 추가 (기본 마커)
     const hongdaeMarker = new naver.maps.Marker({
       position: new naver.maps.LatLng(37.5563, 126.9244),
       map: mapInstance.current,
@@ -56,7 +66,37 @@ const NaverMap = ({ width = '100%', height = '400px', center = { lat: 37.5563, l
       }
     });
 
-    // 주요 장소들 마커 추가
+    // 동적 마커들 추가 (즐겨찾기 항목들)
+    markers.forEach(markerData => {
+      const marker = new naver.maps.Marker({
+        position: new naver.maps.LatLng(markerData.position.lat, markerData.position.lng),
+        map: mapInstance.current,
+        title: markerData.name,
+        icon: {
+          content: `
+            <div style="
+              background-color: #FF6B6B;
+              color: white;
+              padding: 8px 12px;
+              border-radius: 20px;
+              font-weight: 600;
+              font-size: 14px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+              white-space: nowrap;
+              border: 2px solid white;
+            ">
+              ❤️ ${markerData.name}
+            </div>
+          `,
+          size: new naver.maps.Size(120, 40),
+          anchor: new naver.maps.Point(60, 40)
+        }
+      });
+      
+      markersRef.current.push(marker);
+    });
+
+    // 주요 장소들 마커 추가 (기본 장소들)
     const places = [
       { name: '홍대 걷고싶은거리', lat: 37.5577, lng: 126.9246, emoji: '🚶' },
       { name: '홍대 클럽거리', lat: 37.5555, lng: 126.9225, emoji: '🎵' },
@@ -66,7 +106,7 @@ const NaverMap = ({ width = '100%', height = '400px', center = { lat: 37.5563, l
     ];
 
     places.forEach(place => {
-      new naver.maps.Marker({
+      const marker = new naver.maps.Marker({
         position: new naver.maps.LatLng(place.lat, place.lng),
         map: mapInstance.current,
         title: place.name,
@@ -90,9 +130,11 @@ const NaverMap = ({ width = '100%', height = '400px', center = { lat: 37.5563, l
           anchor: new naver.maps.Point(50, 30)
         }
       });
+      
+      markersRef.current.push(marker);
     });
 
-  }, [center]);
+  }, [center, markers]);
 
   return <MapContainer ref={mapElement} width={width} height={height} />;
 };

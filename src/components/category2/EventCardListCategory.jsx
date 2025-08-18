@@ -22,8 +22,6 @@ const EventCardListCategory = ({ events }) => {
     return acc;
   }, []);
 
-
-
   return (
     <Wrapper>
       {groupedItems.map((group, idx) => (
@@ -34,7 +32,7 @@ const EventCardListCategory = ({ events }) => {
           </SectionHeader>
           <ListContainer>
           {group.items.slice(0, 3).map((item, i) => (
-              <EventCard key={`${group.category}-${item?.type || 'ITEM'}-${item?.id ?? i}`} event={item} />))}
+              <EventCard key={`${group.category}-${item?.type || 'ITEM'}-${item?.id ?? i}`} event={item} excludeStatuses={["진행중","예정"]} />))}
           </ListContainer>
         </CategoryBlock>
       ))}

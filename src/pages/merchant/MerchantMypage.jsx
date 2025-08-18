@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
@@ -7,6 +7,13 @@ import MerchantMypageBannerSection from '../../components/merchant/MerchantMypag
 
 function MerchantMypage() {
   const navigate = useNavigate();
+  const [favoritesCount, setFavoritesCount] = useState(0);
+
+  useEffect(() => {
+    // 즐겨찾기 개수 계산 (userFavorites에서 가져오기)
+    const favorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
+    setFavoritesCount(favorites.length);
+  }, []);
 
   return (
     <Container>
@@ -16,20 +23,37 @@ function MerchantMypage() {
 
       <Content>
         <CardGrid>
+          {/* 즐겨찾기/버킷리스트 */}
+          <NavCard>
+            <CardHeader>
+              <CardTitle>즐겨찾기 & 버킷리스트</CardTitle>
+              <CountBadge>{favoritesCount}개</CountBadge>
+            </CardHeader>
+            <CardDesc>나만의 특별한 장소와 이벤트 관리</CardDesc>
+            <ButtonRow>
+              <PrimaryButton onClick={() => navigate('/favorites')}>즐겨찾기 보기</PrimaryButton>
+              <GhostButton onClick={() => navigate('/favorites')}>버킷리스트 관리</GhostButton>
+            </ButtonRow>
+          </NavCard>
+
           {/* Store */}
           <NavCard>
-            <CardTitle>가게 관리</CardTitle>
+            <CardHeader>
+              <CardTitle>가게 관리</CardTitle>
+            </CardHeader>
             <CardDesc>내 가게 등록/조회/수정</CardDesc>
             <ButtonRow>
               <PrimaryButton onClick={() => navigate('/merchants/stores')}>가게 등록하러 가기</PrimaryButton>
-              <GhostButton onClick={() => navigate('/mypage/store')}>내 가게 보기</GhostButton>
-              <GhostButton onClick={() => navigate('/mypage/store')}>가게 정보 수정하기</GhostButton>
+              <GhostButton onClick={() => navigate('/mypage/stores')}>내 가게 보기</GhostButton>
+              <GhostButton onClick={() => navigate('/mypage/stores')}>가게 정보 수정하기</GhostButton>
             </ButtonRow>
           </NavCard>
 
           {/* Events */}
           <NavCard>
-            <CardTitle>이벤트 관리</CardTitle>
+            <CardHeader>
+              <CardTitle>이벤트 관리</CardTitle>
+            </CardHeader>
             <CardDesc>내 이벤트 등록/조회/수정</CardDesc>
             <ButtonRow>
               <PrimaryButton onClick={() => navigate('/merchants/stores/events')}>이벤트 등록하러 가기</PrimaryButton>
@@ -40,12 +64,27 @@ function MerchantMypage() {
 
           {/* Popups */}
           <NavCard>
-            <CardTitle>팝업 관리</CardTitle>
+            <CardHeader>
+              <CardTitle>팝업 관리</CardTitle>
+            </CardHeader>
             <CardDesc>내 팝업 등록/조회/수정</CardDesc>
             <ButtonRow>
               <PrimaryButton onClick={() => navigate('/merchants/popups')}>팝업 등록하러 가기</PrimaryButton>
               <GhostButton onClick={() => navigate('/mypage/popups')}>내 팝업 보기</GhostButton>
               <GhostButton onClick={() => navigate('/mypage/popups')}>팝업 수정하기</GhostButton>
+            </ButtonRow>
+          </NavCard>
+
+          {/* Settings */}
+          <NavCard>
+            <CardHeader>
+              <CardTitle>설정</CardTitle>
+            </CardHeader>
+            <CardDesc>사업자 정보 및 계정 설정</CardDesc>
+            <ButtonRow>
+              <PrimaryButton onClick={() => navigate('/merchants/settings')}>사업자 설정</PrimaryButton>
+              <GhostButton onClick={() => navigate('/merchants/settings')}>비밀번호 변경</GhostButton>
+              <GhostButton onClick={() => navigate('/merchants/settings')}>계정 관리</GhostButton>
             </ButtonRow>
           </NavCard>
         </CardGrid>
@@ -108,6 +147,22 @@ const NavCard = styled.div`
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const CountBadge = styled.span`
+  background: #FEE502;
+  color: #262626;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
 `;
 
 const CardTitle = styled.h2`

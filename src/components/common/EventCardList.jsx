@@ -2,8 +2,6 @@ import React from 'react'
 import EventCard from './EventCard'
 import styled from 'styled-components'
 
-
-
 const EventCardList = ({ events = [], includeTypes = ['EVENT', 'POPUP', 'STORE'], maxItems }) => {
   const allItems = events
     .flatMap((category) => {
@@ -33,8 +31,15 @@ const ListContainer = styled.div`
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem 4rem 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;

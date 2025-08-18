@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
+// import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -13,47 +15,112 @@ const CATEGORIES = [
 ];
 
 function MerchantPopup() {
+  const navigate = useNavigate();
+  
+  // API 명세서에 맞는 필드들
+  const [category, setCategory] = useState('');
   const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [openAt, setOpenAt] = useState('09:00');
-  const [closeAt, setCloseAt] = useState('22:00');
-  const [heroImage, setHeroImage] = useState(null);
-  const [extraImage, setExtraImage] = useState(null);
-  const [extraInfo, setExtraInfo] = useState('');
+  const [description, setDescription] = useState('');
   const [intro, setIntro] = useState('');
-  const [useAi, setUseAi] = useState(false);
-const disabled = useMemo(() => !name || !address, [name, address]);
+  const [thumbnail, setThumbnail] = useState('');
+  const [images, setImages] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [startTime, setStartTime] = useState('11:00:00');
+  const [endTime, setEndTime] = useState('20:30:00');
+  const [address, setAddress] = useState('');
 
+  const disabled = useMemo(() => !category || !name || !description || !intro || !thumbnail || !startDate || !endDate || !address, 
+    [category, name, description, intro, thumbnail, startDate, endDate, address]);
 
-  const onDropImage = (e, setter) => {
-    e.preventDefault();
-    const file = e.dataTransfer?.files?.[0];
-    if (file) setter(file);
-  };
-
-  const onChooseImage = (e, setter) => {
-    const file = e.target.files?.[0];
-    if (file) setter(file);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (disabled) return;
-    
 
-    // 폼 데이터 구성 (추후 API 연동 시 사용)
-    const form = new FormData();
-    form.append('name', name);
-    form.append('address', address);
-    form.append('openAt', openAt);
-    form.append('closeAt', closeAt);
-    form.append('extraInfo', extraInfo);
-    form.append('intro', intro);
-    form.append('useAi', String(useAi));
-    if (heroImage) form.append('heroImage', heroImage);
-    if (extraImage) form.append('extraImage', extraImage);
+    try {
+      // API 명세서에 맞는 요청 데이터 구성
+      const popupData = {
+        category: category,
+        name: name.trim(),
+        description: description.trim(),
+        intro: intro.trim(),
+        thumbnail: thumbnail.trim(),
+        images: images.filter(img => img.trim() !== ''),
+        startDate: startDate,
+        endDate: endDate,
+        startTime: startTime,
+        endTime: endTime,
+        address: address.trim()
+      };
 
-    alert('팝업스토어 등록 폼이 준비되었습니다. (API 연동 시 전송)');
+      // ===== 현재 더미 등록 버전 (실제 사용 중) =====
+      // 더미 팝업 등록 성공 처리
+      console.log('팝업 등록 데이터:', popupData);
+      alert('팝업이 성공적으로 등록되었습니다!');
+      // 성공 시 팝업 목록으로 이동
+      navigate('/mypage/popups');
+      
+      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+      /*
+      // API 명세서에 맞는 팝업 등록 요청
+      const response = await fetch('http://localhost:8080/api/merchants/popups', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // 세션 기반 인증
+        body: JSON.stringify(popupData)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('팝업 등록 성공:', result.message);
+        alert('팝업이 성공적으로 등록되었습니다!');
+        // 성공 시 팝업 목록으로 이동
+        navigate('/mypage/popups');
+      } else {
+        // API 명세서에 따른 에러 메시지 처리
+        if (result.code === 401) {
+          alert('로그인이 필요합니다.');
+          navigate('/login');
+        } else if (result.code === 403) {
+          alert('접근 권한이 없습니다.');
+        } else {
+          alert(result.message || '팝업 등록에 실패했습니다.');
+        }
+      }
+      */
+      
+      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
+      /*
+      try {
+        const result = await ApiService.createMerchantPopup(popupData);
+        
+        if (result.success) {
+          console.log('팝업 등록 성공:', result.message);
+          alert('팝업이 성공적으로 등록되었습니다!');
+          navigate('/mypage/popups');
+        } else {
+          // API 명세서에 따른 에러 메시지 처리
+          if (result.code === 401) {
+            alert('로그인이 필요합니다.');
+            navigate('/login');
+          } else if (result.code === 403) {
+            alert('접근 권한이 없습니다.');
+          } else {
+            alert(result.message || '팝업 등록에 실패했습니다.');
+          }
+        }
+      } catch (error) {
+        console.error('팝업 등록 API 오류:', error);
+        alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
+      }
+      */
+    } catch (error) {
+      console.error('Failed to create popup:', error);
+      alert('팝업 등록에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   return (
@@ -67,7 +134,22 @@ const disabled = useMemo(() => !name || !address, [name, address]);
 
         <RightPane>
           <Form onSubmit={handleSubmit}>
-            {/* 가게 이름 */}
+            {/* 카테고리 */}
+            <Field>
+              <Label>
+                카테고리 <Required>*</Required>
+              </Label>
+              <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="">카테고리를 선택해주세요</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.key} value={cat.key}>
+                    {cat.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            {/* 팝업스토어 이름 */}
             <Field>
               <Label>
                 팝업스토어 이름 <Required>*</Required>
@@ -79,16 +161,61 @@ const disabled = useMemo(() => !name || !address, [name, address]);
               />
             </Field>
 
+            {/* 대표 소개글 */}
+            <Field>
+              <Label>
+                대표 소개글 <Required>*</Required>
+              </Label>
+              <Input
+                placeholder="팝업스토어에 대한 간단한 소개글을 입력해주세요"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </Field>
+
+            {/* 상세 설명 */}
+            <Field>
+              <Label>
+                상세 설명 <Required>*</Required>
+              </Label>
+              <Textarea
+                rows={5}
+                placeholder="팝업스토어에 대한 상세한 설명을 작성해주세요"
+                value={intro}
+                onChange={(e) => setIntro(e.target.value)}
+              />
+            </Field>
+
             {/* 주소 */}
             <Field>
               <Label>
-                팝업스토어 장소 <Required>*</Required>
+                팝업스토어 주소 <Required>*</Required>
               </Label>
               <Input
-                placeholder="주소 또는 위치를 입력해주세요"
+                placeholder="정확한 주소를 입력해주세요"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
+            </Field>
+
+            {/* 운영 기간 */}
+            <Field>
+              <Label>
+                운영 기간 <Required>*</Required>
+              </Label>
+              <TimeRow>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <Dash>~</Dash>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </TimeRow>
             </Field>
 
             {/* 운영시간 */}
@@ -97,17 +224,17 @@ const disabled = useMemo(() => !name || !address, [name, address]);
                 운영시간 <Required>*</Required>
               </Label>
               <TimeRow>
-                <Select value={openAt} onChange={(e) => setOpenAt(e.target.value)}>
+                <Select value={startTime} onChange={(e) => setStartTime(e.target.value)}>
                   {timeOptions.map((t) => (
-                    <option key={`o-${t}`} value={t}>
+                    <option key={`s-${t}`} value={`${t}:00`}>
                       {t}
                     </option>
                   ))}
                 </Select>
                 <Dash>~</Dash>
-                <Select value={closeAt} onChange={(e) => setCloseAt(e.target.value)}>
+                <Select value={endTime} onChange={(e) => setEndTime(e.target.value)}>
                   {timeOptions.map((t) => (
-                    <option key={`c-${t}`} value={t}>
+                    <option key={`e-${t}`} value={`${t}:00`}>
                       {t}
                     </option>
                   ))}
@@ -115,89 +242,35 @@ const disabled = useMemo(() => !name || !address, [name, address]);
               </TimeRow>
             </Field>
 
-            {/* 이미지 업로드 */}
+            {/* 썸네일 이미지 */}
             <Field>
-              <Label>팝업스토어 이미지</Label>
-              <UploadRow>
-                <Dropzone
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDropImage(e, setHeroImage)}
-                >
-                  <UploadIcon>📷</UploadIcon>
-                  <UploadTitle>대표 사진 업로드</UploadTitle>
-                  <UploadSub>1장 필수 (최대 5MB)</UploadSub>
-                  <HiddenFile
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => onChooseImage(e, setHeroImage)}
-                  />
-                  {heroImage && <Preview>{heroImage.name}</Preview>}
-                </Dropzone>
-                <Dropzone
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDropImage(e, setExtraImage)}
-                >
-                  <UploadIcon>📷</UploadIcon>
-                  <UploadTitle>추가 사진 업로드</UploadTitle>
-                  <UploadSub>최소 0장 최대 5장</UploadSub>
-                  <HiddenFile
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => onChooseImage(e, setExtraImage)}
-                  />
-                  {extraImage && <Preview>{extraImage.name}</Preview>}
-                </Dropzone>
-              </UploadRow>
-            </Field>
-
-            {/* 기타 정보 */}
-            <Field>
-              <Label>기타 정보</Label>
-              <Textarea
-                rows={3}
-                placeholder="동물 동반 가능 여부, 주차 가능 여부 등 추가 정보를 입력해주세요"
-                value={extraInfo}
-                onChange={(e) => setExtraInfo(e.target.value)}
+              <Label>
+                썸네일 이미지 <Required>*</Required>
+              </Label>
+              <Input
+                type="url"
+                placeholder="썸네일 이미지 URL을 입력해주세요"
+                value={thumbnail}
+                onChange={(e) => setThumbnail(e.target.value)}
               />
             </Field>
 
-            {/* 소개 */}
+            {/* 추가 이미지들 */}
             <Field>
-              <Label>팝업스토어 소개</Label>
-              <Textarea
-                rows={3}
-                placeholder="팝업스토어에 대한 소개를 작성해주세요"
-                value={intro}
-                onChange={(e) => setIntro(e.target.value)}
+              <Label>추가 이미지들</Label>
+              <Input
+                type="url"
+                placeholder="추가 이미지 URL들을 입력해주세요 (쉼표로 구분)"
+                value={images.join(', ')}
+                onChange={(e) => setImages(e.target.value.split(',').map(url => url.trim()).filter(url => url !== ''))}
               />
-            </Field>
-
-            {/* AI 추천 */}
-            <Field>
-              <Label>AI 추천을 받으시겠습니까?</Label>
-              <RadioRow>
-                <RadioLabel>
-                  <input
-                    type="radio"
-                    name="useAi"
-                    checked={useAi === true}
-                    onChange={() => setUseAi(true)}
-                  />
-                  <span>예</span>
-                </RadioLabel>
-                <RadioLabel>
-                  <input
-                    type="radio"
-                    name="useAi"
-                    checked={useAi === false}
-                    onChange={() => setUseAi(false)}
-                  />
-                  <span>아니오</span>
-                </RadioLabel>
-              </RadioRow>
+              <Helper>여러 이미지는 쉼표(,)로 구분해주세요</Helper>
             </Field>
 
             <SubmitBar>
+              <CancelButton type="button" onClick={() => navigate('/mypage/popups')}>
+                취소
+              </CancelButton>
               <Submit type="submit" disabled={disabled}>
                 팝업스토어 등록하기
               </Submit>
@@ -285,11 +358,6 @@ const Required = styled.span`
   margin-left: 4px;
 `;
 
-const Helper = styled.div`
-  font-size: 12px;
-  color: #9ca3af;
-`;
-
 const Input = styled.input`
   height: 44px;
   border: 1.5px solid #e5e7eb;
@@ -323,78 +391,6 @@ const Dash = styled.span`
   color: #6b7280;
 `;
 
-const CategoryGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-`;
-
-
-const UploadRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Dropzone = styled.label`
-  position: relative;
-  border: 2px dashed #e5e7eb;
-  border-radius: 12px;
-  min-height: 140px;
-  background: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-
-  &:hover {
-    background: #f7f7f7;
-  }
-`;
-
-const HiddenFile = styled.input`
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-`;
-
-const UploadIcon = styled.div`
-  font-size: 22px;
-`;
-
-const UploadTitle = styled.div`
-  font-size: 14px;
-  font-weight: 700;
-`;
-
-const UploadSub = styled.div`
-  font-size: 11px;
-  color: #9ca3af;
-`;
-
-const Preview = styled.div`
-  position: absolute;
-  bottom: 10px;
-  left: 12px;
-  right: 12px;
-  font-size: 12px;
-  color: #6b7280;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
 const Textarea = styled.textarea`
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
@@ -407,40 +403,10 @@ const Textarea = styled.textarea`
   &:focus { border-color: #fee502; }
 `;
 
-const RadioRow = styled.div`
-  display: flex;
-  gap: 12px;
-
-  input { margin-right: 6px; }
-`;
-const RadioLabel = styled.label`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 9999px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 700;
-  color: #222;
-  user-select: none;
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
-
-  &:hover {
-    border-color: #fee502;
-    transform: translateY(-1px);
-  }
-
-  input {
-    accent-color: #fee502;
-  }
-`;
-
 const SubmitBar = styled.div`
   display: flex;
-  justify-content: center;
+  gap: 1rem;
+  justify-content: flex-end;
   margin-top: 4px;
 `;
 
@@ -457,4 +423,28 @@ const Submit = styled.button`
   transition: transform .12s ease, background-color .2s ease;
   &:hover { background: #ffe44b; transform: translateY(-1px); }
   &:disabled { opacity: .6; cursor: not-allowed; }
+`;
+
+const CancelButton = styled.button`
+  min-width: 120px;
+  height: 48px;
+  background: transparent;
+  color: #666;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #dc3545;
+    color: #dc3545;
+  }
+`;
+
+const Helper = styled.div`
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
 `;

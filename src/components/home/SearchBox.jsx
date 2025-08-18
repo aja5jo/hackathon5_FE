@@ -1,9 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components';
 import searchIcon from '../../assets/search.png';
+import { useTranslation } from '../../utils/translations';
 
 const SearchBox = ({ onSearch }) => {
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
+    const [forceUpdate, setForceUpdate] = useState(0); // 언어 변경 시 리렌더링 강제
+    
+    // 언어 변경 이벤트 리스너
+    useEffect(() => {
+        const handleLanguageChange = () => {
+            setForceUpdate(prev => prev + 1);
+        };
+        
+        window.addEventListener('languageChanged', handleLanguageChange);
+        
+        return () => {
+            window.removeEventListener('languageChanged', handleLanguageChange);
+        };
+    }, []);
 
     const onChange = (e) => {
         setSearch(e.target.value);
@@ -28,7 +44,7 @@ const SearchBox = ({ onSearch }) => {
             <Icon src={searchIcon} alt="검색 아이콘"/>
             <SearchInput 
                 type="text"
-                placeholder="가게이름/이벤트를 검색하세요"
+                placeholder={t('searchPlaceholder')}
                 value={search}
                 onChange={onChange}
                 onKeyPress={handleKeyPress}

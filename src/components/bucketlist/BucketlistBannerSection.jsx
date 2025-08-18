@@ -7,8 +7,8 @@ const BucketlistBannerSection = () => {
   return (
     <BannerSection>
         <BannerContent>
-          <BannerTitle>이번주 팝업 스테이션</BannerTitle>
-          <BannerSubtitle>홍대에서 진행되는 특별한 팝업들을 만나보세요</BannerSubtitle>
+          <BannerTitle>즐겨찾기</BannerTitle>
+          <BannerSubtitle>나만의 특별한 장소들을 모아보세요</BannerSubtitle>
         </BannerContent>
       </BannerSection>
   )

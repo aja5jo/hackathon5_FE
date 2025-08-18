@@ -5,8 +5,10 @@ import Footer from '../components/common/Footer';
 import CategoryBannerSection from '../components/category2/CategoryBannerSection';
 import dummyEvents from '../assets/dummy.json'
 import EventCardListCategory from '../components/category2/EventCardListCategory.jsx';
+import { useTranslation } from '../utils/translations';
 
 function Category2() {
+  const { t } = useTranslation();
 
   // ===== 기존 코드 유지 =====
   const [selected ,setSelected]=useState([]);
@@ -81,7 +83,7 @@ function Category2() {
         : [...prev, category];
       
       // ===== 수정: 선택된 카테고리를 dummy.json 카테고리명으로 변환하여 필터링 =====
-      const koreanToEnglishMapping = {
+      const translatedToEnglishMapping = {
         '카페': 'CAFE',
         '맛집 & 술집': 'FOOD',
         'KPOP': 'K_POP',
@@ -91,7 +93,7 @@ function Category2() {
         '기타': 'ETC'
       };
       
-      const englishCategories = newSelected.map(cat => koreanToEnglishMapping[cat]).filter(Boolean);
+      const englishCategories = newSelected.map(cat => translatedToEnglishMapping[cat]).filter(Boolean);
       setUserSelectedCategories(englishCategories);
       
       return newSelected;
@@ -103,7 +105,7 @@ function Category2() {
     <Container>
       <CategoryBannerSection />
       <FilterSection>
-        <FilterTitle>나의 카테고리 보기</FilterTitle>
+        <FilterTitle>나의 카테고리 뷰</FilterTitle>
           <FilterContainer>
             {categoryList.map((cat, idx) => (
               <FilterButton
@@ -118,7 +120,7 @@ function Category2() {
       </FilterSection>
       <ListSection>
         <SectionHeader>
-          <CategoryTitle>카테고리 별 모아보기</CategoryTitle>
+          <CategoryTitle>카테고리 모음</CategoryTitle>
         </SectionHeader>
         {/* ===== 수정: 필터링된 이벤트만 표시 ===== */}
         <EventCardListCategory events={filteredEvents} maxItems={3}/>
