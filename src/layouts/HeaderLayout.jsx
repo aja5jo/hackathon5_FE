@@ -7,7 +7,7 @@ function HeaderLayout() {
   return (
     <LayoutWrapper>
         <Header/>
-        <ContentWrapper>
+        <ContentWrapper id="viewer">
             <Outlet />
         </ContentWrapper>
     </LayoutWrapper>

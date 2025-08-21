@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
-import ApiService from '../../services/api';
+// import ApiService from '../../services/api';
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -19,18 +19,22 @@ function MerchantStoreEdit() {
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(true);
+  // API 명세서의 StoreCreateRequest DTO 구조에 맞는 필드들
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
-  const [category, setCategory] = useState('');
-  const [openAt, setOpenAt] = useState('09:00');
-  const [closeAt, setCloseAt] = useState('22:00');
-  const [heroImage, setHeroImage] = useState(null);
-  const [extraImage, setExtraImage] = useState(null);
-  const [extraInfo, setExtraInfo] = useState('');
+  const [number, setNumber] = useState(''); // 전화번호 필드 추가
   const [intro, setIntro] = useState('');
-  const [useAi, setUseAi] = useState(false);
+  const [category, setCategory] = useState('');
+  const [thumbnail, setThumbnail] = useState(''); // 썸네일 이미지 URL
+  const [images, setImages] = useState(['']); // 추가 이미지 URL 배열
+  const [startTime, setStartTime] = useState('10:00:00'); // 명세서에 맞게 필드명 변경
+  const [endTime, setEndTime] = useState('22:00:00'); // 명세서에 맞게 필드명 변경
 
-  const disabled = useMemo(() => !name || !address || !category, [name, address, category]);
+  // 필수 필드 검증 (명세서의 @NotBlank 필드들)
+  const disabled = useMemo(() => 
+    !name || !address || !number || !intro || !category || !thumbnail || !startTime || !endTime, 
+    [name, address, number, intro, category, thumbnail, startTime, endTime]
+  );
 
   useEffect(() => {
     fetchStoreData();
@@ -39,29 +43,39 @@ function MerchantStoreEdit() {
   const fetchStoreData = async () => {
     try {
       setLoading(true);
+      // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
       // TODO: API 연동
-      // const response = await ApiService.getStore(storeId);
+      // const response = await ApiService.getMyStores();
+      // const storeData = response.data.find(store => store.id === parseInt(storeId));
       
-      // 임시 더미 데이터
+      // 임시 더미 데이터 (명세서의 StoreCreateResponse DTO 구조에 맞춤)
       const storeData = {
-        name: '카페 모모',
-        address: '서울시 마포구 홍대입구역 123-45',
+        id: 12,
+        ownerId: 5,
+        name: '흥카페',
+        address: '서울 마포구 서교동 123-45',
+        number: '02-1234-5678',
+        intro: '흥대의 감성을 담은 분위기 좋은 카페입니다.',
         category: 'CAFE',
-        openAt: '09:00',
-        closeAt: '22:00',
-        extraInfo: '룸 가능, 금연',
-        intro: '홍대의 아늑한 카페입니다.',
-        useAi: true
+        thumbnail: 'https://cdn.example.com/store/thumbnail.jpg',
+        images: [
+          'https://cdn.example.com/store/img1.jpg',
+          'https://cdn.example.com/store/img2.jpg'
+        ],
+        startTime: '10:00:00',
+        endTime: '22:00:00',
+        like: 12
       };
       
       setName(storeData.name);
       setAddress(storeData.address);
-      setCategory(storeData.category);
-      setOpenAt(storeData.openAt);
-      setCloseAt(storeData.closeAt);
-      setExtraInfo(storeData.extraInfo);
+      setNumber(storeData.number);
       setIntro(storeData.intro);
-      setUseAi(storeData.useAi);
+      setCategory(storeData.category);
+      setThumbnail(storeData.thumbnail);
+      setImages(storeData.images.length > 0 ? storeData.images : ['']);
+      setStartTime(storeData.startTime);
+      setEndTime(storeData.endTime);
     } catch (error) {
       console.error('Failed to fetch store data:', error);
       alert('가게 정보를 불러오는데 실패했습니다.');
@@ -71,15 +85,21 @@ function MerchantStoreEdit() {
     }
   };
 
-  const onDropImage = (e, setter) => {
-    e.preventDefault();
-    const file = e.dataTransfer?.files?.[0];
-    if (file) setter(file);
+  // 추가 이미지 URL 추가
+  const addImageUrl = () => {
+    setImages([...images, '']);
   };
 
-  const onChooseImage = (e, setter) => {
-    const file = e.target.files?.[0];
-    if (file) setter(file);
+  // 추가 이미지 URL 제거
+  const removeImageUrl = (index) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
+  // 추가 이미지 URL 변경
+  const updateImageUrl = (index, value) => {
+    const newImages = [...images];
+    newImages[index] = value;
+    setImages(newImages);
   };
 
   const handleSubmit = async (e) => {
@@ -87,21 +107,32 @@ function MerchantStoreEdit() {
     if (disabled) return;
 
     try {
-      const form = new FormData();
-      form.append('name', name);
-      form.append('address', address);
-      form.append('category', category);
-      form.append('openAt', openAt);
-      form.append('closeAt', closeAt);
-      form.append('extraInfo', extraInfo);
-      form.append('intro', intro);
-      form.append('useAi', String(useAi));
-      if (heroImage) form.append('heroImage', heroImage);
-      if (extraImage) form.append('extraImage', extraImage);
+      // API 명세서의 StoreCreateRequest DTO 구조에 맞게 데이터 구성
+      const storeData = {
+        name: name.trim(),
+        address: address.trim(),
+        number: number.trim(),
+        intro: intro.trim(),
+        category: category,
+        thumbnail: thumbnail.trim(),
+        images: images.filter(img => img.trim() !== ''), // 빈 URL 제거
+        startTime: startTime,
+        endTime: endTime
+      };
 
-      await ApiService.updateStore(storeId, form);
-      alert('가게 정보가 수정되었습니다.');
+      // ===== 현재 더미 수정 버전 (실제 사용 중) =====
+      console.log('가게 수정 데이터:', storeData);
+      alert('가게 정보가 성공적으로 수정되었습니다!');
       navigate('/mypage/stores');
+      
+      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+      /*
+      // API 연동
+      const response = await ApiService.updateStore(storeId, storeData);
+      console.log('가게 수정 성공:', response);
+      alert('가게 정보가 성공적으로 수정되었습니다!');
+      navigate('/mypage/stores');
+      */
     } catch (error) {
       console.error('Failed to update store:', error);
       alert('가게 정보 수정에 실패했습니다.');
@@ -148,12 +179,37 @@ function MerchantStoreEdit() {
             {/* 주소 */}
             <Field>
               <Label>
-                가게 장소 <Required>*</Required>
+                가게 주소 <Required>*</Required>
               </Label>
               <Input
-                placeholder="주소 또는 위치를 입력해주세요"
+                placeholder="주소를 입력해주세요"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
+              />
+            </Field>
+
+            {/* 전화번호 */}
+            <Field>
+              <Label>
+                전화번호 <Required>*</Required>
+              </Label>
+              <Input
+                placeholder="전화번호를 입력해주세요 (예: 02-1234-5678)"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+              />
+            </Field>
+
+            {/* 가게 소개 */}
+            <Field>
+              <Label>
+                가게 소개 <Required>*</Required>
+              </Label>
+              <Textarea
+                rows={3}
+                placeholder="가게에 대한 소개를 입력해주세요"
+                value={intro}
+                onChange={(e) => setIntro(e.target.value)}
               />
             </Field>
 
@@ -177,117 +233,65 @@ function MerchantStoreEdit() {
               </CategoryGrid>
             </Field>
 
+            {/* 썸네일 이미지 */}
+            <Field>
+              <Label>
+                썸네일 이미지 <Required>*</Required>
+              </Label>
+              <Input
+                placeholder="썸네일 이미지 URL을 입력해주세요"
+                value={thumbnail}
+                onChange={(e) => setThumbnail(e.target.value)}
+              />
+            </Field>
+
+            {/* 추가 이미지들 */}
+            <Field>
+              <Label>추가 이미지들</Label>
+              <Helper>선택사항입니다. 빈 URL은 자동으로 제외됩니다.</Helper>
+              {images.map((imageUrl, index) => (
+                <ImageUrlRow key={index}>
+                  <Input
+                    placeholder={`추가 이미지 ${index + 1} URL을 입력해주세요`}
+                    value={imageUrl}
+                    onChange={(e) => updateImageUrl(index, e.target.value)}
+                  />
+                  {images.length > 1 && (
+                    <RemoveButton type="button" onClick={() => removeImageUrl(index)}>
+                      삭제
+                    </RemoveButton>
+                  )}
+                </ImageUrlRow>
+              ))}
+              <AddButton type="button" onClick={addImageUrl}>
+                + 이미지 추가
+              </AddButton>
+            </Field>
+
             {/* 운영시간 */}
             <Field>
               <Label>
                 운영시간 <Required>*</Required>
               </Label>
               <TimeRow>
-                <Select value={openAt} onChange={(e) => setOpenAt(e.target.value)}>
-                  {timeOptions.map((t) => (
-                    <option key={`o-${t}`} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </Select>
+                <TimeInput
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value + ':00')}
+                />
                 <Dash>~</Dash>
-                <Select value={closeAt} onChange={(e) => setCloseAt(e.target.value)}>
-                  {timeOptions.map((t) => (
-                    <option key={`c-${t}`} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </Select>
+                <TimeInput
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value + ':00')}
+                />
               </TimeRow>
             </Field>
 
-            {/* 이미지 업로드 */}
-            <Field>
-              <Label>가게 이미지</Label>
-              <UploadRow>
-                <Dropzone
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDropImage(e, setHeroImage)}
-                >
-                  <UploadIcon>📷</UploadIcon>
-                  <UploadTitle>대표 사진 업로드</UploadTitle>
-                  <UploadSub>1장 필수 (최대 5MB)</UploadSub>
-                  <HiddenFile
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => onChooseImage(e, setHeroImage)}
-                  />
-                  {heroImage && <Preview>{heroImage.name}</Preview>}
-                </Dropzone>
-                <Dropzone
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDropImage(e, setExtraImage)}
-                >
-                  <UploadIcon>📷</UploadIcon>
-                  <UploadTitle>추가 사진 업로드</UploadTitle>
-                  <UploadSub>최소 0장 최대 5장</UploadSub>
-                  <HiddenFile
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => onChooseImage(e, setExtraImage)}
-                  />
-                  {extraImage && <Preview>{extraImage.name}</Preview>}
-                </Dropzone>
-              </UploadRow>
-            </Field>
-
-            {/* 기타 정보 */}
-            <Field>
-              <Label>기타 정보</Label>
-              <Textarea
-                rows={3}
-                placeholder="룸/흡연 가능 여부, 유아 가능 여부 등 추가 정보를 입력해주세요"
-                value={extraInfo}
-                onChange={(e) => setExtraInfo(e.target.value)}
-              />
-            </Field>
-
-            {/* 소개 */}
-            <Field>
-              <Label>가게 소개</Label>
-              <Textarea
-                rows={3}
-                placeholder="가게에 대한 소개를 작성해주세요"
-                value={intro}
-                onChange={(e) => setIntro(e.target.value)}
-              />
-            </Field>
-
-            {/* AI 추천 */}
-            <Field>
-              <Label>AI 추천을 받으시겠습니까?</Label>
-              <RadioRow>
-                <RadioLabel>
-                  <input
-                    type="radio"
-                    name="useAi"
-                    checked={useAi === true}
-                    onChange={() => setUseAi(true)}
-                  />
-                  <span>예</span>
-                </RadioLabel>
-                <RadioLabel>
-                  <input
-                    type="radio"
-                    name="useAi"
-                    checked={useAi === false}
-                    onChange={() => setUseAi(false)}
-                  />
-                  <span>아니오</span>
-                </RadioLabel>
-              </RadioRow>
-            </Field>
-
-            <SubmitBar>
-              <Submit type="submit" disabled={disabled}>
-                가게 정보 수정하기
-              </Submit>
-            </SubmitBar>
+            {/* 제출 버튼 */}
+            <SubmitButton type="submit" disabled={disabled}>
+              가게 정보 수정하기
+            </SubmitButton>
           </Form>
         </RightPane>
       </Main>
@@ -574,6 +578,69 @@ const SubmitBar = styled.div`
 `;
 
 const Submit = styled.button`
+  min-width: 220px;
+  height: 48px;
+  background: #fee502;
+  color: #262626;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .12s ease, background-color .2s ease;
+  &:hover { background: #ffe44b; transform: translateY(-1px); }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+`;
+
+const ImageUrlRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const RemoveButton = styled.button`
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #dc2626;
+  }
+`;
+
+const AddButton = styled.button`
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #4338ca;
+  }
+`;
+
+const TimeInput = styled.input`
+  height: 44px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0 12px;
+  outline: none;
+  font-size: 14px;
+  width: 100px; /* 시간 입력 필드 너비 고정 */
+`;
+
+const SubmitButton = styled.button`
   min-width: 220px;
   height: 48px;
   background: #fee502;

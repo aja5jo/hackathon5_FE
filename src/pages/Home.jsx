@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import styled from 'styled-components'
 import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
@@ -6,36 +6,86 @@ import EventCardList from '../components/common/EventCardList';
 import dummyEvents from '../assets/dummy.json'
 import HomeBannerSection from '../components/home/HomeBannerSection';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from '../utils/translations';
+
+import { debounce } from '../utils/performance';
 // import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
 
-function Home() {
+const Home = React.memo(() => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   // const [homeData, setHomeData] = useState(null); // 백엔드 배포 시 사용
 
-  // 더미 검색 데이터
-  const searchableData = [];
-  
-  // 더미 데이터에서 검색 가능한 데이터 구성
-  dummyEvents.categories.forEach(categoryData => {
-    // items 배열에서 모든 항목 추가
-    if (categoryData.items) {
-      categoryData.items.forEach(item => {
-        searchableData.push({
-          ...item,
-          category: categoryData.category,
-          type: item.type || 'store',
-          description: item.desc || item.description || '홍대의 인기 가게입니다',
-          image: item.thumbnail
+  // 더미 검색 데이터 - useMemo로 최적화
+  const searchableData = useMemo(() => {
+    // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
+    const data = [];
+    dummyEvents.categories.forEach(categoryData => {
+      // items 배열에서 모든 항목 추가
+      if (categoryData.items) {
+        categoryData.items.forEach(item => {
+          data.push({
+            ...item,
+            category: categoryData.category,
+            type: item.type || 'STORE',
+            description: item.description || item.desc || '홍대의 인기 가게입니다',
+            image: item.thumbnail,
+            // 검색을 위한 추가 필드
+            searchText: `${item.name} ${item.description || ''} ${categoryData.category} ${item.type || 'STORE'}`.toLowerCase()
+          });
         });
-      });
-    }
-  });
+      }
+    });
+    console.log('검색 가능한 데이터 구성 완료:', data.length);
+    return data;
+    
+    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+    /*
+    const loadSearchableDataFromAPI = async () => {
+      try {
+        const response = await ApiService.getCategories();
+        
+        if (response.success && response.data && response.data.categories) {
+          const data = [];
+          response.data.categories.forEach(categoryData => {
+            if (categoryData.items) {
+              categoryData.items.forEach(item => {
+                data.push({
+                  ...item,
+                  category: categoryData.category,
+                  type: item.type || 'STORE',
+                  description: item.description || item.desc || '홍대의 인기 가게입니다',
+                  image: item.thumbnail,
+                  searchText: `${item.name} ${item.description || ''} ${categoryData.category} ${item.type || 'STORE'}`.toLowerCase()
+                });
+              });
+            }
+          });
+          console.log('API에서 검색 가능한 데이터 구성 완료:', data.length);
+          return data;
+        }
+      } catch (error) {
+        console.error('API 데이터 로드 실패:', error);
+        // 에러 시 더미 데이터 반환
+        return dummyEvents.categories.flatMap(categoryData => 
+          categoryData.items ? categoryData.items.map(item => ({
+            ...item,
+            category: categoryData.category,
+            type: item.type || 'STORE',
+            description: item.description || item.desc || '홍대의 인기 가게입니다',
+            image: item.thumbnail,
+            searchText: `${item.name} ${item.description || ''} ${categoryData.category} ${item.type || 'STORE'}`.toLowerCase()
+          })) : []
+        );
+      }
+    };
+    
+    return loadSearchableDataFromAPI();
+    */
+  }, []);
 
   // 백엔드 배포 시 사용할 데이터 로드 함수
   /*
@@ -54,17 +104,44 @@ function Home() {
   }, []);
   */
 
-  const handleSearch = (term) => {
+  const handleSearch = useCallback((term) => {
+    console.log('handleSearch 호출됨:', term);
+    
+    if (!term.trim()) {
+      setSearchTerm('');
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
     setSearchTerm(term);
     setIsSearching(true);
     
     // ===== 현재 더미 데이터 검색 (실제 사용 중) =====
-    // 검색 로직
-    const results = searchableData.filter(item => 
-      item.name.toLowerCase().includes(term.toLowerCase()) ||
-      item.description.toLowerCase().includes(term.toLowerCase()) ||
-      item.category.toLowerCase().includes(term.toLowerCase())
-    );
+    // 검색 로직 - 더 정확한 검색을 위해 개선
+    const searchLower = term.toLowerCase();
+    const results = searchableData.filter(item => {
+      // 이름으로 검색
+      if (item.name.toLowerCase().includes(searchLower)) return true;
+      
+      // 설명으로 검색
+      if (item.description && item.description.toLowerCase().includes(searchLower)) return true;
+      
+      // 카테고리로 검색
+      if (item.category.toLowerCase().includes(searchLower)) return true;
+      
+      // 타입으로 검색
+      if (item.type && item.type.toLowerCase().includes(searchLower)) return true;
+      
+      // 통합 검색 텍스트로 검색
+      if (item.searchText && item.searchText.includes(searchLower)) return true;
+      
+      return false;
+    });
+    
+    console.log('검색어:', term);
+    console.log('검색 결과:', results);
+    console.log('전체 데이터 개수:', searchableData.length);
     
     setSearchResults(results);
     setIsSearching(false);
@@ -85,20 +162,20 @@ function Home() {
     
     performSearch();
     */
-  };
+  }, [searchableData]);
 
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setSearchTerm('');
     setSearchResults([]);
     setIsSearching(false);
-  };
+  }, []);
 
-  const handleItemClick = (item) => {
+  const handleItemClick = useCallback((item) => {
     const category = item.category.toLowerCase();
     navigate(`/lookmore/${category}/${item.type}/${item.id}`);
-  };
+  }, [navigate]);
 
-  const handleUpdateClick = () => {
+  const handleUpdateClick = useCallback(() => {
     setIsUpdating(true);
     
     // ===== 현재 더미 데이터 새로고침 (실제 사용 중) =====
@@ -112,19 +189,19 @@ function Home() {
     const updateData = async () => {
       try {
         await ApiService.updateHomeData();
-        // 성공 시 데이터 다시 로드
-        window.location.reload();
-      } catch (error) {
-        console.error('데이터 업데이트 실패:', error);
-        alert('데이터 업데이트에 실패했습니다.');
-      } finally {
-        setIsUpdating(false);
-      }
-    };
-    
-    updateData();
-    */
-  };
+            // 성공 시 데이터 다시 로드
+    window.location.reload();
+  } catch (error) {
+    console.error('데이터 업데이트 실패:', error);
+    alert('데이터 업데이트에 실패했습니다.');
+  } finally {
+    setIsUpdating(false);
+  }
+};
+
+updateData();
+*/
+  }, []);
 
   return (
     <Container>
@@ -136,9 +213,9 @@ function Home() {
         <SearchBox onSearch={handleSearch} />
       </SearchSection>
 
-      {isSearching ? (
-        // 검색 결과 표시
-        <SearchResultsSection>
+             {searchTerm ? (
+         // 검색 결과 표시
+         <SearchResultsSection>
           <SearchHeader>
             <SearchTitle>
               <SearchQuery>'{searchTerm}'</SearchQuery> 검색 결과
@@ -147,35 +224,43 @@ function Home() {
             <ClearButton onClick={handleClearSearch}>✕ 검색 취소</ClearButton>
           </SearchHeader>
           
-          {searchResults.length > 0 ? (
-            <SearchResultsGrid>
-              {searchResults.map((item) => (
-                <SearchResultCard key={`${item.category}-${item.id}`} onClick={() => handleItemClick(item)}>
-                  <ResultImage>
-                    <img src={item.image} alt={item.name} />
-                    <CategoryBadge>{item.category}</CategoryBadge>
-                  </ResultImage>
-                  <ResultContent>
-                    <ResultTitle>{item.name}</ResultTitle>
-                    <ResultDescription>{item.description}</ResultDescription>
-                  </ResultContent>
-                </SearchResultCard>
-              ))}
-            </SearchResultsGrid>
-          ) : (
-            <EmptyResults>
-              <EmptyIcon>🔍</EmptyIcon>
-              <EmptyTitle>검색 결과가 없습니다</EmptyTitle>
-              <EmptyDescription>다른 키워드로 검색해보세요</EmptyDescription>
-            </EmptyResults>
-          )}
+                     {searchResults.length > 0 ? (
+             <SearchResultsGrid>
+               {searchResults.map((item) => (
+                 <SearchResultCard key={`${item.category}-${item.id}`} onClick={() => handleItemClick(item)}>
+                   <ResultImage>
+                     <img src={item.image || item.thumbnail} alt={item.name} onError={(e) => {
+                       e.target.src = 'https://picsum.photos/300/200?random=' + item.id;
+                     }} />
+                     <CategoryBadge>{item.category}</CategoryBadge>
+                     <TypeBadge>{item.type}</TypeBadge>
+                   </ResultImage>
+                   <ResultContent>
+                     <ResultTitle>{item.name}</ResultTitle>
+                     <ResultDescription>{item.description || '홍대의 인기 가게입니다'}</ResultDescription>
+                     <ResultInfo>
+                       <InfoItem>📍 홍대</InfoItem>
+                       {item.startDate && <InfoItem>📅 {item.startDate}</InfoItem>}
+                       <InfoItem>❤️ {item.likeCount || 0}</InfoItem>
+                     </ResultInfo>
+                   </ResultContent>
+                 </SearchResultCard>
+               ))}
+             </SearchResultsGrid>
+           ) : (
+             <EmptyResults>
+               <EmptyIcon>🔍</EmptyIcon>
+               <EmptyTitle>검색 결과가 없습니다</EmptyTitle>
+               <EmptyDescription>다른 키워드로 검색해보세요</EmptyDescription>
+             </EmptyResults>
+           )}
         </SearchResultsSection>
       ) : (
         // 기본 홈 화면 - 카드 그리드
         <MainContent>
           {/* 상단 헤더 */}
           <TopHeader>
-            <BrandName>{t('brandName')}</BrandName>
+            <BrandName>홍대 해커톤</BrandName>
             <UpdateButton onClick={handleUpdateClick} disabled={isUpdating}>
               <UpdateIcon className={isUpdating ? 'spinning' : ''}>🔄</UpdateIcon>
               {isUpdating ? '업데이트 중...' : '업데이트'}
@@ -184,8 +269,8 @@ function Home() {
 
           {/* 메인 제목 */}
           <SectionHeader>
-            <SectionTitle>{t('homeSubtitle')}:</SectionTitle>
-            <MoreButton onClick={() => navigate('/morelistmain')}>{t('seeMore')}</MoreButton>
+            <SectionTitle>추천 카테고리:</SectionTitle>
+            <MoreButton onClick={() => navigate('/morelistmain')}>더보기</MoreButton>
           </SectionHeader>
 
           {/* 카드 그리드 */}
@@ -196,7 +281,7 @@ function Home() {
       <Footer/>
     </Container>
   )
-}
+});
 
 // 스타일 컴포넌트들
 const Container = styled.div`
@@ -398,6 +483,18 @@ const CategoryBadge = styled.span`
   font-weight: 600;
 `;
 
+const TypeBadge = styled.span`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  font-weight: 600;
+`;
+
 const ResultContent = styled.div`
   padding: 1.5rem;
 `;
@@ -412,8 +509,22 @@ const ResultTitle = styled.h3`
 const ResultDescription = styled.p`
   font-size: 1.4rem;
   color: #666;
-  margin: 0;
+  margin: 0 0 1rem 0;
   line-height: 1.4;
+`;
+
+const ResultInfo = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
+const InfoItem = styled.span`
+  font-size: 1.2rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 `;
 
 const EmptyResults = styled.div`

@@ -4,13 +4,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
-import { useTranslation } from '../utils/translations';
+
 
 function EventDetail() {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { t } = useTranslation();
+  
   const [eventDetail, setEventDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

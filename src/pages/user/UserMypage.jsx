@@ -60,16 +60,16 @@ function UserMypage() {
         </UserInfoSection>
 
         <CardGrid>
-          {/* 즐겨찾기/버킷리스트 */}
+          {/* 버킷리스트 */}
           <NavCard>
             <CardHeader>
-              <CardTitle>즐겨찾기 & 버킷리스트</CardTitle>
+              <CardTitle>버킷리스트</CardTitle>
               <CountBadge>{favoritesCount}개</CountBadge>
             </CardHeader>
             <CardDesc>나만의 특별한 장소와 이벤트 관리</CardDesc>
             <ButtonRow>
               {/* <PrimaryButton onClick={() => navigate('/favorites')}>
-                즐겨찾기 보기
+                버킷리스트
               </PrimaryButton> */}
               <GhostButton onClick={() => navigate('/favorites')}>
                 버킷리스트 관리

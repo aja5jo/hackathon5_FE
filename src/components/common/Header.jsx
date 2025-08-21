@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
-import { useTranslation } from '../../utils/translations';
+
 import { useAuth } from '../../contexts/AuthContext';
 
 function Header() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  
   const { isAuthenticated, isMerchant, user, logout } = useAuth();
   
-  const [selectedLanguage, setSelectedLanguage] = useState('ko');
+  const [selectedLanguage, setSelectedLanguage] = useState('KOREAN');
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [currentTexts, setCurrentTexts] = useState({});
 
@@ -19,12 +19,19 @@ function Header() {
   console.log('Header - user:', user);
   console.log('Header - isMerchant:', isMerchant);
 
-  // 언어 설정
+  // 언어 설정 - API 명세서에 맞는 SupportedLanguage enum 값 사용
   const languages = [
-    { code: 'ko', name: '한국어', flag: '🇰🇷' },
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ja', name: '日本語', flag: '🇯🇵' },
-    { code: 'zh', name: '中文', flag: '🇨🇳' }
+    { code: 'KOREAN', name: '한국어', flag: '🇰🇷' },
+    { code: 'ENGLISH', name: 'English', flag: '🇺🇸' },
+    { code: 'JAPANESE', name: '日本語', flag: '🇯🇵' },
+    { code: 'CHINESE', name: '中文', flag: '🇨🇳' },
+    { code: 'FRENCH', name: 'Français', flag: '🇫🇷' },
+    { code: 'ARABIC', name: 'العربية', flag: '🇸🇦' },
+    { code: 'VIETNAMESE', name: 'Tiếng Việt', flag: '🇻🇳' },
+    { code: 'THAI', name: 'ไทย', flag: '🇹🇭' },
+    { code: 'ITALIAN', name: 'Italiano', flag: '🇮🇹' },
+    { code: 'SPANISH', name: 'Español', flag: '🇪🇸' },
+    { code: 'GERMAN', name: 'Deutsch', flag: '🇩🇪' }
   ];
 
   const currentLanguage = languages.find(lang => lang.code === selectedLanguage) || languages[0];
@@ -35,18 +42,26 @@ function Header() {
 
   const updateTexts = () => {
     setCurrentTexts({
-      categories: t('categories'),
-      events: t('events'),
-      popup: t('popup'),
-      bucketlist: t('bucketlist'),
-      login: t('login'),
-      logout: t('logout')
+      categories: '카테고리',
+      events: '이벤트',
+      popup: '팝업',
+      bucketlist: '버킷리스트',
+      login: '로그인',
+      logout: '로그아웃'
     });
   };
 
   const handleLanguageSelect = (languageCode) => {
     setSelectedLanguage(languageCode);
     setIsLanguageDropdownOpen(false);
+    
+    // localStorage에 선택된 언어 저장
+    localStorage.setItem('translator:selected', languageCode);
+    
+    // 커스텀 이벤트 발행 (본문 번역과 동기화)
+    window.dispatchEvent(new CustomEvent('translator:languageChanged', { 
+      detail: languageCode 
+    }));
   };
 
   const handleLoginClick = () => {
@@ -86,10 +101,10 @@ function Header() {
       <Left>
         <Logo src = {logo} alt="로고" onClick = { ()=> navigate('/')}/>
         <Nav>
-          <NavItem onClick ={()=>navigate('/categories')}>{currentTexts.categories}</NavItem>
-          <NavItem onClick ={()=>navigate('/events')}>{currentTexts.events}</NavItem>
-          <NavItem onClick ={()=>navigate('/popup')}>{currentTexts.popup}</NavItem>
-          <NavItem onClick={handleFavoritesClick}>{currentTexts.bucketlist}</NavItem>
+          <NavItem onClick ={()=>navigate('/categories')}>카테고리</NavItem>
+          <NavItem onClick ={()=>navigate('/events')}>이벤트</NavItem>
+          <NavItem onClick ={()=>navigate('/popup')}>팝업</NavItem>
+          <NavItem onClick={handleFavoritesClick}>버킷리스트</NavItem>
           {/* 로그인 상태에 따른 마이페이지 조건부 렌더링 */}
           {isAuthenticated && (
             <NavItem onClick={handleMyPageClick}>마이페이지</NavItem>
@@ -129,11 +144,11 @@ function Header() {
             <UserInfo>
               {user?.email || '사용자'}
             </UserInfo>
-            <LogoutButton onClick={handleLogoutClick}>{currentTexts.logout}</LogoutButton>
+            <LogoutButton onClick={handleLogoutClick}>로그아웃</LogoutButton>
           </UserSection>
         ) : (
           // 로그인되지 않은 상태: 로그인 버튼 표시
-          <LoginButton onClick={handleLoginClick}>{currentTexts.login}</LoginButton>
+          <LoginButton onClick={handleLoginClick}>로그인</LoginButton>
         )}
         {/* ===== 로그인/로그아웃 버튼 끝 ===== */}
       </Right>

@@ -55,6 +55,10 @@ function MerchantStoreList() {
     navigate(`/merchants/stores/${storeId}/edit`);
   };
 
+  const handlePartialEdit = (storeId) => {
+    navigate(`/merchants/stores/${storeId}/partial-edit`);
+  };
+
   const handleDelete = async (storeId) => {
     if (window.confirm('정말로 삭제하시겠습니까?')) {
       try {
@@ -152,8 +156,11 @@ function MerchantStoreList() {
 
                 <ActionRow>
                   <EditButton onClick={() => handleEdit(store.id)}>
-                    수정
+                    전체 수정
                   </EditButton>
+                  <PartialEditButton onClick={() => handlePartialEdit(store.id)}>
+                    부분 수정
+                  </PartialEditButton>
                   <DeleteButton onClick={() => handleDelete(store.id)}>
                     삭제
                   </DeleteButton>
@@ -361,6 +368,16 @@ const EditButton = styled(BaseActionButton)`
 
   &:hover {
     background: #ffe95a;
+  }
+`;
+
+const PartialEditButton = styled(BaseActionButton)`
+  background: #4CAF50; /* A green color for partial edit */
+  color: white;
+  border-color: #4CAF50;
+
+  &:hover {
+    background: #45a049;
   }
 `;
 

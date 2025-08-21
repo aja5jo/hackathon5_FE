@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, memo, useCallback } from 'react'
 import styled from 'styled-components';
 import searchIcon from '../../assets/search.png';
-import { useTranslation } from '../../utils/translations';
 
-const SearchBox = ({ onSearch }) => {
-    const { t } = useTranslation();
+
+const SearchBox = memo(({ onSearch }) => {
+    
     const [search, setSearch] = useState('');
     const [forceUpdate, setForceUpdate] = useState(0); // 언어 변경 시 리렌더링 강제
     
@@ -21,30 +21,38 @@ const SearchBox = ({ onSearch }) => {
         };
     }, []);
 
-    const onChange = (e) => {
+    const onChange = useCallback((e) => {
         setSearch(e.target.value);
-    }
+    }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = useCallback((e) => {
         e.preventDefault();
-        if (search.trim() && onSearch) {
+        console.log('검색 제출:', search);
+        if (onSearch && search.trim()) {
             onSearch(search.trim());
         }
-    }
+    }, [search, onSearch]);
 
-    const handleKeyPress = (e) => {
+    const handleIconClick = useCallback(() => {
+        console.log('아이콘 클릭:', search);
+        if (onSearch && search.trim()) {
+            onSearch(search.trim());
+        }
+    }, [search, onSearch]);
+
+    const handleKeyPress = useCallback((e) => {
         if (e.key === 'Enter') {
             handleSubmit(e);
         }
-    }
+    }, [handleSubmit]);
 
   return (
     <SearchForm onSubmit={handleSubmit}>
         <SearchContainer>
-            <Icon src={searchIcon} alt="검색 아이콘"/>
+            <Icon src={searchIcon} alt="검색 아이콘" onClick={handleIconClick} style={{cursor: 'pointer'}}/>
             <SearchInput 
                 type="text"
-                placeholder={t('searchPlaceholder')}
+                placeholder="검색어를 입력하세요"
                 value={search}
                 onChange={onChange}
                 onKeyPress={handleKeyPress}
@@ -52,7 +60,7 @@ const SearchBox = ({ onSearch }) => {
         </SearchContainer>
     </SearchForm>
   )
-}
+});
 
 export default SearchBox
 

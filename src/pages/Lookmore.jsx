@@ -5,13 +5,14 @@ import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import dummyEvents from '../assets/dummy.json';
 import { useAuth } from '../contexts/AuthContext';
-import { useTranslation } from '../utils/translations';
+
+// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
 
 function Lookmore() {
   const { category, itemId, itemType } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { t } = useTranslation();
+  
   const [itemData, setItemData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -156,7 +157,7 @@ function Lookmore() {
     const loadItemData = async () => {
       setIsLoading(true);
       try {
-        // ===== 더미데이터 로드 (백엔드 배포 후 삭제) =====
+        // ===== 현재 더미데이터 버전 (실제 사용 중) =====
         setTimeout(() => {
           if (foundItem) {
             setItemData(foundItem);
@@ -167,9 +168,36 @@ function Lookmore() {
           }
           setIsLoading(false);
         }, 500);
-        // ===== 더미데이터 로드 끝 =====
-
-        // ===== 실제 API 호출 (백엔드 배포 후 주석 해제) =====
+        
+        // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+        /*
+        try {
+          // API 명세서에 맞는 특정 카테고리 조회 요청
+          const response = await ApiService.getCategory(normalizedCategory);
+          
+          if (response.success && response.data && response.data.items) {
+            // 해당 카테고리의 아이템들 중에서 특정 아이템 찾기
+            const targetItem = response.data.items.find(item => 
+              item.id === parseInt(itemId) && item.type === normalizedType
+            );
+            
+            if (targetItem) {
+              setItemData(targetItem);
+              setIsLiked(targetItem.liked);
+              setLikeCount(targetItem.likeCount);
+            } else {
+              setError('해당 아이템을 찾을 수 없습니다.');
+            }
+          } else {
+            setError(response.message || '상세 정보를 불러올 수 없습니다.');
+          }
+        } catch (error) {
+          console.error('API 호출 실패:', error);
+          setError('서버 연결에 실패했습니다.');
+        }
+        */
+        
+        // ===== 기존 API 호출 방식 (백엔드 배포 후 주석 해제) =====
         /*
         const response = await fetch(`http://localhost:8080/api/categories/${normalizedCategory}/${normalizedType}/${itemId}`, {
           method: 'GET',
@@ -189,7 +217,6 @@ function Lookmore() {
           setError(result.message || '상세 정보를 불러올 수 없습니다.');
         }
         */
-        // ===== 실제 API 호출 끝 =====
       } catch (error) {
         console.error('Failed to load item data:', error);
         setError('서버 연결에 실패했습니다.');

@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, memo, useCallback } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import offlike from '../../assets/offlike.svg'
 import onlike from '../../assets/onlike.svg'
-import { useTranslation } from '../../utils/translations'
+
 import { useAuth } from '../../contexts/AuthContext'
 // import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
 
-const EventCard = ({ event, excludeStatuses = [] }) => {
+const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  
   const { isAuthenticated } = useAuth();
   const [like, setLike] = useState(false);
   const [likeCount, setLikeCount] = useState(event.likeCount || 0);
@@ -52,7 +52,7 @@ const EventCard = ({ event, excludeStatuses = [] }) => {
     checkFavoriteStatus();
   }, [event.id, event.liked]);
 
-  const toggleLike = (e) => {
+  const toggleLike = useCallback((e) => {
     e.stopPropagation();
     if (!isAuthenticated) {
       alert('로그인이 필요한 서비스입니다.');
@@ -69,6 +69,10 @@ const EventCard = ({ event, excludeStatuses = [] }) => {
         localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
         setLike(false);
         setLikeCount(prev => prev - 1);
+        // 부모 컴포넌트에 제거 알림
+        if (onRemove) {
+          onRemove(event.id);
+        }
       } else {
         const newFavorite = {
           id: event.id,
@@ -124,9 +128,9 @@ const EventCard = ({ event, excludeStatuses = [] }) => {
     
     performToggle();
     */
-  };
+  }, [event.id, event.name, event.category, event.type, event.description, event.desc, event.thumbnail, event.location, event.likeCount, like, isAuthenticated, navigate, onRemove]);
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     const type = (event.type || '').toLowerCase();
     if (type === 'store') {
       navigate(`/store/${event.id}`);
@@ -135,7 +139,7 @@ const EventCard = ({ event, excludeStatuses = [] }) => {
     } else {
       navigate(`/events/${event.id}`);
     }
-  };
+  }, [event.type, event.id, navigate]);
 
   const shouldShowStatus = Boolean(event.status) && !excludeStatuses.includes(event.status);
 
@@ -173,12 +177,12 @@ const EventCard = ({ event, excludeStatuses = [] }) => {
         <EventDescription>{event.description || event.desc}</EventDescription>
         <EventInfo>
           <InfoItem>📅 {event.startDate && event.endDate ? `${event.startDate} ~ ${event.endDate}` : event.startDate || event.endDate}</InfoItem>
-          <InfoItem>📍 {event.location || '홍대'}</InfoItem>
+          <InfoItem>📍 {typeof event.location === 'object' ? '홍대' : (event.location || '홍대')}</InfoItem>
         </EventInfo>
       </EventContent>
     </Card>
   );
-};
+});
 
 export default EventCard;
 

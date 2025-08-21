@@ -19,10 +19,14 @@ import MerchantStore from './pages/merchant/MerchantStore';
 import MerchantEvent from './pages/merchant/MerchantEvent';
 import MerchantEventEdit from './pages/merchant/MerchantEventEdit';
 import MerchantEventPartialEdit from './pages/merchant/MerchantEventPartialEdit';
+import ImageTranslationTest from './pages/ImageTranslationTest';
+import HtmlTranslationTest from './pages/HtmlTranslationTest';
 import MerchantPopup from './pages/merchant/MerchantPopup';
 import MerchantStoreList from './pages/merchant/MerchantStoreList';
 import MerchantEventList from './pages/merchant/MerchantEventList';
 import MerchantStoreEdit from './pages/merchant/MerchantStoreEdit';
+import MerchantStorePartialEdit from './pages/merchant/MerchantStorePartialEdit';
+import AiPreviewTest from './pages/AiPreviewTest';
 import MerchantMypage from './pages/merchant/MerchantMypage';
 import MerchantSettings from './pages/merchant/MerchantSettings';
 import MyPage from './pages/MyPage';
@@ -160,6 +164,10 @@ const router = createBrowserRouter([
         element: <MerchantStoreEdit />,
       },
       {
+        path: "merchants/stores/:storeId/partial-edit",
+        element: <MerchantStorePartialEdit />,
+      },
+      {
         path: "mypage/events",
         element: <MerchantEventList />,
       },
@@ -223,6 +231,18 @@ const router = createBrowserRouter([
       {
         path: "mypage/analytics",
         element: <TempPage title="활동 분석" description="나의 활동을 분석할 수 있습니다." />,
+      },
+      {
+        path: "image-translation-test",
+        element: <ImageTranslationTest />,
+      },
+      {
+        path: "html-translation-test",
+        element: <HtmlTranslationTest />,
+      },
+      {
+        path: "ai-preview-test",
+        element: <AiPreviewTest />,
       },
     ],
     }

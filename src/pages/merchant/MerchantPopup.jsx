@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
+import { validatePopupData, sanitizeInput } from '../../utils/validation';
 // import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
 
 const CATEGORIES = [
@@ -29,9 +30,64 @@ function MerchantPopup() {
   const [startTime, setStartTime] = useState('11:00:00');
   const [endTime, setEndTime] = useState('20:30:00');
   const [address, setAddress] = useState('');
+  const [showAiPreview, setShowAiPreview] = useState(false);
+  const [aiPreviewResult, setAiPreviewResult] = useState(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   const disabled = useMemo(() => !category || !name || !description || !intro || !thumbnail || !startDate || !endDate || !address, 
     [category, name, description, intro, thumbnail, startDate, endDate, address]);
+
+  // AI 미리보기 함수
+  const handleAiPreview = async () => {
+    if (!name.trim() || !category || !address.trim()) {
+      alert('팝업 이름, 카테고리, 주소를 먼저 입력해주세요.');
+      return;
+    }
+
+    setIsAiLoading(true);
+    setAiPreviewResult(null);
+    setShowAiPreview(true);
+
+    try {
+      // ===== 현재 더미 AI 미리보기 버전 (실제 사용 중) =====
+      console.log('AI 팝업 미리보기 요청:', { name, category, address, description, intro });
+      
+      // 실제 API 호출을 시뮬레이션하기 위한 지연
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const dummyResponse = {
+        success: true,
+        code: 200,
+        message: "AI 팝업 카피 미리보기 생성 성공",
+        data: {
+          intro: `${name} 팝업이 ${address}에서 열립니다! ${category} 카테고리의 특별한 경험을 제공합니다.`,
+          description: `${description ? description + ' ' : ''}${intro ? intro + ' ' : ''}한정된 기간 동안만 운영되는 특별한 팝업입니다. 놓치지 마시고 방문해보세요! 다양한 체험과 특별한 혜택이 여러분을 기다리고 있습니다.`
+        }
+      };
+      
+      setAiPreviewResult(dummyResponse.data);
+      
+      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+      /*
+      const response = await ApiService.previewPopupAi({
+        name: name.trim(),
+        category: category,
+        address: address.trim(),
+        description: description.trim() || undefined,
+        intro: intro.trim() || undefined,
+        thumbnail: thumbnail.trim() || undefined,
+        images: images.filter(img => img.trim() !== '')
+      });
+      
+      setAiPreviewResult(response.data);
+      */
+    } catch (error) {
+      console.error('AI 미리보기 실패:', error);
+      alert('AI 미리보기 생성에 실패했습니다.');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +108,16 @@ function MerchantPopup() {
         endTime: endTime,
         address: address.trim()
       };
+
+      // 데이터 검증
+      const validation = validatePopupData(popupData);
+      if (!validation.isValid) {
+        alert(`입력 데이터 오류:\n${validation.errors.join('\n')}`);
+        return;
+      }
+
+      // 데이터 정제
+      const sanitizedData = sanitizeInput(popupData);
 
       // ===== 현재 더미 등록 버전 (실제 사용 중) =====
       // 더미 팝업 등록 성공 처리
@@ -271,11 +337,56 @@ function MerchantPopup() {
               <CancelButton type="button" onClick={() => navigate('/mypage/popups')}>
                 취소
               </CancelButton>
+              <AiPreviewButton 
+                type="button" 
+                onClick={handleAiPreview}
+                disabled={!name.trim() || !category || !address.trim() || isAiLoading}
+              >
+                {isAiLoading ? 'AI 생성 중...' : 'AI 홍보글 미리보기'}
+              </AiPreviewButton>
               <Submit type="submit" disabled={disabled}>
                 팝업스토어 등록하기
               </Submit>
             </SubmitBar>
           </Form>
+
+          {/* AI 미리보기 결과 */}
+          {showAiPreview && (
+            <AiPreviewSection>
+              <AiPreviewTitle>AI 홍보글 미리보기</AiPreviewTitle>
+              
+              {isAiLoading ? (
+                <AiLoadingMessage>AI가 홍보글을 생성하고 있습니다...</AiLoadingMessage>
+              ) : aiPreviewResult ? (
+                <>
+                  <AiPreviewCard>
+                    <AiPreviewLabel>인트로 (요약/후킹)</AiPreviewLabel>
+                    <AiPreviewContent>{aiPreviewResult.intro}</AiPreviewContent>
+                  </AiPreviewCard>
+
+                  <AiPreviewCard>
+                    <AiPreviewLabel>상세 설명</AiPreviewLabel>
+                    <AiPreviewContent>{aiPreviewResult.description}</AiPreviewContent>
+                  </AiPreviewCard>
+
+                  <AiActionButtons>
+                    <AiCopyButton onClick={() => {
+                      navigator.clipboard.writeText(`${aiPreviewResult.intro}\n\n${aiPreviewResult.description}`);
+                      alert('홍보글이 클립보드에 복사되었습니다!');
+                    }}>
+                      전체 복사
+                    </AiCopyButton>
+                    <AiCloseButton onClick={() => {
+                      setShowAiPreview(false);
+                      setAiPreviewResult(null);
+                    }}>
+                      닫기
+                    </AiCloseButton>
+                  </AiActionButtons>
+                </>
+              ) : null}
+            </AiPreviewSection>
+          )}
         </RightPane>
       </Main>
     </Page>
@@ -447,4 +558,113 @@ const Helper = styled.div`
   font-size: 12px;
   color: #9ca3af;
   margin-top: 4px;
+`;
+
+// AI 미리보기 관련 스타일
+const AiPreviewButton = styled.button`
+  min-width: 180px;
+  height: 48px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: #4338ca;
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+  }
+`;
+
+const AiPreviewSection = styled.div`
+  margin-top: 2rem;
+  padding: 2rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+`;
+
+const AiPreviewTitle = styled.h3`
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #262626;
+  margin-bottom: 1.5rem;
+`;
+
+const AiLoadingMessage = styled.p`
+  font-size: 1.4rem;
+  color: #6b7280;
+  text-align: center;
+  padding: 2rem;
+`;
+
+const AiPreviewCard = styled.div`
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+`;
+
+const AiPreviewLabel = styled.h4`
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.8rem;
+`;
+
+const AiPreviewContent = styled.p`
+  font-size: 1.4rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+`;
+
+const AiActionButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+`;
+
+const AiCopyButton = styled.button`
+  height: 44px;
+  padding: 0 2rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #059669;
+  }
+`;
+
+const AiCloseButton = styled.button`
+  height: 44px;
+  padding: 0 2rem;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #4b5563;
+  }
 `;

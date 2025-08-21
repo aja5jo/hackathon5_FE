@@ -5,10 +5,11 @@ import Footer from '../components/common/Footer';
 import CategoryBannerSection from '../components/category2/CategoryBannerSection';
 import dummyEvents from '../assets/dummy.json'
 import EventCardListCategory from '../components/category2/EventCardListCategory.jsx';
-import { useTranslation } from '../utils/translations';
+
+// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
 
 function Category2() {
-  const { t } = useTranslation();
+  
 
   // ===== 기존 코드 유지 =====
   const [selected ,setSelected]=useState([]);
@@ -33,6 +34,7 @@ function Category2() {
   // 컴포넌트 마운트 시 localStorage에서 선택된 카테고리 불러오기
   useEffect(() => {
     const loadUserCategories = () => {
+      // ===== 현재 localStorage 버전 (실제 사용 중) =====
       const savedCategories = localStorage.getItem('selectedCategories');
       if (savedCategories) {
         const categoryIds = JSON.parse(savedCategories);
@@ -54,6 +56,47 @@ function Category2() {
         }).filter(Boolean);
         setSelected(koreanCategoryNames);
       }
+      
+      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+      /*
+      const loadCategoriesFromAPI = async () => {
+        try {
+          const response = await ApiService.getCategories();
+          
+          if (response.success && response.data && response.data.categories) {
+            // API 응답에서 카테고리 데이터 추출
+            const categories = response.data.categories;
+            
+            // 사용자가 선택한 카테고리들만 필터링
+            const userCategories = categories.filter(cat => 
+              cat.items && cat.items.some(item => item.liked)
+            );
+            
+            setUserSelectedCategories(userCategories.map(cat => cat.category));
+            
+            // 한국어 카테고리명으로 변환
+            const koreanNames = userCategories.map(cat => {
+              const koreanMapping = {
+                'CAFE': '카페',
+                'FOOD': '맛집 & 술집',
+                'K_POP': 'KPOP',
+                'ENTERTAINMENT': '오락',
+                'SHOPPING': '쇼핑',
+                'CLUB': '클럽',
+                'ETC': '기타'
+              };
+              return koreanMapping[cat.category] || cat.category;
+            });
+            setSelected(koreanNames);
+          }
+        } catch (error) {
+          console.error('카테고리 데이터 로드 실패:', error);
+          // 에러 시 더미 데이터 사용
+        }
+      };
+      
+      loadCategoriesFromAPI();
+      */
     };
 
     loadUserCategories();
@@ -61,6 +104,7 @@ function Category2() {
 
   // ===== 수정: 선택된 카테고리에 따라 이벤트 필터링 로직 개선 =====
   useEffect(() => {
+    // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
     if (userSelectedCategories.length > 0 && dummyEvents.categories) {
       // ===== 수정: 선택된 카테고리의 카테고리 데이터만 필터링 =====
       const filteredCategories = dummyEvents.categories.filter(cat => 
@@ -71,6 +115,36 @@ function Category2() {
       // 선택된 카테고리가 없으면 모든 카테고리 표시
       setFilteredEvents(dummyEvents.categories || []);
     }
+    
+    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
+    /*
+    const loadFilteredEventsFromAPI = async () => {
+      try {
+        const response = await ApiService.getCategories();
+        
+        if (response.success && response.data && response.data.categories) {
+          const categories = response.data.categories;
+          
+          if (userSelectedCategories.length > 0) {
+            // 사용자가 선택한 카테고리들만 필터링
+            const filteredCategories = categories.filter(cat => 
+              userSelectedCategories.includes(cat.category)
+            );
+            setFilteredEvents(filteredCategories);
+          } else {
+            // 선택된 카테고리가 없으면 모든 카테고리 표시
+            setFilteredEvents(categories);
+          }
+        }
+      } catch (error) {
+        console.error('필터링된 이벤트 로드 실패:', error);
+        // 에러 시 더미 데이터 사용
+        setFilteredEvents(dummyEvents.categories || []);
+      }
+    };
+    
+    loadFilteredEventsFromAPI();
+    */
   }, [userSelectedCategories]);
   // ===== 새로 추가 끝 =====
 

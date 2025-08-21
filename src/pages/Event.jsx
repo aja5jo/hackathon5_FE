@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import EventBannerSection from '../components/event/EventBannerSection';
 import EventCard from '../components/common/EventCard';
-import { useTranslation } from '../utils/translations';
+
 
 function Event() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  
   const [activeCategory, setActiveCategory] = useState('인기');
   const [events, setEvents] = useState([]);
   

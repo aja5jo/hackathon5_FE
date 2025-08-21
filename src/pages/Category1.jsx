@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from '../utils/translations';
+
 // import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
 
 function Category1() {
   const navigate = useNavigate()
-  const { t } = useTranslation();
+  
   const [selectedCategories, setSelectedCategories] = useState([])
 
   const categories = [

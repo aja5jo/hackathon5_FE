@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 const AuthContext = createContext();
 
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = (userData, type = 'user') => {
+  const login = useCallback((userData, type = 'user') => {
     console.log('로그인 시도:', userData, type);
     setUser(userData);
     setUserType(type);
@@ -45,10 +45,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('userType', type);
     
     console.log('로그인 완료:', userData.email, type);
-  };
+  }, []);
 
   // 테스트용 더미 로그인 함수들
-  const loginAsUser = () => {
+  const loginAsUser = useCallback(() => {
     const userData = {
       id: 1,
       name: '일반 사용자',
@@ -56,9 +56,9 @@ export const AuthProvider = ({ children }) => {
       role: 'USER' // API 응답 구조에 맞게 'role' 사용
     };
     login(userData, 'user');
-  };
+  }, [login]);
 
-  const loginAsMerchant = () => {
+  const loginAsMerchant = useCallback(() => {
     const userData = {
       id: 2,
       name: '소상공인',
@@ -67,9 +67,9 @@ export const AuthProvider = ({ children }) => {
       businessName: '테스트 가게'
     };
     login(userData, 'merchant');
-  };
+  }, [login]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     console.log('로그아웃 시도');
     
     // ===== 현재 로컬 로그아웃 버전 (실제 사용 중) =====
@@ -124,13 +124,13 @@ export const AuthProvider = ({ children }) => {
       window.location.reload();
     }
     */
-  };
+  }, []);
 
-  const isMerchant = userType === 'merchant';
+  const isMerchant = useMemo(() => userType === 'merchant', [userType]);
 
-  const isAuthenticated = user !== null;
+  const isAuthenticated = useMemo(() => user !== null, [user]);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     userType,
     isLoading,
@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }) => {
     loginAsMerchant,
     isMerchant,
     isAuthenticated,
-  };
+  }), [user, userType, isLoading, login, logout, loginAsUser, loginAsMerchant, isMerchant, isAuthenticated]);
 
   return (
     <AuthContext.Provider value={value}>
