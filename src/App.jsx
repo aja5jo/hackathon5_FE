@@ -5,11 +5,14 @@ import { GlobalStyles } from './styles/GlobalStyles'
 import { AuthProvider } from './contexts/AuthContext'
 import router from './Router'
 import Translator from './utils/translate-sdk'
-import ErrorBoundary from './components/common/ErrorBoundary'
 
 function App() {
   useEffect(() => {
-    // ===== 번역 SDK 초기화 =====
+    // ===== 번역 SDK 초기화 (임시 비활성화) =====
+    console.log('번역 서버가 실행되지 않아 번역 기능을 비활성화합니다.');
+    
+    // 번역 기능을 완전히 비활성화하려면 아래 주석을 해제하세요
+    /*
     const t = new Translator({ viewerSelector: '#viewer' });
     
     t.init().then(async () => {
@@ -38,15 +41,16 @@ function App() {
       window.removeEventListener('translator:languageChanged', onLang);
       t.abortOngoing();
     };
+    */
   }, []);
 
   return (
-    <ErrorBoundary>
+    <>
       <GlobalStyles/>
       <AuthProvider>
         <RouterProvider router={router}/>
       </AuthProvider>
-    </ErrorBoundary>
+    </>
   )
 }
 

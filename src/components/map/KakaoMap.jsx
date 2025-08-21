@@ -26,8 +26,13 @@ const KakaoMap = ({
     console.log('mapElement.current:', mapElement.current);
     console.log('center:', center);
     
+    let isMounted = true;
+    
     kakao.maps.load(() => {
       console.log('kakao.maps.load() 콜백 실행됨');
+      
+      // 컴포넌트가 언마운트되었으면 실행하지 않음
+      if (!isMounted) return;
       
       try {
         // 지도 초기화
@@ -40,9 +45,19 @@ const KakaoMap = ({
         mapInstance.current = new kakao.maps.Map(mapElement.current, mapOptions);
         console.log('카카오 지도 초기화 완료:', mapInstance.current);
 
-        // 기존 마커들 제거
-        markersRef.current.forEach(marker => marker.setMap(null));
-        markersRef.current = [];
+        // 기존 마커들 제거 (안전하게)
+        if (markersRef.current.length > 0) {
+          markersRef.current.forEach(marker => {
+            try {
+              if (marker && typeof marker.setMap === 'function') {
+                marker.setMap(null);
+              }
+            } catch (error) {
+              console.warn('마커 제거 중 에러:', error);
+            }
+          });
+          markersRef.current = [];
+        }
 
         // 홍대입구역 마커 추가 (기본 마커)
         const hongdaeMarker = new kakao.maps.Marker({
@@ -154,6 +169,34 @@ const KakaoMap = ({
         return;
       }
     });
+
+    // cleanup 함수
+    return () => {
+      isMounted = false;
+      
+      // 마커들 안전하게 제거
+      if (markersRef.current.length > 0) {
+        markersRef.current.forEach(marker => {
+          try {
+            if (marker && typeof marker.setMap === 'function') {
+              marker.setMap(null);
+            }
+          } catch (error) {
+            console.warn('cleanup 중 마커 제거 에러:', error);
+          }
+        });
+        markersRef.current = [];
+      }
+      
+      // 지도 인스턴스 정리
+      if (mapInstance.current) {
+        try {
+          mapInstance.current = null;
+        } catch (error) {
+          console.warn('cleanup 중 지도 인스턴스 정리 에러:', error);
+        }
+      }
+    };
 
   }, [center, markers]);
 

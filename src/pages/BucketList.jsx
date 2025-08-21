@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import KakaoMap from '../components/map/KakaoMap';
 import { useAuth } from '../contexts/AuthContext';
-
 import EventCard from '../components/common/EventCard';
+import { favoritesAPI, bucketListAPI } from '../services/api';
 import bannerImg from '../assets/banner.png';
 // import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
 
@@ -19,63 +19,32 @@ function BucketList() {
   // 카테고리 필터
   const categories = ['전체', '카페', 'KPOP', '쇼핑', '문화생활', '클럽', '음식점', '이벤트'];
 
-  // 로컬 스토리지에서 좋아요 데이터 가져오기
-  useEffect(() => {
-    // ===== 현재 localStorage 버전 (실제 사용 중) =====
-    const loadFavorites = () => {
+  // 데이터 로드 함수
+  const loadFavorites = async () => {
+    try {
+      const data = await favoritesAPI.getFavorites();
+      setFavorites(data);
+    } catch (error) {
+      console.error('즐겨찾기 로드 실패:', error);
+      // 에러 시 localStorage 데이터 사용 (fallback)
       try {
         const storedFavorites = localStorage.getItem('userFavorites');
         if (storedFavorites) {
           const parsedFavorites = JSON.parse(storedFavorites);
           setFavorites(parsedFavorites);
         }
-      } catch (error) {
-        console.error('즐겨찾기 로드 실패:', error);
+      } catch (localError) {
+        console.error('localStorage 로드 실패:', localError);
       }
-    };
+    }
+  };
 
-    loadFavorites();
-    
-    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-    /*
-    const loadFavoritesFromAPI = async () => {
-      try {
-        // API 명세서에 맞는 즐겨찾기 목록 조회 요청
-        const response = await ApiService.getFavorites();
-        
-        if (response.success && response.data) {
-          // API 응답에서 즐겨찾기 데이터 추출
-          const favoritesData = response.data;
-          
-          // API 응답 구조를 프론트엔드에서 사용하는 구조로 변환
-          const transformedFavorites = favoritesData.map(item => ({
-            id: item.id,
-            name: item.name,
-            category: item.category || '기타', // API에서 category가 없는 경우 기본값
-            type: item.type,
-            description: item.description || `${item.name}에 대한 설명입니다.`,
-            image: item.thumbnail || `https://picsum.photos/seed/${item.name}/400/300`,
-            location: item.location || { lat: 37.5563, lng: 126.9244 }, // 홍대 중심 좌표
-            likeCount: item.likeCount || 0,
-            liked: item.liked || true // 즐겨찾기 목록에 있는 항목은 모두 liked: true
-          }));
-          
-          setFavorites(transformedFavorites);
-        } else {
-          console.error('즐겨찾기 데이터 로드 실패:', response.message);
-          // 에러 시 localStorage 데이터 사용
-          loadFavorites();
-        }
-      } catch (error) {
-        console.error('API 호출 실패:', error);
-        // 에러 시 localStorage 데이터 사용
-        loadFavorites();
-      }
-    };
-    
-    loadFavoritesFromAPI();
-    */
-  }, []);
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadFavorites();
+    }
+  }, [isAuthenticated]);
 
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);
