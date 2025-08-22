@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
-import ErrorBoundary from './components/common/ErrorBoundary';
 import HeaderLayout from './layouts/HeaderLayout';
 import Home from './pages/Home';
 import Category1 from './pages/Category1';

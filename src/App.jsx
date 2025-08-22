@@ -40,12 +40,12 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
+    <>
       <GlobalStyles/>
       <AuthProvider>
         <RouterProvider router={router}/>
       </AuthProvider>
-    </ErrorBoundary>
+    </>
   )
 }
 

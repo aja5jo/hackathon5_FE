@@ -22,7 +22,9 @@ const LayoutWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.main`
-    padding-top: 60px; /* header의 높이만큼 내리기 */
+    padding-top: 64px; /* header의 높이만큼 내리기 */
+    min-height: calc(100vh - 64px);
+    width: 100%;
 `;
 
 export default HeaderLayout

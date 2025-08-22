@@ -250,6 +250,10 @@ function Signup() {
           <SignupButton type="submit" disabled={isLoading}>
             {isLoading ? '회원가입 중...' : '회원가입'}
           </SignupButton>
+          
+          <LoginLink>
+            이미 계정이 있으신가요? <LoginLinkText onClick={() => navigate('/login')}>로그인하기</LoginLinkText>
+          </LoginLink>
         </Form>
       </MainContent>
 
@@ -489,6 +493,28 @@ const SignupButton = styled.button`
   &:disabled {
     background-color: #CCC;
     cursor: not-allowed;
+  }
+`
+
+const LoginLink = styled.div`
+  text-align: center;
+  font-size: 1.4rem;
+  color: #666;
+  margin-top: 1rem;
+`
+
+const LoginLinkText = styled.span`
+  color: #FEE502;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #FEE502;
+    color: #262626;
   }
 `
 

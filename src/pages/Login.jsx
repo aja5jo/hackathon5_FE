@@ -151,7 +151,7 @@ function Login() {
           </InputGroup>
 
           <ForgotPassword>
-            계정이 기억나지 않나요? <SignupLink to="/signup">가입하기</SignupLink>
+            계정이 기억나지 않나요? <SignupLink onClick={() => navigate('/signup')}>가입하기</SignupLink>
           </ForgotPassword>
 
                      {errorMessage && (
@@ -301,14 +301,18 @@ const ForgotPassword = styled.div`
   margin-top: 1rem;
 `
 
-const SignupLink = styled(Link)`
+const SignupLink = styled.span`
   color: #FEE502;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 
   &:hover {
-    text-decoration: underline;
+    background-color: #FEE502;
+    color: #262626;
   }
 `
 
