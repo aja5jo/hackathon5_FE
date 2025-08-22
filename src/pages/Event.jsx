@@ -51,7 +51,40 @@ function Event() {
   const dummyEvents = getDummyEvents();
 
   useEffect(() => {
-    setEvents(dummyEvents[activeCategory] || []);
+    const loadEvents = async () => {
+      try {
+        // ===== 백엔드 API 버전 (활성화) =====
+        const response = await fetch(`http://localhost:8080/api/events?type=event&status=${activeCategory}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          setEvents(result.data || []);
+        } else {
+          console.error('이벤트 로드 실패:', result.message);
+          // 에러 시 더미 데이터 사용
+          setEvents(dummyEvents[activeCategory] || []);
+        }
+        
+        // ===== 더미데이터 버전 (주석처리) =====
+        /*
+        setEvents(dummyEvents[activeCategory] || []);
+        */
+        
+      } catch (error) {
+        console.error('이벤트 로드 실패:', error);
+        // 에러 시 더미 데이터 사용
+        setEvents(dummyEvents[activeCategory] || []);
+      }
+    };
+
+    loadEvents();
   }, [activeCategory]);
 
   const handleCategoryClick = (category) => {

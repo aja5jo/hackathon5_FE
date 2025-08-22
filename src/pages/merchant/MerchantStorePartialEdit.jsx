@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
-// import ApiService from '../../services/api';
+import { storesAPI } from '../../services/api'
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -54,7 +54,8 @@ function MerchantStorePartialEdit() {
   const fetchStoreData = async () => {
     try {
       setLoading(true);
-      // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
+      // ===== 더미 데이터 버전 (주석처리) =====
+      /*
       // TODO: API 연동
       // const response = await ApiService.getMyStores();
       // const storeData = response.data.find(store => store.id === parseInt(storeId));
@@ -91,6 +92,37 @@ function MerchantStorePartialEdit() {
         startTime: storeData.startTime,
         endTime: storeData.endTime
       });
+      */
+      
+      // ===== 백엔드 API 버전 (활성화) =====
+      
+      try {
+        const result = await storesAPI.getStore(storeId);
+        
+        if (result.success) {
+          const storeData = result.data;
+          setCurrentStore(storeData);
+          // 초기값 설정
+          setUpdateValues({
+            name: storeData.name,
+            address: storeData.address,
+            number: storeData.number,
+            intro: storeData.intro,
+            category: storeData.category,
+            thumbnail: storeData.thumbnail,
+            images: storeData.images.length > 0 ? storeData.images : [''],
+            startTime: storeData.startTime,
+            endTime: storeData.endTime
+          });
+        } else {
+          alert('가게 정보를 불러오는데 실패했습니다.');
+          navigate('/mypage/stores');
+        }
+      } catch (error) {
+        console.error('가게 정보 조회 실패:', error);
+        alert('가게 정보를 불러오는데 실패했습니다.');
+        navigate('/mypage/stores');
+      }
     } catch (error) {
       console.error('Failed to fetch store data:', error);
       alert('가게 정보를 불러오는데 실패했습니다.');
@@ -170,19 +202,36 @@ function MerchantStorePartialEdit() {
         }
       });
 
-      // ===== 현재 더미 수정 버전 (실제 사용 중) =====
+      // ===== 더미 수정 버전 (주석처리) =====
+      /*
       console.log('가게 부분 수정 데이터:', patchData);
       alert('가게 정보가 성공적으로 수정되었습니다!');
       navigate('/mypage/stores');
-      
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
-      // API 연동
-      const response = await ApiService.patchStore(storeId, patchData);
-      console.log('가게 부분 수정 성공:', response);
-      alert('가게 정보가 성공적으로 수정되었습니다!');
-      navigate('/mypage/stores');
       */
+      
+      // ===== 백엔드 API 버전 (활성화) =====
+      
+      try {
+        const response = await fetch(`/api/merchants/stores/${storeId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(patchData)
+        });
+        
+        if (response.ok) {
+          console.log('가게 부분 수정 성공');
+          alert('가게 정보가 성공적으로 수정되었습니다!');
+          navigate('/mypage/stores');
+        } else {
+          alert('가게 정보 수정에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('가게 정보 수정 실패:', error);
+        alert('가게 정보 수정에 실패했습니다.');
+      }
     } catch (error) {
       console.error('Failed to update store:', error);
       alert('가게 정보 수정에 실패했습니다.');

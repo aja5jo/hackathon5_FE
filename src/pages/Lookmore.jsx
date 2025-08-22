@@ -6,7 +6,7 @@ import Footer from '../components/common/Footer';
 import dummyEvents from '../assets/dummy.json';
 import { useAuth } from '../contexts/AuthContext';
 
-// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
+
 
 function Lookmore() {
   const { category, itemId, itemType } = useParams();
@@ -157,48 +157,7 @@ function Lookmore() {
     const loadItemData = async () => {
       setIsLoading(true);
       try {
-        // ===== 현재 더미데이터 버전 (실제 사용 중) =====
-        setTimeout(() => {
-          if (foundItem) {
-            setItemData(foundItem);
-            setIsLiked(foundItem.liked);
-            setLikeCount(foundItem.likeCount);
-          } else {
-            setError('해당 아이템을 찾을 수 없습니다.');
-          }
-          setIsLoading(false);
-        }, 500);
-        
-        // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-        /*
-        try {
-          // API 명세서에 맞는 특정 카테고리 조회 요청
-          const response = await ApiService.getCategory(normalizedCategory);
-          
-          if (response.success && response.data && response.data.items) {
-            // 해당 카테고리의 아이템들 중에서 특정 아이템 찾기
-            const targetItem = response.data.items.find(item => 
-              item.id === parseInt(itemId) && item.type === normalizedType
-            );
-            
-            if (targetItem) {
-              setItemData(targetItem);
-              setIsLiked(targetItem.liked);
-              setLikeCount(targetItem.likeCount);
-            } else {
-              setError('해당 아이템을 찾을 수 없습니다.');
-            }
-          } else {
-            setError(response.message || '상세 정보를 불러올 수 없습니다.');
-          }
-        } catch (error) {
-          console.error('API 호출 실패:', error);
-          setError('서버 연결에 실패했습니다.');
-        }
-        */
-        
-        // ===== 기존 API 호출 방식 (백엔드 배포 후 주석 해제) =====
-        /*
+        // ===== 백엔드 API 버전 (활성화) =====
         const response = await fetch(`http://localhost:8080/api/categories/${normalizedCategory}/${normalizedType}/${itemId}`, {
           method: 'GET',
           headers: {
@@ -216,7 +175,21 @@ function Lookmore() {
         } else {
           setError(result.message || '상세 정보를 불러올 수 없습니다.');
         }
+        
+        // ===== 더미데이터 버전 (주석처리) =====
+        /*
+        setTimeout(() => {
+          if (foundItem) {
+            setItemData(foundItem);
+            setIsLiked(foundItem.liked);
+            setLikeCount(foundItem.likeCount);
+          } else {
+            setError('해당 아이템을 찾을 수 없습니다.');
+          }
+          setIsLoading(false);
+        }, 500);
         */
+        
       } catch (error) {
         console.error('Failed to load item data:', error);
         setError('서버 연결에 실패했습니다.');
@@ -230,13 +203,7 @@ function Lookmore() {
 
   const handleLikeToggle = async () => {
     try {
-      // ===== 더미데이터 좋아요 토글 (백엔드 배포 후 삭제) =====
-      setIsLiked(!isLiked);
-      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-      // ===== 더미데이터 좋아요 토글 끝 =====
-
-      // ===== 실제 API 호출 (백엔드 배포 후 주석 해제) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
       const response = await fetch(`http://localhost:8080/api/users/stores/${itemId}/favorites`, {
         method: 'POST',
         headers: {
@@ -250,11 +217,19 @@ function Lookmore() {
       if (result.success) {
         setIsLiked(!isLiked);
         setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      } else {
+        alert(result.message || '좋아요 처리에 실패했습니다.');
       }
+      
+      // ===== 더미데이터 버전 (주석처리) =====
+      /*
+      setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
       */
-      // ===== 실제 API 호출 끝 =====
+      
     } catch (error) {
       console.error('Failed to toggle like:', error);
+      alert('좋아요 처리에 실패했습니다.');
     }
   };
 

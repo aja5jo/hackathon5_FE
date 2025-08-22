@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
-import { storesAPI } from '../../services/api';
+import { storesAPI } from '../../services/api'
 
 function MerchantStoreList() {
   const navigate = useNavigate();
@@ -18,34 +18,45 @@ function MerchantStoreList() {
   const fetchMyStores = async () => {
     try {
       setLoading(true);
-      const response = await storesAPI.getStores();
+      
+      // ===== 더미 데이터 버전 (주석처리) =====
+      /*
+      const response = await ApiService.getMyStores();
       setStores(response.data || []);
-    } catch (err) {
-      console.error('Failed to fetch stores:', err);
-      setError('가게 목록을 불러오는데 실패했습니다.');
-      // 임시 더미 데이터
-      setStores([
-        {
-          id: 1,
-          name: '카페 모모',
-          address: '서울시 마포구 홍대입구역 123-45',
-          category: 'CAFE',
-          openAt: '09:00',
-          closeAt: '22:00',
-          createdAt: '2025-01-15',
-          status: 'ACTIVE'
-        },
-        {
-          id: 2,
-          name: '홍대 클럽 나이트',
-          address: '서울시 마포구 와우산로 21길 45',
-          category: 'CLUB',
-          openAt: '20:00',
-          closeAt: '06:00',
-          createdAt: '2025-01-10',
-          status: 'ACTIVE'
-        }
-      ]);
+      */
+      
+      // ===== 백엔드 API 버전 (활성화) =====
+      
+      try {
+        const response = await storesAPI.getStores();
+        setStores(response.data || []);
+      } catch (err) {
+        console.error('Failed to fetch stores:', err);
+        setError('가게 목록을 불러오는데 실패했습니다.');
+        // 임시 더미 데이터
+        setStores([
+          {
+            id: 1,
+            name: '카페 모모',
+            address: '서울시 마포구 홍대입구역 123-45',
+            category: 'CAFE',
+            openAt: '09:00',
+            closeAt: '22:00',
+            createdAt: '2025-01-15',
+            status: 'ACTIVE'
+          },
+          {
+            id: 2,
+            name: '홍대 클럽 나이트',
+            address: '서울시 마포구 와우산로 21길 45',
+            category: 'CLUB',
+            openAt: '20:00',
+            closeAt: '06:00',
+            createdAt: '2025-01-10',
+            status: 'ACTIVE'
+          }
+        ]);
+      }
     } finally {
       setLoading(false);
     }
@@ -62,10 +73,28 @@ function MerchantStoreList() {
   const handleDelete = async (storeId) => {
     if (window.confirm('정말로 삭제하시겠습니까?')) {
       try {
+        // ===== 더미 데이터 버전 (주석처리) =====
+        /*
         // TODO: API 연동
         setStores(prev => prev.filter(store => store.id !== storeId));
         alert('가게가 삭제되었습니다.');
+        */
+        
+        // ===== 백엔드 API 버전 (활성화) =====
+        
+        const response = await fetch(`/api/merchants/stores/${storeId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          setStores(prev => prev.filter(store => store.id !== storeId));
+          alert('가게가 삭제되었습니다.');
+        } else {
+          alert('삭제에 실패했습니다.');
+        }
       } catch (err) {
+        console.error('가게 삭제 실패:', err);
         alert('삭제에 실패했습니다.');
       }
     }

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import PopupBannerSection from '../components/popup/PopupBannerSection';
 import EventCard from '../components/common/EventCard';
-// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
+
 
 function PopUp() {
   const navigate = useNavigate();
@@ -109,24 +109,27 @@ function PopUp() {
   ];
 
   useEffect(() => {
-    // ===== 현재 더미데이터 버전 (실제 사용 중) =====
-    filterPopups(activeFilter);
-    
-    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-    /*
     const loadPopupsFromAPI = async () => {
       try {
-        // API 명세서에 맞는 팝업 목록 조회 요청
-        const response = await ApiService.getPopups();
+        // ===== 백엔드 API 버전 (활성화) =====
+        const response = await fetch(`http://localhost:8080/api/events?type=popup`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        const result = await response.json();
         
-        if (response.success && response.data) {
+        if (result.success && result.data) {
           // API 응답에서 팝업 데이터 추출
-          const popups = response.data;
+          const popups = result.data;
           
           // 필터에 따라 팝업 필터링
           let filteredPopups = popups;
           
-          if (filter === '이번주') {
+          if (activeFilter === '이번주') {
             // 이번주 진행 중인 팝업만 필터링
             const currentDate = new Date();
             const startOfWeek = new Date(currentDate);
@@ -139,7 +142,7 @@ function PopUp() {
               const popupEndDate = new Date(popup.endDate);
               return popupStartDate <= endOfWeek && popupEndDate >= startOfWeek;
             });
-          } else if (filter === '다음주') {
+          } else if (activeFilter === '다음주') {
             // 다음주 팝업 필터링
             const currentDate = new Date();
             const nextWeekStart = new Date(currentDate);
@@ -151,7 +154,7 @@ function PopUp() {
               const popupStartDate = new Date(popup.startDate);
               return popupStartDate >= nextWeekStart && popupStartDate <= nextWeekEnd;
             });
-          } else if (filter === '진행중') {
+          } else if (activeFilter === '진행중') {
             // 현재 진행 중인 팝업 필터링
             const currentDate = new Date();
             filteredPopups = popups.filter(popup => {
@@ -159,7 +162,7 @@ function PopUp() {
               const popupEndDate = new Date(popup.endDate);
               return popupStartDate <= currentDate && popupEndDate >= currentDate;
             });
-          } else if (filter === '예정') {
+          } else if (activeFilter === '예정') {
             // 예정된 팝업 필터링
             const currentDate = new Date();
             filteredPopups = popups.filter(popup => {
@@ -170,10 +173,16 @@ function PopUp() {
           
           setPopupEvents(filteredPopups);
         } else {
-          console.error('팝업 데이터 로드 실패:', response.message);
+          console.error('팝업 데이터 로드 실패:', result.message);
           // 에러 시 더미 데이터 사용
           filterPopups(activeFilter);
         }
+        
+        // ===== 더미데이터 버전 (주석처리) =====
+        /*
+        filterPopups(activeFilter);
+        */
+        
       } catch (error) {
         console.error('API 호출 실패:', error);
         // 에러 시 더미 데이터 사용
@@ -182,7 +191,7 @@ function PopUp() {
     };
     
     loadPopupsFromAPI();
-    */
+    
   }, [activeFilter]);
 
   const filterPopups = (filter) => {

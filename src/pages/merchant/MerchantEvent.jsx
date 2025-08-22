@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Header from '../../components/common/Header';
-// import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
+import { storesAPI } from '../../services/api'
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -53,7 +53,8 @@ function MerchantEvent() {
     setShowAiPreview(true);
 
     try {
-      // ===== 현재 더미 AI 미리보기 버전 (실제 사용 중) =====
+      // ===== 더미 AI 미리보기 버전 (주석처리) =====
+      /*
       console.log('AI 이벤트 미리보기 요청:', { name, description, intro });
       
       // 실제 API 호출을 시뮬레이션하기 위한 지연
@@ -70,10 +71,11 @@ function MerchantEvent() {
       };
       
       setAiPreviewResult(dummyResponse.data);
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
-      const response = await ApiService.previewEventAi({
+      // ===== 백엔드 API 버전 (활성화) =====
+      
+      const response = await storesAPI.previewEventAi({
         name: name.trim(),
         description: description.trim() || undefined,
         intro: intro.trim() || undefined,
@@ -82,7 +84,7 @@ function MerchantEvent() {
       });
       
       setAiPreviewResult(response.data);
-      */
+      
     } catch (error) {
       console.error('AI 미리보기 실패:', error);
       alert('AI 미리보기 생성에 실패했습니다.');
@@ -96,14 +98,16 @@ function MerchantEvent() {
     if (disabled) return;
 
     try {
-      // ===== 현재 더미 등록 버전 (실제 사용 중) =====
+      // ===== 더미 등록 버전 (주석처리) =====
+      /*
       // 더미 이벤트 등록 성공 처리
       alert('이벤트가 성공적으로 등록되었습니다!');
       // 성공 시 이벤트 목록으로 이동
       window.location.href = '/mypage/events';
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
+      
       // API 명세서에 맞는 요청 데이터 구성
       const eventData = {
         name: name.trim(),
@@ -118,22 +122,11 @@ function MerchantEvent() {
         isPopup: isPopup
       };
 
-      // API 명세서에 맞는 이벤트 등록 요청
-      const response = await fetch('http://localhost:8080/api/merchants/stores/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 세션 기반 인증
-        body: JSON.stringify(eventData)
-      });
-
-      const result = await response.json();
+      const result = await storesAPI.createEvent(eventData);
       
       if (result.success) {
         console.log('이벤트 등록 성공:', result.message);
         alert('이벤트가 성공적으로 등록되었습니다!');
-        // 성공 시 이벤트 목록으로 이동
         window.location.href = '/mypage/events';
       } else {
         // API 명세서에 따른 에러 메시지 처리
@@ -148,48 +141,7 @@ function MerchantEvent() {
           alert(result.message || '이벤트 등록 중 오류가 발생했습니다.');
         }
       }
-      */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
-      try {
-        const eventData = {
-          name: name.trim(),
-          description: description.trim(),
-          intro: intro.trim(),
-          thumbnail: thumbnail.trim(),
-          images: images.filter(img => img.trim() !== ''),
-          startDate: startDate,
-          endDate: endDate,
-          startTime: startTime,
-          endTime: endTime,
-          isPopup: isPopup
-        };
-
-        const result = await ApiService.createMerchantEvent(eventData);
-        
-        if (result.success) {
-          console.log('이벤트 등록 성공:', result.message);
-          alert('이벤트가 성공적으로 등록되었습니다!');
-          window.location.href = '/mypage/events';
-        } else {
-          // API 명세서에 따른 에러 메시지 처리
-          if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            window.location.href = '/login';
-          } else if (result.code === 403) {
-            alert('등록된 가게가 없는 사용자입니다.');
-          } else if (result.code === 400) {
-            alert(result.message || '이벤트 등록에 실패했습니다.');
-          } else {
-            alert(result.message || '이벤트 등록 중 오류가 발생했습니다.');
-          }
-        }
-      } catch (error) {
-        console.error('이벤트 등록 API 오류:', error);
-        alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
-      }
-      */
     } catch (error) {
       console.error('Failed to create event:', error);
       alert('이벤트 등록에 실패했습니다. 다시 시도해주세요.');

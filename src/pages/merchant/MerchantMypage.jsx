@@ -10,9 +10,26 @@ function MerchantMypage() {
   const [favoritesCount, setFavoritesCount] = useState(0);
 
   useEffect(() => {
+    // ===== 더미 데이터 버전 (주석처리) =====
+    /*
     // 즐겨찾기 개수 계산 (userFavorites에서 가져오기)
     const favorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
     setFavoritesCount(favorites.length);
+    */
+    
+    // ===== 백엔드 API 버전 (활성화) =====
+    const fetchFavoritesCount = async () => {
+      try {
+        const response = await fetch('/api/users/favorites');
+        const data = await response.json();
+        setFavoritesCount(data.length || 0);
+      } catch (error) {
+        console.error('즐겨찾기 개수 조회 실패:', error);
+        setFavoritesCount(0);
+      }
+    };
+    
+    fetchFavoritesCount();
   }, []);
 
   return (

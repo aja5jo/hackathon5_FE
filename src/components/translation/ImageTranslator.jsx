@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-// import ApiService from '../../services/api';
+import ApiService from '../../services/api';
 
 const LANGUAGES = [
   { code: 'en', label: '영어', flag: '🇺🇸' },
@@ -26,21 +26,8 @@ function ImageTranslator({ imageUrl, menuText, isVisible, onClose }) {
     setError(null);
 
     try {
-      // const response = await ApiService.translateText(menuText, selectedLanguage);
-      // setTranslatedText(response.translatedText || response.text);
-      
-      // 임시 더미 번역 (API 연동 전)
-      const dummyTranslations = {
-        en: 'Bulgogi Bibimbap - Mixed rice with marinated beef',
-        ja: 'プルコギビビンバ - 甘辛い牛肉と野菜の混ぜご飯',
-        zh: '烤肉拌饭 - 腌制牛肉拌饭',
-        es: 'Bulgogi Bibimbap - Arroz mixto con carne marinada',
-        fr: 'Bulgogi Bibimbap - Riz mélangé avec du bœuf mariné',
-        de: 'Bulgogi Bibimbap - Gemischter Reis mit mariniertem Rindfleisch',
-        ru: 'Булгоги Пибимпап - Смешанный рис с маринованной говядиной',
-        ar: 'بولغوغي بيبيمباب - أرز مختلط مع لحم البقر المتبل'
-      };
-      setTranslatedText(dummyTranslations[selectedLanguage] || 'Translation not available');
+      const response = await ApiService.translateText(menuText, selectedLanguage);
+      setTranslatedText(response.translatedText || response.text);
     } catch (err) {
       console.error('Translation failed:', err);
       setError('번역에 실패했습니다. 다시 시도해주세요.');

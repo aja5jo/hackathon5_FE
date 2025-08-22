@@ -26,10 +26,35 @@ function MerchantSettings() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // ===== 더미 데이터 버전 (주석처리) =====
+    /*
     // 실제로는 API 호출로 데이터 저장
     alert('사업자 정보가 저장되었습니다.');
     setIsEditing(false);
+    */
+    
+    // ===== 백엔드 API 버전 (활성화) =====
+    try {
+      const response = await fetch('/api/merchants/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        alert('사업자 정보가 저장되었습니다.');
+        setIsEditing(false);
+      } else {
+        alert('사업자 정보 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('사업자 정보 저장 실패:', error);
+      alert('사업자 정보 저장에 실패했습니다.');
+    }
   };
 
   const handleCancel = () => {

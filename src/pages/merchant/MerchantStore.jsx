@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Header from '../../components/common/Header';
 import { validateStoreData, sanitizeInput } from '../../utils/validation';
-// import ApiService from '../../services/api';
+import { storesAPI } from '../../services/api'
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -77,21 +77,22 @@ function MerchantStore() {
       // 데이터 정제
       const sanitizedData = sanitizeInput(storeData);
 
-      // ===== 현재 더미 등록 버전 (실제 사용 중) =====
+      // ===== 더미 등록 버전 (주석처리) =====
+      /*
       console.log('가게 등록 데이터:', storeData);
       alert('가게가 성공적으로 등록되었습니다!');
       // 성공 시 가게 목록으로 이동
       window.location.href = '/mypage/stores';
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
-      // API 연동
-      const response = await ApiService.createStore(storeData);
+      // ===== 백엔드 API 버전 (활성화) =====
+      
+      const response = await storesAPI.createStore(storeData);
       console.log('가게 등록 성공:', response);
       alert('가게가 성공적으로 등록되었습니다!');
       // 성공 시 가게 목록으로 이동
       window.location.href = '/mypage/stores';
-      */
+      
     } catch (error) {
       console.error('Failed to create store:', error);
       alert('가게 등록에 실패했습니다. 다시 시도해주세요.');

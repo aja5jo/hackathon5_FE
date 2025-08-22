@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
@@ -7,6 +7,73 @@ import dummyEvents from '../assets/dummy.json'
 
 
 function MoreListmain() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadUserPreferences = async () => {
+      try {
+        setLoading(true);
+        
+        // ===== 백엔드 API 버전 (활성화) =====
+        const response = await fetch(`http://localhost:8080/api/users/preferences`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setEvents(result.data || []);
+        } else {
+          console.error('사용자 선호도 데이터 로드 실패:', result.message);
+          // 에러 시 더미 데이터 사용
+          setEvents(dummyEvents.categories || []);
+        }
+        
+        // ===== 더미데이터 버전 (주석처리) =====
+        /*
+        setEvents(dummyEvents.categories || []);
+        */
+        
+      } catch (error) {
+        console.error('사용자 선호도 데이터 로드 실패:', error);
+        // 에러 시 더미 데이터 사용
+        setEvents(dummyEvents.categories || []);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserPreferences();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container>
+        <LoadingContainer>
+          <LoadingText>사용자 선호도 데이터를 불러오는 중...</LoadingText>
+        </LoadingContainer>
+        <Footer />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <ErrorContainer>
+          <ErrorText>{error}</ErrorText>
+        </ErrorContainer>
+        <Footer />
+      </Container>
+    );
+  }
+
   return (
     <Container>
       <SectionHeader>
@@ -14,7 +81,7 @@ function MoreListmain() {
           <Maintitle>나의 취향맞춤 가게 이벤트</Maintitle>
         </Title>
       </SectionHeader>
-      <EventCardList events={dummyEvents.categories}/>
+      <EventCardList events={events}/>
       <Footer/>
     </Container>
   )
@@ -49,6 +116,30 @@ const Maintitle = styled.div`
 const Title = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+`;
+
+const LoadingText = styled.div`
+  font-size: 1.8rem;
+  color: #666;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+`;
+
+const ErrorText = styled.div`
+  font-size: 1.8rem;
+  color: #FF6B35;
 `;
 
 

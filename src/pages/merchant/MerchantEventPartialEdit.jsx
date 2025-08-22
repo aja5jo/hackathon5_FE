@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/common/Header';
-// import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
+import { storesAPI } from '../../services/api'
 
 function MerchantEventPartialEdit() {
   const navigate = useNavigate();
@@ -51,7 +51,8 @@ function MerchantEventPartialEdit() {
     try {
       setLoading(true);
       
-      // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
+      // ===== 더미 데이터 버전 (주석처리) =====
+      /*
       // 더미 이벤트 데이터 (API 명세서 구조에 맞춤)
       const dummyEvent = {
         id: parseInt(eventId),
@@ -69,20 +70,12 @@ function MerchantEventPartialEdit() {
       };
       
       setCurrentEvent(dummyEvent);
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
+      
       try {
-        // API 명세서에 맞는 이벤트 조회 요청
-        const response = await fetch(`http://localhost:8080/api/merchants/stores/events/${eventId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // 세션 기반 인증
-        });
-
-        const result = await response.json();
+        const result = await storesAPI.getEvent(eventId);
         
         if (result.success) {
           console.log('이벤트 조회 성공:', result.message);
@@ -105,35 +98,7 @@ function MerchantEventPartialEdit() {
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
         setError('서버 연결에 실패했습니다.');
       }
-      */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
-      try {
-        const result = await ApiService.getMerchantEvent(eventId);
-        
-        if (result.success) {
-          console.log('이벤트 조회 성공:', result.message);
-          setCurrentEvent(result.data);
-        } else {
-          // API 명세서에 따른 에러 메시지 처리
-          if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            navigate('/login');
-          } else if (result.code === 403) {
-            alert('등록된 가게가 없는 사용자입니다.');
-            navigate('/mypage/events');
-          } else {
-            alert(result.message || '이벤트 조회에 실패했습니다.');
-            setError(result.message || '이벤트 조회에 실패했습니다.');
-          }
-        }
-      } catch (error) {
-        console.error('이벤트 조회 API 오류:', error);
-        alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
-        setError('서버 연결에 실패했습니다.');
-      }
-      */
     } catch (err) {
       console.error('Failed to fetch event:', err);
       setError('이벤트 정보를 불러오는데 실패했습니다.');
@@ -180,51 +145,19 @@ function MerchantEventPartialEdit() {
         }
       });
 
-      // ===== 현재 더미 부분 수정 버전 (실제 사용 중) =====
+      // ===== 더미 부분 수정 버전 (주석처리) =====
+      /*
       // 더미 이벤트 부분 수정 성공 처리
       console.log('부분 수정할 데이터:', patchData);
       alert('이벤트가 성공적으로 부분 수정되었습니다!');
       // 성공 시 이벤트 목록으로 이동
       navigate('/mypage/events');
-      
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
-      // API 명세서에 맞는 이벤트 부분 수정 요청 (PATCH)
-      const response = await fetch(`http://localhost:8080/api/merchants/stores/events/${eventId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 세션 기반 인증
-        body: JSON.stringify(patchData)
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        console.log('이벤트 부분 수정 성공:', result.message);
-        alert('이벤트가 성공적으로 부분 수정되었습니다!');
-        // 성공 시 이벤트 목록으로 이동
-        navigate('/mypage/events');
-      } else {
-        // API 명세서에 따른 에러 메시지 처리
-        if (result.code === 401) {
-          alert('로그인이 필요합니다.');
-          navigate('/login');
-        } else if (result.code === 403) {
-          alert('등록된 가게가 없는 사용자입니다.');
-        } else if (result.code === 400) {
-          alert(result.message || '이벤트 부분 수정에 실패했습니다.');
-        } else {
-          alert(result.message || '이벤트 부분 수정 중 오류가 발생했습니다.');
-        }
-      }
       */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
+      
       try {
-        const result = await ApiService.patchMerchantEvent(eventId, patchData);
+        const result = await storesAPI.patchEvent(eventId, patchData);
         
         if (result.success) {
           console.log('이벤트 부분 수정 성공:', result.message);
@@ -247,7 +180,7 @@ function MerchantEventPartialEdit() {
         console.error('이벤트 부분 수정 API 오류:', error);
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
       }
-      */
+      
     } catch (error) {
       console.error('Failed to patch event:', error);
       alert('이벤트 부분 수정에 실패했습니다. 다시 시도해주세요.');

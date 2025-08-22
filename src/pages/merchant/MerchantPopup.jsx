@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import { validatePopupData, sanitizeInput } from '../../utils/validation';
-// import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
+import { storesAPI } from '../../services/api'
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -49,7 +49,8 @@ function MerchantPopup() {
     setShowAiPreview(true);
 
     try {
-      // ===== 현재 더미 AI 미리보기 버전 (실제 사용 중) =====
+      // ===== 더미 AI 미리보기 버전 (주석처리) =====
+      /*
       console.log('AI 팝업 미리보기 요청:', { name, category, address, description, intro });
       
       // 실제 API 호출을 시뮬레이션하기 위한 지연
@@ -66,10 +67,11 @@ function MerchantPopup() {
       };
       
       setAiPreviewResult(dummyResponse.data);
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
-      const response = await ApiService.previewPopupAi({
+      // ===== 백엔드 API 버전 (활성화) =====
+      
+      const response = await storesAPI.previewPopupAi({
         name: name.trim(),
         category: category,
         address: address.trim(),
@@ -80,7 +82,7 @@ function MerchantPopup() {
       });
       
       setAiPreviewResult(response.data);
-      */
+      
     } catch (error) {
       console.error('AI 미리보기 실패:', error);
       alert('AI 미리보기 생성에 실패했습니다.');
@@ -119,49 +121,19 @@ function MerchantPopup() {
       // 데이터 정제
       const sanitizedData = sanitizeInput(popupData);
 
-      // ===== 현재 더미 등록 버전 (실제 사용 중) =====
+      // ===== 더미 등록 버전 (주석처리) =====
+      /*
       // 더미 팝업 등록 성공 처리
       console.log('팝업 등록 데이터:', popupData);
       alert('팝업이 성공적으로 등록되었습니다!');
       // 성공 시 팝업 목록으로 이동
       navigate('/mypage/popups');
-      
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
-      // API 명세서에 맞는 팝업 등록 요청
-      const response = await fetch('http://localhost:8080/api/merchants/popups', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 세션 기반 인증
-        body: JSON.stringify(popupData)
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        console.log('팝업 등록 성공:', result.message);
-        alert('팝업이 성공적으로 등록되었습니다!');
-        // 성공 시 팝업 목록으로 이동
-        navigate('/mypage/popups');
-      } else {
-        // API 명세서에 따른 에러 메시지 처리
-        if (result.code === 401) {
-          alert('로그인이 필요합니다.');
-          navigate('/login');
-        } else if (result.code === 403) {
-          alert('접근 권한이 없습니다.');
-        } else {
-          alert(result.message || '팝업 등록에 실패했습니다.');
-        }
-      }
       */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
+      
       try {
-        const result = await ApiService.createMerchantPopup(popupData);
+        const result = await storesAPI.createPopup(popupData);
         
         if (result.success) {
           console.log('팝업 등록 성공:', result.message);
@@ -182,7 +154,7 @@ function MerchantPopup() {
         console.error('팝업 등록 API 오류:', error);
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
       }
-      */
+      
     } catch (error) {
       console.error('Failed to create popup:', error);
       alert('팝업 등록에 실패했습니다. 다시 시도해주세요.');

@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/common/Header';
-// import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
+import { storesAPI } from '../../services/api'
 
 function MerchantEventEdit() {
   const navigate = useNavigate();
@@ -32,7 +32,8 @@ function MerchantEventEdit() {
     try {
       setLoading(true);
       
-      // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
+      // ===== 더미 데이터 버전 (주석처리) =====
+      /*
       // 더미 이벤트 데이터 (API 명세서 구조에 맞춤)
       const dummyEvent = {
         id: parseInt(eventId),
@@ -60,20 +61,12 @@ function MerchantEventEdit() {
       setStartTime(dummyEvent.startTime);
       setEndTime(dummyEvent.endTime);
       setIsPopup(dummyEvent.isPopup);
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
+      
       try {
-        // API 명세서에 맞는 이벤트 조회 요청
-        const response = await fetch(`http://localhost:8080/api/merchants/stores/events/${eventId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // 세션 기반 인증
-        });
-
-        const result = await response.json();
+        const result = await storesAPI.getEvent(eventId);
         
         if (result.success) {
           console.log('이벤트 조회 성공:', result.message);
@@ -108,47 +101,7 @@ function MerchantEventEdit() {
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
         setError('서버 연결에 실패했습니다.');
       }
-      */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
-      try {
-        const result = await ApiService.getMerchantEvent(eventId);
-        
-        if (result.success) {
-          console.log('이벤트 조회 성공:', result.message);
-          const eventData = result.data;
-          
-          // 폼 데이터 설정
-          setName(eventData.name);
-          setDescription(eventData.description);
-          setIntro(eventData.intro);
-          setThumbnail(eventData.thumbnail);
-          setImages(eventData.images || []);
-          setStartDate(eventData.startDate);
-          setEndDate(eventData.endDate);
-          setStartTime(eventData.startTime);
-          setEndTime(eventData.endTime);
-          setIsPopup(eventData.isPopup);
-        } else {
-          // API 명세서에 따른 에러 메시지 처리
-          if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            navigate('/login');
-          } else if (result.code === 403) {
-            alert('등록된 가게가 없는 사용자입니다.');
-            navigate('/mypage/events');
-          } else {
-            alert(result.message || '이벤트 조회에 실패했습니다.');
-            setError(result.message || '이벤트 조회에 실패했습니다.');
-          }
-        }
-      } catch (error) {
-        console.error('이벤트 조회 API 오류:', error);
-        alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
-        setError('서버 연결에 실패했습니다.');
-      }
-      */
     } catch (err) {
       console.error('Failed to fetch event:', err);
       setError('이벤트 정보를 불러오는데 실패했습니다.');
@@ -162,14 +115,16 @@ function MerchantEventEdit() {
     if (disabled) return;
 
     try {
-      // ===== 현재 더미 수정 버전 (실제 사용 중) =====
+      // ===== 더미 수정 버전 (주석처리) =====
+      /*
       // 더미 이벤트 수정 성공 처리
       alert('이벤트가 성공적으로 수정되었습니다!');
       // 성공 시 이벤트 목록으로 이동
       navigate('/mypage/events');
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
+      
       // API 명세서에 맞는 요청 데이터 구성
       const eventData = {
         name: name.trim(),
@@ -184,22 +139,11 @@ function MerchantEventEdit() {
         isPopup: isPopup
       };
 
-      // API 명세서에 맞는 이벤트 수정 요청
-      const response = await fetch(`http://localhost:8080/api/merchants/stores/events/${eventId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 세션 기반 인증
-        body: JSON.stringify(eventData)
-      });
-
-      const result = await response.json();
+      const result = await storesAPI.updateEvent(eventId, eventData);
       
       if (result.success) {
         console.log('이벤트 수정 성공:', result.message);
         alert('이벤트가 성공적으로 수정되었습니다!');
-        // 성공 시 이벤트 목록으로 이동
         navigate('/mypage/events');
       } else {
         // API 명세서에 따른 에러 메시지 처리
@@ -214,48 +158,7 @@ function MerchantEventEdit() {
           alert(result.message || '이벤트 수정 중 오류가 발생했습니다.');
         }
       }
-      */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
-      try {
-        const eventData = {
-          name: name.trim(),
-          description: description.trim(),
-          intro: intro.trim(),
-          thumbnail: thumbnail.trim(),
-          images: images.filter(img => img.trim() !== ''),
-          startDate: startDate,
-          endDate: endDate,
-          startTime: startTime,
-          endTime: endTime,
-          isPopup: isPopup
-        };
-
-        const result = await ApiService.updateMerchantEvent(eventId, eventData);
-        
-        if (result.success) {
-          console.log('이벤트 수정 성공:', result.message);
-          alert('이벤트가 성공적으로 수정되었습니다!');
-          navigate('/mypage/events');
-        } else {
-          // API 명세서에 따른 에러 메시지 처리
-          if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            navigate('/login');
-          } else if (result.code === 403) {
-            alert('등록된 가게가 없는 사용자입니다.');
-          } else if (result.code === 400) {
-            alert(result.message || '이벤트 수정에 실패했습니다.');
-          } else {
-            alert(result.message || '이벤트 수정 중 오류가 발생했습니다.');
-          }
-        }
-      } catch (error) {
-        console.error('이벤트 수정 API 오류:', error);
-        alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
-      }
-      */
     } catch (error) {
       console.error('Failed to update event:', error);
       alert('이벤트 수정에 실패했습니다. 다시 시도해주세요.');

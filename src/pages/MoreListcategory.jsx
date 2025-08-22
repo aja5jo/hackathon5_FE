@@ -1,5 +1,5 @@
 // /src/pages/moreListcategory.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 
@@ -11,31 +11,108 @@ import dummyEvents from '../assets/dummy.json';
 
 function MoreListcategory() {
   const { category } = useParams(); 
+  const [groupedItems, setGroupedItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const filtered = (dummyEvents?.categories || []).filter(
-    (c) => String(c.category).toLowerCase() === String(category).toLowerCase()
-  );
+  useEffect(() => {
+    const loadCategoryData = async () => {
+      try {
+        setLoading(true);
+        
+        // ===== 백엔드 API 버전 (활성화) =====
+        const response = await fetch(`http://localhost:8080/api/categories/${category}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
 
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          const categoryData = result.data;
+          
+          const items = categoryData.items || [];
+          const sortedItems = items
+            .map((item) => ({
+              ...item,
+              category: categoryData.category,
+            }))
+            .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
 
-  const groupedItems = filtered.reduce((acc, cat) => {
-    if (!Array.isArray(cat?.items)) return acc;
+          if (sortedItems.length > 0) {
+            setGroupedItems([{ category: categoryData.category, items: sortedItems }]);
+          } else {
+            setGroupedItems([]);
+          }
+        } else {
+          setError(result.message || '카테고리 데이터를 불러올 수 없습니다.');
+          setGroupedItems([]);
+        }
+        
+        // ===== 더미데이터 버전 (주석처리) =====
+        /*
+        const filtered = (dummyEvents?.categories || []).filter(
+          (c) => String(c.category).toLowerCase() === String(category).toLowerCase()
+        );
 
-    const items = [...cat.items]
-      .map((item) => ({
-        ...item,
-        category: cat.category,
-      }))
-      .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
+        const grouped = filtered.reduce((acc, cat) => {
+          if (!Array.isArray(cat?.items)) return acc;
 
-    if (items.length > 0) acc.push({ category: cat.category, items });
-    return acc;
-  }, []);
+          const items = [...cat.items]
+            .map((item) => ({
+              ...item,
+              category: cat.category,
+            }))
+            .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
+
+          if (items.length > 0) acc.push({ category: cat.category, items });
+          return acc;
+        }, []);
+        
+        setGroupedItems(grouped);
+        */
+        
+      } catch (error) {
+        console.error('카테고리 데이터 로드 실패:', error);
+        setError('서버 연결에 실패했습니다.');
+        setGroupedItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategoryData();
+  }, [category]);
 
   const title = groupedItems[0]?.category || category || '카테고리';
 
+  if (loading) {
+    return (
+      <Container>
+        <LoadingContainer>
+          <LoadingText>카테고리 데이터를 불러오는 중...</LoadingText>
+        </LoadingContainer>
+        <Footer />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <ErrorContainer>
+          <ErrorText>{error}</ErrorText>
+        </ErrorContainer>
+        <Footer />
+      </Container>
+    );
+  }
+
   return (
     <Container>
-
       <SectionHeader>
         <Maintitle>{title}</Maintitle>
       </SectionHeader>
@@ -127,4 +204,28 @@ const ListContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2.5rem;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+`;
+
+const LoadingText = styled.div`
+  font-size: 1.8rem;
+  color: #666;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+`;
+
+const ErrorText = styled.div`
+  font-size: 1.8rem;
+  color: #FF6B35;
 `;

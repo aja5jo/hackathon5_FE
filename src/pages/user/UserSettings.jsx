@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Footer from '../../components/common/Footer';
 import bannerImg from '../../assets/banner.png';
-// import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
+
 
 function UserSettings() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ function UserSettings() {
       }
       
       // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
+      
       try {
         // API 명세서에 맞는 카테고리 토글 요청
         const response = await fetch(`http://localhost:8080/api/users/categories/${category}`, {
@@ -74,37 +74,10 @@ function UserSettings() {
         console.error('카테고리 설정 API 오류:', error);
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
       }
-      */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
-      try {
-        const result = await ApiService.toggleUserCategory(category);
-        
-        if (result.success) {
-          console.log('카테고리 토글 성공:', result.message);
-          // 응답에서 업데이트된 카테고리 목록 가져오기
-          if (result.data && result.data.categories) {
-            setSelectedCategories(result.data.categories);
-          }
-        } else {
-          // API 명세서에 따른 에러 메시지 처리
-          if (result.code === 400) {
-            alert(result.message || '카테고리 설정에 실패했습니다.');
-          } else if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            navigate('/login');
-          } else if (result.code === 403) {
-            alert('접근 권한이 없습니다.');
-          } else {
-            alert(result.message || '카테고리 설정 중 오류가 발생했습니다.');
-          }
-        }
-      } catch (error) {
-        console.error('카테고리 설정 API 오류:', error);
-        alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
-      }
-      */
+      
+
+      
     } catch (error) {
       console.error('카테고리 설정 오류:', error);
       alert('카테고리 설정 중 오류가 발생했습니다.');

@@ -2,7 +2,6 @@ import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import HeaderLayout from './layouts/HeaderLayout';
 import Home from './pages/Home';
-import TestPage from './pages/TestPage';
 import Category1 from './pages/Category1';
 import Category2 from './pages/Category2';
 import MoreListmain from './pages/MoreListmain';

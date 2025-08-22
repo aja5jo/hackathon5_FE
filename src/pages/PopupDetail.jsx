@@ -45,6 +45,28 @@ function PopupDetail() {
   const fetchPopupDetail = async () => {
     setIsLoading(true);
     try {
+      // ===== 백엔드 API 버전 (활성화) =====
+      const response = await fetch(`http://localhost:8080/api/popups/${popupId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        const data = result.data;
+        setPopupDetail(data);
+        setLiked(Boolean(data.liked));
+        setLikeCount(Number(data.likeCount || 0));
+      } else {
+        setError(result.message || '팝업 정보를 불러오는데 실패했습니다.');
+      }
+      
+      // ===== 더미데이터 버전 (주석처리) =====
+      /*
       // 더미 데이터 시뮬레이션
       setTimeout(() => {
         const data = dummyPopupDetail;
@@ -53,31 +75,47 @@ function PopupDetail() {
         setLikeCount(Number(data.likeCount || 0));
         setIsLoading(false);
       }, 600);
-
-      // 실제 API 연결 시 주석 해제
-      /*
-      const res = await fetch(`/api/popups/${popupId}`);
-      const json = await res.json();
-      if (json?.success) {
-        const data = json.data;
-        setPopupDetail(data);
-        setLiked(Boolean(data.liked));
-        setLikeCount(Number(data.likeCount || 0));
-      } else {
-        setError(json?.message || '팝업 정보를 불러오는데 실패했습니다.');
-      }
-      setIsLoading(false);
       */
+      
     } catch (e) {
+      console.error('팝업 정보 로드 실패:', e);
       setError('팝업 정보를 불러오는데 실패했습니다.');
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLikeToggle = () => {
-    setLiked((prev) => !prev);
-    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-    // TODO: 좋아요 API 연동
+  const handleLikeToggle = async () => {
+    try {
+      // ===== 백엔드 API 버전 (활성화) =====
+      const response = await fetch(`http://localhost:8080/api/popups/${popupId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setLiked((prev) => !prev);
+        setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+      } else {
+        alert(result.message || '좋아요 처리에 실패했습니다.');
+      }
+      
+      // ===== 더미데이터 버전 (주석처리) =====
+      /*
+      setLiked((prev) => !prev);
+      setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+      // TODO: 좋아요 API 연동
+      */
+      
+    } catch (error) {
+      console.error('좋아요 처리 실패:', error);
+      alert('좋아요 처리에 실패했습니다.');
+    }
   };
 
   const handlePrevImage = () => {

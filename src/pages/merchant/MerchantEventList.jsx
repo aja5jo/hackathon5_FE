@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
-// import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
+import { storesAPI } from '../../services/api'
 
 function MerchantEventList() {
   const navigate = useNavigate();
@@ -19,7 +19,8 @@ function MerchantEventList() {
     try {
       setLoading(true);
       
-      // ===== 현재 더미 데이터 버전 (실제 사용 중) =====
+      // ===== 더미 데이터 버전 (주석처리) =====
+      /*
       // 더미 이벤트 데이터 (API 명세서 구조에 맞춤)
       const dummyEvents = [
         {
@@ -55,20 +56,12 @@ function MerchantEventList() {
       ];
       
       setEvents(dummyEvents);
+      */
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
+      // ===== 백엔드 API 버전 (활성화) =====
+      
       try {
-        // API 명세서에 맞는 이벤트 조회 요청
-        const response = await fetch('http://localhost:8080/api/merchants/stores/events', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // 세션 기반 인증
-        });
-
-        const result = await response.json();
+        const result = await storesAPI.getMyEvents();
         
         if (result.success) {
           console.log('이벤트 조회 성공:', result.message);
@@ -91,35 +84,7 @@ function MerchantEventList() {
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
         setError('서버 연결에 실패했습니다.');
       }
-      */
       
-      // ===== ApiService 사용 버전 (백엔드 배포 시 사용) =====
-      /*
-      try {
-        const result = await ApiService.getMerchantEvents();
-        
-        if (result.success) {
-          console.log('이벤트 조회 성공:', result.message);
-          setEvents(result.data || []);
-        } else {
-          // API 명세서에 따른 에러 메시지 처리
-          if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            navigate('/login');
-          } else if (result.code === 403) {
-            alert('등록된 가게가 없는 사용자입니다.');
-            setEvents([]);
-          } else {
-            alert(result.message || '이벤트 조회에 실패했습니다.');
-            setError(result.message || '이벤트 조회에 실패했습니다.');
-          }
-        }
-      } catch (error) {
-        console.error('이벤트 조회 API 오류:', error);
-        alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
-        setError('서버 연결에 실패했습니다.');
-      }
-      */
     } catch (err) {
       console.error('Failed to fetch events:', err);
       setError('이벤트 목록을 불러오는데 실패했습니다.');

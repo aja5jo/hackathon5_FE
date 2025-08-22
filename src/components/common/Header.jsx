@@ -118,7 +118,7 @@ function Header() {
           >
             <LanguageFlag>{currentLanguage.flag}</LanguageFlag>
             <LanguageName>{currentLanguage.name}</LanguageName>
-            <DropdownArrow isOpen={isLanguageDropdownOpen}>▼</DropdownArrow>
+            <DropdownArrow $isOpen={isLanguageDropdownOpen}>▼</DropdownArrow>
           </LanguageButton>
           
           {isLanguageDropdownOpen && (
@@ -274,7 +274,7 @@ const DropdownArrow = styled.span`
   font-size: 1rem;
   color: #666;
   transition: transform 0.2s ease;
-  transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+  transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
 `;
 
 const LanguageDropdown = styled.div`

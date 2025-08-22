@@ -36,7 +36,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = useCallback((userData, type = 'user') => {
-    console.log('로그인 시도:', userData, type);
+    console.log('AuthContext login 함수 호출됨:', userData, type);
+    
     setUser(userData);
     setUserType(type);
     
@@ -44,30 +45,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('userType', type);
     
-    console.log('로그인 완료:', userData.email, type);
+    console.log('AuthContext 로그인 완료 - user:', userData, 'userType:', type);
+    console.log('localStorage 저장됨 - user:', localStorage.getItem('user'), 'userType:', localStorage.getItem('userType'));
   }, []);
 
-  // 테스트용 더미 로그인 함수들
-  const loginAsUser = useCallback(() => {
-    const userData = {
-      id: 1,
-      name: '일반 사용자',
-      email: 'user@test.com',
-      role: 'USER' // API 응답 구조에 맞게 'role' 사용
-    };
-    login(userData, 'user');
-  }, [login]);
 
-  const loginAsMerchant = useCallback(() => {
-    const userData = {
-      id: 2,
-      name: '소상공인',
-      email: 'merchant@test.com',
-      role: 'MERCHANT', // API 응답 구조에 맞게 'role' 사용
-      businessName: '테스트 가게'
-    };
-    login(userData, 'merchant');
-  }, [login]);
 
   const logout = useCallback(async () => {
     console.log('로그아웃 시도');
@@ -136,11 +118,9 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     login,
     logout,
-    loginAsUser,
-    loginAsMerchant,
     isMerchant,
     isAuthenticated,
-  }), [user, userType, isLoading, login, logout, loginAsUser, loginAsMerchant, isMerchant, isAuthenticated]);
+  }), [user, userType, isLoading, login, logout, isMerchant, isAuthenticated]);
 
   return (
     <AuthContext.Provider value={value}>

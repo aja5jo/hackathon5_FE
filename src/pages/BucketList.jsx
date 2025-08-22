@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import KakaoMap from '../components/map/KakaoMap';
 import { useAuth } from '../contexts/AuthContext';
+
+import bannerImg from '../assets/banner.png';
 import EventCard from '../components/common/EventCard';
 import { favoritesAPI, bucketListAPI } from '../services/api';
-import bannerImg from '../assets/banner.png';
-// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
 
 function BucketList() {
   const navigate = useNavigate();
@@ -50,15 +50,30 @@ function BucketList() {
     setSelectedCategory(category);
   };
 
-  const handleRemoveFavorite = (id) => {
-    const updatedFavorites = favorites.filter(item => item.id !== id);
-    setFavorites(updatedFavorites);
-    
-    // 로컬 스토리지 업데이트
+  const handleRemoveFavorite = async (id) => {
     try {
-      localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+      // ===== 백엔드 API 버전 (활성화) =====
+      await favoritesAPI.removeFavorite(id);
+      
+      // 성공 시 로컬 상태 업데이트
+      const updatedFavorites = favorites.filter(item => item.id !== id);
+      setFavorites(updatedFavorites);
+      
+      // ===== 더미데이터 버전 (주석처리) =====
+      /*
+      const updatedFavorites = favorites.filter(item => item.id !== id);
+      setFavorites(updatedFavorites);
+      
+      // 로컬 스토리지 업데이트
+      try {
+        localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
+      } catch (error) {
+        console.error('즐겨찾기 저장 실패:', error);
+      }
+      */
     } catch (error) {
-      console.error('즐겨찾기 저장 실패:', error);
+      console.error('즐겨찾기 삭제 실패:', error);
+      alert('즐겨찾기 삭제에 실패했습니다.');
     }
   };
 

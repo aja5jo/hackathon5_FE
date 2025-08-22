@@ -31,8 +31,14 @@ const KakaoMap = ({
     kakao.maps.load(() => {
       console.log('kakao.maps.load() 콜백 실행됨');
       
-      // 컴포넌트가 언마운트되었으면 실행하지 않음
+      // 컴포넌트가 언마운트된 경우 실행하지 않음
       if (!isMounted) return;
+      
+      // 지도 컨테이너가 DOM에 존재하는지 확인
+      if (!mapElement.current || !mapElement.current.parentNode) {
+        console.warn('지도 컨테이너가 DOM에 존재하지 않습니다.');
+        return;
+      }
       
       try {
         // 지도 초기화
@@ -45,15 +51,15 @@ const KakaoMap = ({
         mapInstance.current = new kakao.maps.Map(mapElement.current, mapOptions);
         console.log('카카오 지도 초기화 완료:', mapInstance.current);
 
-        // 기존 마커들 제거 (안전하게)
-        if (markersRef.current.length > 0) {
+        // 기존 마커들 제거 (더 안전한 방식)
+        if (markersRef.current && markersRef.current.length > 0) {
           markersRef.current.forEach(marker => {
             try {
               if (marker && typeof marker.setMap === 'function') {
                 marker.setMap(null);
               }
             } catch (error) {
-              console.warn('마커 제거 중 에러:', error);
+              console.warn('마커 제거 중 오류:', error);
             }
           });
           markersRef.current = [];
@@ -170,30 +176,34 @@ const KakaoMap = ({
       }
     });
 
-    // cleanup 함수
+    // Cleanup 함수
     return () => {
+      console.log('KakaoMap 컴포넌트 언마운트됨');
       isMounted = false;
       
-      // 마커들 안전하게 제거
-      if (markersRef.current.length > 0) {
+      // 마커들과 오버레이 제거 (더 안전한 방식)
+      if (markersRef.current && markersRef.current.length > 0) {
         markersRef.current.forEach(marker => {
           try {
             if (marker && typeof marker.setMap === 'function') {
               marker.setMap(null);
             }
           } catch (error) {
-            console.warn('cleanup 중 마커 제거 에러:', error);
+            console.warn('마커 제거 중 오류:', error);
           }
         });
         markersRef.current = [];
       }
       
-      // 지도 인스턴스 정리
+      // 지도 인스턴스 제거
       if (mapInstance.current) {
         try {
-          mapInstance.current = null;
+          // 지도 컨테이너가 여전히 DOM에 존재하는지 확인
+          if (mapElement.current && mapElement.current.parentNode) {
+            mapInstance.current = null;
+          }
         } catch (error) {
-          console.warn('cleanup 중 지도 인스턴스 정리 에러:', error);
+          console.warn('지도 인스턴스 제거 중 오류:', error);
         }
       }
     };

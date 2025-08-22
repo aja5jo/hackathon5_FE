@@ -46,6 +46,28 @@ function StoreDetail() {
     setIsLoading(true);
     setError(null);
     try {
+      // ===== 백엔드 API 버전 (활성화) =====
+      const response = await fetch(`http://localhost:8080/api/stores/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        const data = result.data;
+        setStoreDetail(data);
+        setLiked(Boolean(data.liked));
+        setLikeCount(Number(data.likeCount || 0));
+      } else {
+        setError(result.message || '가게 정보를 불러오는데 실패했습니다.');
+      }
+      
+      // ===== 더미데이터 버전 (주석처리) =====
+      /*
       // 더미 데이터 시뮬레이션
       setTimeout(() => {
         const data = dummyStoreDetail;
@@ -54,37 +76,53 @@ function StoreDetail() {
         setLikeCount(Number(data.likeCount || 0));
         setIsLoading(false);
       }, 700);
-
-      // 실제 API 연동 시
-      /*
-      const res = await fetch(`/api/stores/${id}`);
-      const json = await res.json();
-      if (json?.success) {
-        const data = json.data;
-        setStoreDetail(data);
-        setLiked(Boolean(data.liked));
-        setLikeCount(Number(data.likeCount || 0));
-      } else {
-        setError(json?.message || '가게 정보를 불러오는데 실패했습니다.');
-      }
-      setIsLoading(false);
       */
+      
     } catch (e) {
+      console.error('가게 정보 로드 실패:', e);
       setError('가게 정보를 불러오는데 실패했습니다.');
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLikeToggle = () => {
+  const handleLikeToggle = async () => {
     if (!isAuthenticated) {
       alert('로그인이 필요한 서비스입니다.');
       navigate('/login');
       return;
     }
     
-    setLiked((prev) => !prev);
-    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-    // TODO: 좋아요 API 연동
+    try {
+      // ===== 백엔드 API 버전 (활성화) =====
+      const response = await fetch(`http://localhost:8080/api/stores/${id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setLiked((prev) => !prev);
+        setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+      } else {
+        alert(result.message || '좋아요 처리에 실패했습니다.');
+      }
+      
+      // ===== 더미데이터 버전 (주석처리) =====
+      /*
+      setLiked((prev) => !prev);
+      setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+      // TODO: 좋아요 API 연동
+      */
+      
+    } catch (error) {
+      console.error('좋아요 처리 실패:', error);
+      alert('좋아요 처리에 실패했습니다.');
+    }
   };
 
   const handlePrevImage = () => {

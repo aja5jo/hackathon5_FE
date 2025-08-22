@@ -1,45 +1,33 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
-// import ApiService from '../utils/apiService'; // 백엔드 배포 시 사용
+import { authAPI } from '../services/api'
+
 
 function Signup() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [role, setRole] = useState('') // 'USER' 또는 'MERCHANT'
+  const [role, setRole] = useState('') // '', 'USER' 또는 'MERCHANT'
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // ===== 더미데이터 회원가입 테스트용 (백엔드 배포 후 삭제) =====
-  const handleDummySignup = () => {
-    // 비밀번호 확인 검증
-    if (password !== confirmPassword) {
-      setErrorMessage('비밀번호가 일치하지 않습니다.')
-      return
-    }
+  // role 상태 변화 추적
+  useEffect(() => {
+    console.log('=== role 상태 변경됨 ===');
+    console.log('role 값:', role);
+    console.log('role 타입:', typeof role);
+    console.log('role 길이:', role ? role.length : 0);
+    console.log('role이 빈 문자열인가?', role === '');
+    console.log('role이 null인가?', role === null);
+    console.log('role이 undefined인가?', role === undefined);
+    console.log('========================');
+  }, [role]);
 
-    // 비밀번호 길이 검증 (6-20자)
-    if (password.length < 6 || password.length > 20) {
-      setErrorMessage('비밀번호는 6자 이상 20자 이하로 입력해주세요.')
-      return
-    }
 
-    // 이메일 중복 체크 (더미)
-    const existingEmails = ['test@test.com', 'admin@test.com', 'merchant@test.com']
-    if (existingEmails.includes(email)) {
-      setErrorMessage(`이미 사용 중인 이메일입니다: ${email}`)
-      return
-    }
-
-    // 성공 시뮬레이션
-    alert(`더미 회원가입 성공!\n이메일: ${email}\n역할: ${role}`)
-    navigate('/login')
-  }
-  // ===== 더미데이터 회원가입 테스트용 끝 =====
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -59,8 +47,9 @@ function Signup() {
       return
     }
 
-    if (!role) {
-      setErrorMessage('역할(role)은 필수입니다.')
+    if (!role || role === '') {
+      console.log('role 검증 실패 - 현재 role:', role, '타입:', typeof role);
+      setErrorMessage('사용자 유형을 선택해주세요.')
       setIsLoading(false)
       return
     }
@@ -79,15 +68,8 @@ function Signup() {
       return
     }
 
-    // ===== 현재 더미데이터 버전 (실제 사용 중) =====
-    setTimeout(() => {
-      handleDummySignup()
-      setIsLoading(false)
-    }, 1000)
-    
-    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-    /*
     try {
+      // ===== 백엔드 API 버전 (활성화) =====
       // API 명세서에 맞는 요청 구조
       const signupData = {
         email: email.trim(),
@@ -95,7 +77,10 @@ function Signup() {
         role: role
       };
 
-      const result = await ApiService.signup(signupData);
+      console.log('회원가입 요청 데이터:', signupData);
+      console.log('role 값 확인:', role, '타입:', typeof role);
+
+      const result = await authAPI.register(signupData);
       
       if (result.success) {
         console.log('회원가입 성공:', result.data);
@@ -103,15 +88,38 @@ function Signup() {
         navigate('/login');
       } else {
         // API 명세서에 맞춘 에러 메시지 처리
+        console.error('회원가입 실패:', result);
+        
+        // 서버 에러(500)인 경우 에러 메시지 표시
+        if (result.code === 500 || response.status === 500) {
+          throw new Error('서버 내부 오류');
+        }
+        
         setErrorMessage(result.message || '회원가입에 실패했습니다.');
       }
+      
+      // ===== 더미데이터 버전 (주석처리) =====
+      /*
+      setTimeout(() => {
+        handleDummySignup()
+        setIsLoading(false)
+      }, 1000)
+      */
+      
     } catch (error) {
       console.error('Signup failed:', error);
-      setErrorMessage('서버 연결에 실패했습니다. 다시 시도해주세요.');
+      
+      if (error.message === '서버 내부 오류') {
+        setErrorMessage('서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } else if (error.message.includes('Failed to fetch')) {
+        setErrorMessage('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+      } else {
+        setErrorMessage('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setIsLoading(false);
     }
-    */
+    
   };
 
   const clearEmail = () => {
@@ -195,20 +203,42 @@ function Signup() {
             <RoleButtons>
               <RoleButton
                 type="button"
-                selected={role === 'USER'}
-                onClick={() => setRole('USER')}
+                $selected={role === 'USER'}
+                onClick={() => {
+                  console.log('유저 버튼 클릭됨 - 이전 role:', role);
+                  const newRole = 'USER';
+                  setRole(newRole);
+                  console.log('유저 버튼 클릭됨 - role을 USER로 설정, 새로운 role:', newRole);
+                  
+                  // 즉시 상태 확인
+                  setTimeout(() => {
+                    console.log('setTimeout 후 role 상태:', role);
+                  }, 0);
+                }}
               >
                 유저
               </RoleButton>
               <RoleButton
                 type="button"
-                selected={role === 'MERCHANT'}
-                onClick={() => setRole('MERCHANT')}
+                $selected={role === 'MERCHANT'}
+                onClick={() => {
+                  console.log('소상공인 버튼 클릭됨 - 이전 role:', role);
+                  const newRole = 'MERCHANT';
+                  setRole(newRole);
+                  console.log('소상공인 버튼 클릭됨 - role을 MERCHANT로 설정, 새로운 role:', newRole);
+                  
+                  // 즉시 상태 확인
+                  setTimeout(() => {
+                    console.log('setTimeout 후 role 상태:', role);
+                  }, 0);
+                }}
               >
                 소상공인
               </RoleButton>
             </RoleButtons>
-            <RoleHint>로그인 유형을 선택하세요.</RoleHint>
+            <RoleHint style={{ color: !role || role === '' ? '#FF6B35' : '#666' }}>
+              {!role || role === '' ? `⚠️ 사용자 유형을 선택해주세요. (현재 role: "${role}")` : `로그인 유형을 선택하세요. (선택됨: "${role}")`}
+            </RoleHint>
           </RoleSection>
 
           {errorMessage && (
@@ -383,23 +413,38 @@ const RoleTitle = styled.h3`
 const RoleButtons = styled.div`
   display: flex;
   gap: 1rem;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 `
 
 const RoleButton = styled.button`
   flex: 1;
   padding: 2rem;
-  border: 2px solid ${props => props.selected ? '#FEE502' : '#E5E5E5'};
+  border: 2px solid ${props => props.$selected ? '#FEE502' : '#E5E5E5'};
   border-radius: 8px;
-  background-color: ${props => props.selected ? '#FEE502' : 'white'};
+  background-color: ${props => props.$selected ? '#FEE502' : 'white'};
   color: #262626;
   font-size: 1.6rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-align: center;
+  user-select: none;
+  outline: none;
 
   &:hover {
     border-color: #FEE502;
-    background-color: ${props => props.selected ? '#FEE502' : '#FFF9CC'};
+    background-color: ${props => props.$selected ? '#FEE502' : '#FFF9CC'};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus {
+    outline: 2px solid #FEE502;
+    outline-offset: 2px;
   }
 `
 
