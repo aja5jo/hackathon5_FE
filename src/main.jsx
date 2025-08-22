@@ -22,9 +22,7 @@ function loadKakaoMaps() {
 
     // Create a new script tag with the env key
     const key = import.meta.env.VITE_KAKAO_MAP_KEY;
-    console.log('ENV KEY:', key);
     if (!key) {
-      console.error('❌ Missing VITE_KAKAO_MAP_KEY in .env');
       resolve(); // allow app to render; map components should guard against missing SDK
       return;
     }

@@ -5,6 +5,7 @@ import { GlobalStyles } from './styles/GlobalStyles'
 import { AuthProvider } from './contexts/AuthContext'
 import router from './Router'
 import Translator from './utils/translate-sdk'
+import ErrorBoundary from './components/common/ErrorBoundary'
 function App() {
   useEffect(() => {
     // ===== 번역 SDK 초기화 =====
@@ -39,12 +40,12 @@ function App() {
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <GlobalStyles/>
       <AuthProvider>
         <RouterProvider router={router}/>
       </AuthProvider>
-    </>
+    </ErrorBoundary>
   )
 }
 

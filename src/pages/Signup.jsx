@@ -15,17 +15,7 @@ function Signup() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // role 상태 변화 추적
-  useEffect(() => {
-    console.log('=== role 상태 변경됨 ===');
-    console.log('role 값:', role);
-    console.log('role 타입:', typeof role);
-    console.log('role 길이:', role ? role.length : 0);
-    console.log('role이 빈 문자열인가?', role === '');
-    console.log('role이 null인가?', role === null);
-    console.log('role이 undefined인가?', role === undefined);
-    console.log('========================');
-  }, [role]);
+
 
 
 
@@ -48,7 +38,6 @@ function Signup() {
     }
 
     if (!role || role === '') {
-      console.log('role 검증 실패 - 현재 role:', role, '타입:', typeof role);
       setErrorMessage('사용자 유형을 선택해주세요.')
       setIsLoading(false)
       return
@@ -77,18 +66,13 @@ function Signup() {
         role: role
       };
 
-      console.log('회원가입 요청 데이터:', signupData);
-      console.log('role 값 확인:', role, '타입:', typeof role);
-
       const result = await authAPI.register(signupData);
       
       if (result.success) {
-        console.log('회원가입 성공:', result.data);
         alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
         navigate('/login');
       } else {
         // API 명세서에 맞춘 에러 메시지 처리
-        console.error('회원가입 실패:', result);
         
         // 서버 에러(500)인 경우 에러 메시지 표시
         if (result.code === 500 || response.status === 500) {
@@ -107,8 +91,6 @@ function Signup() {
       */
       
     } catch (error) {
-      console.error('Signup failed:', error);
-      
       if (error.message === '서버 내부 오류') {
         setErrorMessage('서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       } else if (error.message.includes('Failed to fetch')) {
@@ -201,43 +183,63 @@ function Signup() {
           <RoleSection>
             <RoleTitle>사용자 유형</RoleTitle>
             <RoleButtons>
-              <RoleButton
+              <button
                 type="button"
-                $selected={role === 'USER'}
-                onClick={() => {
-                  console.log('유저 버튼 클릭됨 - 이전 role:', role);
-                  const newRole = 'USER';
-                  setRole(newRole);
-                  console.log('유저 버튼 클릭됨 - role을 USER로 설정, 새로운 role:', newRole);
-                  
-                  // 즉시 상태 확인
-                  setTimeout(() => {
-                    console.log('setTimeout 후 role 상태:', role);
-                  }, 0);
+                style={{
+                  flex: 1,
+                  padding: '2rem',
+                  border: `2px solid ${role === 'USER' ? '#FEE502' : '#E5E5E5'}`,
+                  borderRadius: '8px',
+                  backgroundColor: role === 'USER' ? '#FEE502' : 'white',
+                  color: '#262626',
+                  fontSize: '1.6rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  userSelect: 'none',
+                  position: 'relative',
+                  zIndex: 999,
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setRole('USER');
                 }}
               >
                 유저
-              </RoleButton>
-              <RoleButton
+              </button>
+              <button
                 type="button"
-                $selected={role === 'MERCHANT'}
-                onClick={() => {
-                  console.log('소상공인 버튼 클릭됨 - 이전 role:', role);
-                  const newRole = 'MERCHANT';
-                  setRole(newRole);
-                  console.log('소상공인 버튼 클릭됨 - role을 MERCHANT로 설정, 새로운 role:', newRole);
-                  
-                  // 즉시 상태 확인
-                  setTimeout(() => {
-                    console.log('setTimeout 후 role 상태:', role);
-                  }, 0);
+                style={{
+                  flex: 1,
+                  padding: '2rem',
+                  border: `2px solid ${role === 'MERCHANT' ? '#FEE502' : '#E5E5E5'}`,
+                  borderRadius: '8px',
+                  backgroundColor: role === 'MERCHANT' ? '#FEE502' : 'white',
+                  color: '#262626',
+                  fontSize: '1.6rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  userSelect: 'none',
+                  position: 'relative',
+                  zIndex: 999,
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setRole('MERCHANT');
                 }}
               >
                 소상공인
-              </RoleButton>
+              </button>
             </RoleButtons>
             <RoleHint style={{ color: !role || role === '' ? '#FF6B35' : '#666' }}>
-              {!role || role === '' ? `⚠️ 사용자 유형을 선택해주세요. (현재 role: "${role}")` : `로그인 유형을 선택하세요. (선택됨: "${role}")`}
+              {!role || role === '' ? '⚠️ 사용자 유형을 선택해주세요.' : '로그인 유형을 선택하세요.'}
             </RoleHint>
           </RoleSection>
 
@@ -432,6 +434,10 @@ const RoleButton = styled.button`
   text-align: center;
   user-select: none;
   outline: none;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 999;
+  touch-action: manipulation;
 
   &:hover {
     border-color: #FEE502;

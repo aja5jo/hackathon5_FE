@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from '../components/common/Header'
+import ErrorBoundary from '../components/common/ErrorBoundary'
 import styled from 'styled-components';
 
 function HeaderLayout() {
@@ -8,7 +9,9 @@ function HeaderLayout() {
     <LayoutWrapper>
         <Header/>
         <ContentWrapper id="viewer">
-            <Outlet />
+            <ErrorBoundary>
+                <Outlet />
+            </ErrorBoundary>
         </ContentWrapper>
     </LayoutWrapper>
   )

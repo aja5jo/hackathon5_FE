@@ -25,7 +25,7 @@ class Translator {
       this.originalHtml = viewer.innerHTML;
       this.isInitialized = true;
       
-      console.log('Translator SDK initialized successfully');
+  
       return true;
     } catch (error) {
       console.error('Translator SDK initialization failed:', error);
@@ -50,7 +50,7 @@ class Translator {
     // KOREAN인 경우 원문 복원
     if (targetLanguage === 'KOREAN') {
       viewer.innerHTML = this.originalHtml;
-      console.log('Restored original Korean content');
+      
       return;
     }
 

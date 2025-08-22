@@ -15,9 +15,7 @@ function Header() {
   const [currentTexts, setCurrentTexts] = useState({});
 
   // 디버깅용 로그
-  console.log('Header - isAuthenticated:', isAuthenticated);
-  console.log('Header - user:', user);
-  console.log('Header - isMerchant:', isMerchant);
+
 
   // 언어 설정 - API 명세서에 맞는 SupportedLanguage enum 값 사용
   const languages = [

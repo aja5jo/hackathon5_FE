@@ -10,34 +10,34 @@ const KakaoMap = ({
   const mapElement = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    console.log('KakaoMap 컴포넌트 마운트됨');
-    
     // kakao 객체가 전역으로 로드된 경우만 실행
     if (!window.kakao || !window.kakao.maps) {
-      console.error('카카오 지도 API가 로드되지 않았습니다.');
       return;
     }
 
     const { kakao } = window;
     
-    console.log('카카오 지도 초기화 시작');
-    console.log('mapElement.current:', mapElement.current);
-    console.log('center:', center);
-    
-    let isMounted = true;
+    isMountedRef.current = true;
     
     kakao.maps.load(() => {
-      console.log('kakao.maps.load() 콜백 실행됨');
-      
       // 컴포넌트가 언마운트된 경우 실행하지 않음
-      if (!isMounted) return;
+      if (!isMountedRef.current) return;
       
       // 지도 컨테이너가 DOM에 존재하는지 확인
       if (!mapElement.current || !mapElement.current.parentNode) {
-        console.warn('지도 컨테이너가 DOM에 존재하지 않습니다.');
         return;
+      }
+      
+      // 기존 지도 인스턴스가 있다면 정리
+      if (mapInstance.current) {
+        try {
+          mapInstance.current = null;
+        } catch (error) {
+          console.warn('기존 지도 인스턴스 정리 중 오류:', error);
+        }
       }
       
       try {
@@ -47,9 +47,7 @@ const KakaoMap = ({
           level: 3,
         };
 
-        console.log('mapOptions:', mapOptions);
         mapInstance.current = new kakao.maps.Map(mapElement.current, mapOptions);
-        console.log('카카오 지도 초기화 완료:', mapInstance.current);
 
         // 기존 마커들 제거 (더 안전한 방식)
         if (markersRef.current && markersRef.current.length > 0) {
@@ -59,7 +57,7 @@ const KakaoMap = ({
                 marker.setMap(null);
               }
             } catch (error) {
-              console.warn('마커 제거 중 오류:', error);
+              // 마커 제거 오류 무시
             }
           });
           markersRef.current = [];
@@ -171,15 +169,13 @@ const KakaoMap = ({
         });
 
       } catch (error) {
-        console.error('카카오 지도 초기화 실패:', error);
         return;
       }
     });
 
     // Cleanup 함수
     return () => {
-      console.log('KakaoMap 컴포넌트 언마운트됨');
-      isMounted = false;
+      isMountedRef.current = false;
       
       // 마커들과 오버레이 제거 (더 안전한 방식)
       if (markersRef.current && markersRef.current.length > 0) {
@@ -189,7 +185,7 @@ const KakaoMap = ({
               marker.setMap(null);
             }
           } catch (error) {
-            console.warn('마커 제거 중 오류:', error);
+            // 마커 제거 오류 무시
           }
         });
         markersRef.current = [];
@@ -200,12 +196,23 @@ const KakaoMap = ({
         try {
           // 지도 컨테이너가 여전히 DOM에 존재하는지 확인
           if (mapElement.current && mapElement.current.parentNode) {
+            // 지도 컨테이너의 내용을 안전하게 제거
+            try {
+              if (mapElement.current.innerHTML) {
+                mapElement.current.innerHTML = '';
+              }
+            } catch (error) {
+              // 지도 컨테이너 내용 제거 오류 무시
+            }
             mapInstance.current = null;
           }
         } catch (error) {
-          console.warn('지도 인스턴스 제거 중 오류:', error);
+          // 지도 인스턴스 제거 오류 무시
         }
       }
+      
+      // ref 정리
+      mapElement.current = null;
     };
 
   }, [center, markers]);
