@@ -6,6 +6,7 @@ import EventCardList from '../components/common/EventCardList';
 import dummyEvents from '../assets/dummy.json'
 import HomeBannerSection from '../components/home/HomeBannerSection';
 import { useNavigate } from 'react-router-dom';
+import { storesAPI, mainAPI } from '../services/api';
 
 import { debounce } from '../utils/performance';
 
@@ -24,15 +25,7 @@ const Home = React.memo(() => {
     const loadSearchableDataFromAPI = async () => {
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://3.36.91.28:8080/api/stores`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await storesAPI.getStores();
         
         if (result.success && result.data) {
           const data = result.data.map(item => ({
@@ -118,15 +111,7 @@ const Home = React.memo(() => {
     const performSearch = async () => {
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://3.36.91.28:8080/api/search?q=${encodeURIComponent(term)}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await mainAPI.search(term);
         
         if (result.success) {
           setSearchResults(result.data || []);
@@ -216,15 +201,7 @@ const Home = React.memo(() => {
     const updateData = async () => {
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://localhost:8080/api/home/update`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await mainAPI.updateHome();
         
         if (result.success) {
           console.log('데이터 업데이트 성공:', result.message);

@@ -82,7 +82,7 @@ function MerchantStoreList() {
         
         // ===== 백엔드 API 버전 (활성화) =====
         
-        const response = await fetch(`/api/merchants/stores/${storeId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/merchants/stores/${storeId}`, {
           method: 'DELETE',
           credentials: 'include'
         });

@@ -53,7 +53,7 @@ function EventDetail() {
     setIsLoading(true);
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const response = await fetch(`http://localhost:8080/api/events/${eventId}`, {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/events/${eventId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ function EventDetail() {
     
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const response = await fetch(`http://localhost:8080/api/events/${eventId}/like`, {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/events/${eventId}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

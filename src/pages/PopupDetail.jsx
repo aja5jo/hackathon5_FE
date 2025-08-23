@@ -46,7 +46,7 @@ function PopupDetail() {
     setIsLoading(true);
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const response = await fetch(`http://localhost:8080/api/popups/${popupId}`, {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/popups/${popupId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ function PopupDetail() {
   const handleLikeToggle = async () => {
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const response = await fetch(`http://localhost:8080/api/popups/${popupId}/like`, {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/popups/${popupId}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

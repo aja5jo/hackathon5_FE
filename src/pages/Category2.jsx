@@ -33,10 +33,35 @@ function Category2() {
 
   // 컴포넌트 마운트 시 localStorage에서 선택된 카테고리 불러오기
   useEffect(() => {
+    // ===== 더미데이터 버전 (주석처리) =====
+    /*
+    const savedCategories = localStorage.getItem('selectedCategories');
+    if (savedCategories) {
+      const categoryIds = JSON.parse(savedCategories);
+      // ===== 수정: 카테고리 ID를 dummy.json의 카테고리명으로 매핑 =====
+      const categoryNames = categoryIds.map(id => categoryMapping[id]).filter(Boolean);
+      setUserSelectedCategories(categoryNames);
+      // ===== 수정: 나의 카테고리 버튼은 한국어 카테고리명으로 설정 =====
+      const koreanCategoryNames = categoryIds.map(id => {
+        const koreanMapping = {
+          'cafe': '카페',
+          'restaurant': '맛집 & 술집',
+          'kpop': 'KPOP',
+          'entertainment': '오락',
+          'shopping': '쇼핑',
+          'club': '클럽',
+          'etc': '기타'
+        };
+        return koreanMapping[id];
+      }).filter(Boolean);
+      setSelected(koreanCategoryNames);
+    }
+    */
+    
+    // ===== 백엔드 API 버전 (활성화) =====
     const loadUserCategories = async () => {
       try {
-        // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://localhost:8080/api/users/categories`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -47,17 +72,14 @@ function Category2() {
         const result = await response.json();
         
         if (result.success && result.data && result.data.categories) {
-          // API 응답에서 카테고리 데이터 추출
           const categories = result.data.categories;
           
-          // 사용자가 선택한 카테고리들만 필터링
           const userCategories = categories.filter(cat => 
             cat.items && cat.items.some(item => item.liked)
           );
           
           setUserSelectedCategories(userCategories.map(cat => cat.category));
           
-          // 한국어 카테고리명으로 변환
           const koreanNames = userCategories.map(cat => {
             const koreanMapping = {
               'CAFE': '카페',
@@ -73,34 +95,8 @@ function Category2() {
           setSelected(koreanNames);
         }
         
-        // ===== 더미데이터 버전 (주석처리) =====
-        /*
-        const savedCategories = localStorage.getItem('selectedCategories');
-        if (savedCategories) {
-          const categoryIds = JSON.parse(savedCategories);
-          // ===== 수정: 카테고리 ID를 dummy.json의 카테고리명으로 매핑 =====
-          const categoryNames = categoryIds.map(id => categoryMapping[id]).filter(Boolean);
-          setUserSelectedCategories(categoryNames);
-          // ===== 수정: 나의 카테고리 버튼은 한국어 카테고리명으로 설정 =====
-          const koreanCategoryNames = categoryIds.map(id => {
-            const koreanMapping = {
-              'cafe': '카페',
-              'restaurant': '맛집 & 술집',
-              'kpop': 'KPOP',
-              'entertainment': '오락',
-              'shopping': '쇼핑',
-              'club': '클럽',
-              'etc': '기타'
-            };
-            return koreanMapping[id];
-          }).filter(Boolean);
-          setSelected(koreanCategoryNames);
-        }
-        */
-        
       } catch (error) {
         console.error('카테고리 데이터 로드 실패:', error);
-        // 에러 시 더미 데이터 사용
       }
     };
 
@@ -109,10 +105,24 @@ function Category2() {
 
   // ===== 수정: 선택된 카테고리에 따라 이벤트 필터링 로직 개선 =====
   useEffect(() => {
+    // ===== 더미데이터 버전 (주석처리) =====
+    /*
+    if (userSelectedCategories.length > 0 && dummyEvents.categories) {
+      // ===== 수정: 선택된 카테고리의 카테고리 데이터만 필터링 =====
+      const filteredCategories = dummyEvents.categories.filter(cat => 
+        userSelectedCategories.includes(cat.category)
+      );
+      setFilteredEvents(filteredCategories);
+    } else {
+      // 선택된 카테고리가 없으면 모든 카테고리 표시
+      setFilteredEvents(dummyEvents.categories || []);
+    }
+    */
+    
+    // ===== 백엔드 API 버전 (활성화) =====
     const loadFilteredEventsFromAPI = async () => {
       try {
-        // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://localhost:8080/api/categories`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categories`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -126,34 +136,17 @@ function Category2() {
           const categories = result.data.categories;
           
           if (userSelectedCategories.length > 0) {
-            // 사용자가 선택한 카테고리들만 필터링
             const filteredCategories = categories.filter(cat => 
               userSelectedCategories.includes(cat.category)
             );
             setFilteredEvents(filteredCategories);
           } else {
-            // 선택된 카테고리가 없으면 모든 카테고리 표시
             setFilteredEvents(categories);
           }
         }
         
-        // ===== 더미데이터 버전 (주석처리) =====
-        /*
-        if (userSelectedCategories.length > 0 && dummyEvents.categories) {
-          // ===== 수정: 선택된 카테고리의 카테고리 데이터만 필터링 =====
-          const filteredCategories = dummyEvents.categories.filter(cat => 
-            userSelectedCategories.includes(cat.category)
-          );
-          setFilteredEvents(filteredCategories);
-        } else {
-          // 선택된 카테고리가 없으면 모든 카테고리 표시
-          setFilteredEvents(dummyEvents.categories || []);
-        }
-        */
-        
       } catch (error) {
         console.error('필터링된 이벤트 로드 실패:', error);
-        // 에러 시 더미 데이터 사용
         setFilteredEvents(dummyEvents.categories || []);
       }
     };
@@ -165,13 +158,15 @@ function Category2() {
 
   // ===== 기존 코드 유지 =====
   // ===== 수정: 나의 카테고리 버튼 클릭 시 카테고리 별 모아보기도 함께 토글 =====
-  const toggle = (category) => {
-    setSelected(prev => {
-      const newSelected = prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category];
-      
-      // ===== 수정: 선택된 카테고리를 dummy.json 카테고리명으로 변환하여 필터링 =====
+  const toggle = async (category) => {
+    // 3개 제한 로직: 이미 3개가 선택되어 있고, 새로운 카테고리를 추가하려는 경우
+    if (!selected.includes(category) && selected.length >= 3) {
+      alert('최대 3개까지만 선택할 수 있습니다.');
+      return;
+    }
+
+    try {
+      // ===== 백엔드 API 버전 (활성화) =====
       const translatedToEnglishMapping = {
         '카페': 'CAFE',
         '맛집 & 술집': 'FOOD',
@@ -181,12 +176,106 @@ function Category2() {
         '클럽': 'CLUB',
         '기타': 'ETC'
       };
+
+      const categoryId = translatedToEnglishMapping[category];
       
-      const englishCategories = newSelected.map(cat => translatedToEnglishMapping[cat]).filter(Boolean);
-      setUserSelectedCategories(englishCategories);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories/${categoryId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      const result = await response.json();
       
-      return newSelected;
+      if (result.success) {
+        console.log('카테고리 토글 성공:', result.message);
+        
+        // API 응답에 따라 상태 업데이트
+        setSelected(prev => {
+          if (prev.includes(category)) {
+            // 이미 선택된 카테고리면 제거
+            const newSelected = prev.filter(c => c !== category);
+            
+            const englishCategories = newSelected.map(cat => translatedToEnglishMapping[cat]).filter(Boolean);
+            setUserSelectedCategories(englishCategories);
+            
+            return newSelected;
+          } else {
+            // 새로운 카테고리 추가
+            const newSelected = [...prev, category];
+            
+            const englishCategories = newSelected.map(cat => translatedToEnglishMapping[cat]).filter(Boolean);
+            setUserSelectedCategories(englishCategories);
+            
+            return newSelected;
+          }
+        });
+      } else {
+        if (result.code === 400) {
+          alert(result.message || '카테고리 설정에 실패했습니다.');
+        } else if (result.code === 401) {
+          alert('로그인이 필요합니다.');
+        } else if (result.code === 403) {
+          alert('접근 권한이 없습니다.');
+        } else {
+          alert(result.message || '카테고리 설정 중 오류가 발생했습니다.');
+        }
+      }
+      
+    } catch (error) {
+      console.error('카테고리 설정 API 오류:', error);
+      alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
+    }
+    
+    // ===== 더미데이터 버전 (주석처리) =====
+    /*
+    setSelected(prev => {
+      if (prev.includes(category)) {
+        // 이미 선택된 카테고리면 제거
+        const newSelected = prev.filter(c => c !== category);
+        
+        const translatedToEnglishMapping = {
+          '카페': 'CAFE',
+          '맛집 & 술집': 'FOOD',
+          'KPOP': 'K_POP',
+          '오락': 'ENTERTAINMENT',
+          '쇼핑': 'SHOPPING',
+          '클럽': 'CLUB',
+          '기타': 'ETC'
+        };
+        
+        const englishCategories = newSelected.map(cat => translatedToEnglishMapping[cat]).filter(Boolean);
+        setUserSelectedCategories(englishCategories);
+        
+        return newSelected;
+      } else {
+        // 새로운 카테고리 추가 시 3개 제한 확인
+        if (prev.length >= 3) {
+          alert('최대 3개까지만 선택할 수 있습니다.');
+          return prev;
+        }
+        
+        const newSelected = [...prev, category];
+        
+        const translatedToEnglishMapping = {
+          '카페': 'CAFE',
+          '맛집 & 술집': 'FOOD',
+          'KPOP': 'K_POP',
+          '오락': 'ENTERTAINMENT',
+          '쇼핑': 'SHOPPING',
+          '클럽': 'CLUB',
+          '기타': 'ETC'
+        };
+        
+        const englishCategories = newSelected.map(cat => translatedToEnglishMapping[cat]).filter(Boolean);
+        setUserSelectedCategories(englishCategories);
+        
+        return newSelected;
+      }
     });
+    */
   };
   // ===== 수정 끝 =====
 
@@ -234,9 +323,9 @@ const FilterTitle = styled.div`
   color: #262626;
 `;
 const Container = styled.div`
-  min-height: 100vh;
   background-color: #ffffff;
   position: relative;
+  width: 100%;
 `;
 
 const ListSection = styled.section`

@@ -176,8 +176,8 @@ export default BucketList;
 
 // 스타일 컴포넌트들
 const Container = styled.div`
-  min-height: 100vh;
   background-color: #f8f9fa;
+  width: 100%;
 `;
 
 const BannerSection = styled.div`

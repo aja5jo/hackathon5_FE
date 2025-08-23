@@ -47,7 +47,7 @@ function StoreDetail() {
     setError(null);
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const response = await fetch(`http://localhost:8080/api/stores/${id}`, {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/stores/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ function StoreDetail() {
     
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const response = await fetch(`http://localhost:8080/api/stores/${id}/like`, {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/stores/${id}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

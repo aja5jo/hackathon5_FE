@@ -244,6 +244,11 @@ export const mainAPI = {
   
   // 검색
   search: (keyword) => apiRequest(`/api/search?keyword=${encodeURIComponent(keyword)}`),
+  
+  // 홈 업데이트
+  updateHome: () => apiRequest('/api/home/update', {
+    method: 'POST',
+  }),
 };
 
 // 이벤트/팝업 관련 API

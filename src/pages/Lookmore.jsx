@@ -158,7 +158,7 @@ function Lookmore() {
       setIsLoading(true);
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://localhost:8080/api/categories/${normalizedCategory}/${normalizedType}/${itemId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categories/${normalizedCategory}/${normalizedType}/${itemId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -204,7 +204,7 @@ function Lookmore() {
   const handleLikeToggle = async () => {
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const response = await fetch(`http://localhost:8080/api/users/stores/${itemId}/favorites`, {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/stores/${itemId}/favorites`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

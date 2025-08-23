@@ -21,7 +21,7 @@ function MoreListcategory() {
         setLoading(true);
         
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://localhost:8080/api/categories/${category}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categories/${category}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

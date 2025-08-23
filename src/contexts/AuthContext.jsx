@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     /*
     try {
       // API 명세서에 맞는 로그아웃 요청 (요청 바디 없음)
-      const response = await fetch('http://localhost:8080/api/users/logout', {
+              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

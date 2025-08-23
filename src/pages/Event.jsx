@@ -54,7 +54,7 @@ function Event() {
     const loadEvents = async () => {
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`http://localhost:8080/api/events?type=event&status=${activeCategory}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/events?type=event&status=${activeCategory}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -133,8 +133,8 @@ function Event() {
 }
 
 const Container = styled.div`
-  min-height: 100vh;
   background-color: #f8f9fa;
+  width: 100%;
 `;
 
 const CategoryFilter = styled.div`

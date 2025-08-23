@@ -67,6 +67,7 @@ const TempPage = ({ title, description }) => (
 );
 
 const router = createBrowserRouter([
+  // 모든 라우트를 AuthProvider 내부에서 처리
   {
     path: "/",
     element: <HeaderLayout />,
@@ -74,6 +75,15 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      // 로그인과 회원가입은 헤더 없이 렌더링
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "signup",
+        element: <Signup />,
       },
       {
         path: "categories",
@@ -118,14 +128,6 @@ const router = createBrowserRouter([
       {
         path: "favorites",
         element: <BucketList />,
-      },
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "signup",
-        element: <Signup />,
       },
       {
         path: "lookmore/:category/:itemType/:itemId",
@@ -245,7 +247,7 @@ const router = createBrowserRouter([
         element: <AiPreviewTest />,
       },
     ],
-    }
-])
+  },
+]);
 
 export default router;

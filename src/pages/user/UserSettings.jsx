@@ -41,7 +41,7 @@ function UserSettings() {
       
       try {
         // API 명세서에 맞는 카테고리 토글 요청
-        const response = await fetch(`http://localhost:8080/api/users/categories/${category}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories/${category}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
