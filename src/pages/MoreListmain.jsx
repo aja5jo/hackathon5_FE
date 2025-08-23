@@ -4,6 +4,7 @@ import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
 import EventCardList from '../components/common/EventCardList';
 import dummyEvents from '../assets/dummy.json'
+import { usersAPI } from '../services/api'
 
 
 function MoreListmain() {
@@ -17,15 +18,7 @@ function MoreListmain() {
         setLoading(true);
         
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/preferences`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await usersAPI.getPreferences();
         
         if (result.success && result.data) {
           setEvents(result.data || []);

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -32,7 +33,34 @@ export const AuthProvider = ({ children }) => {
       setUserType(savedUserType);
     }
     
-    setIsLoading(false);
+    // 백엔드 세션 상태 확인
+    const checkSession = async () => {
+      try {
+        const result = await authAPI.getMe();
+        
+        if (result.success && result.data) {
+          // 백엔드 세션이 유효한 경우
+          setUser(result.data);
+          const type = result.data.role === 'MERCHANT' ? 'merchant' : 'user';
+          setUserType(type);
+          localStorage.setItem('user', JSON.stringify(result.data));
+          localStorage.setItem('userType', type);
+        } else {
+          // 백엔드 세션이 유효하지 않은 경우
+          setUser(null);
+          setUserType('user');
+          localStorage.removeItem('user');
+          localStorage.removeItem('userType');
+        }
+      } catch (error) {
+        console.error('세션 확인 실패:', error);
+        // 에러 발생 시 로컬 상태 유지
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
   }, []);
 
   const login = useCallback((userData, type = 'user') => {
@@ -72,16 +100,7 @@ export const AuthProvider = ({ children }) => {
     // ===== 백엔드 배포 시 API 버전 (주석처리) =====
     /*
     try {
-      // API 명세서에 맞는 로그아웃 요청 (요청 바디 없음)
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/logout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // 세션 기반 인증
-      });
-
-      const result = await response.json();
+      const result = await authAPI.logout();
       
       if (result.success) {
         console.log('백엔드 로그아웃 성공:', result.message);

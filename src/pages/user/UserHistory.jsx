@@ -194,7 +194,7 @@ export default UserHistory;
 
 // ===== styled =====
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background: #ffffff;
 `;
 

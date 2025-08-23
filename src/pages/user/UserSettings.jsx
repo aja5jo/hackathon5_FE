@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Footer from '../../components/common/Footer';
 import bannerImg from '../../assets/banner.png';
+import { usersAPI } from '../../services/api';
 
 
 function UserSettings() {
@@ -41,15 +42,7 @@ function UserSettings() {
       
       try {
         // API 명세서에 맞는 카테고리 토글 요청
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories/${category}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // 세션 기반 인증
-        });
-
-        const result = await response.json();
+        const result = await usersAPI.toggleUserCategory(category);
         
         if (result.success) {
           console.log('카테고리 토글 성공:', result.message);
@@ -241,7 +234,7 @@ export default UserSettings;
 
 // ===== styled =====
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background: #ffffff;
 `;
 

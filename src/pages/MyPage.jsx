@@ -43,7 +43,7 @@ function MyPage() {
 
 // 스타일 컴포넌트들
 const LoadingContainer = styled.div`
-  min-height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,7 +56,7 @@ const LoadingText = styled.div`
 `;
 
 const UnauthorizedContainer = styled.div`
-  min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;

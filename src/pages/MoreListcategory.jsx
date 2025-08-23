@@ -8,6 +8,7 @@ import Footer from '../components/common/Footer';
 import EventCard from '../components/common/EventCard';
 
 import dummyEvents from '../assets/dummy.json';
+import { categoriesAPI } from '../services/api';
 
 function MoreListcategory() {
   const { category } = useParams(); 
@@ -21,15 +22,7 @@ function MoreListcategory() {
         setLoading(true);
         
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categories/${category}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await categoriesAPI.getCategory(category);
         
         if (result.success && result.data) {
           const categoryData = result.data;

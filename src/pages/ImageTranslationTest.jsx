@@ -134,7 +134,7 @@ export default ImageTranslationTest;
 
 // 스타일 컴포넌트들
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background-color: #f8f9fa;
 `;
 

@@ -212,16 +212,9 @@ function MerchantStorePartialEdit() {
       // ===== 백엔드 API 버전 (활성화) =====
       
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/merchants/stores/${storeId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(patchData)
-        });
+        const result = await storesAPI.updateStore(storeId, patchData);
         
-        if (response.ok) {
+        if (result.success) {
           console.log('가게 부분 수정 성공');
           alert('가게 정보가 성공적으로 수정되었습니다!');
           navigate('/mypage/stores');
@@ -455,7 +448,7 @@ function MerchantStorePartialEdit() {
 
 // Styled Components
 const Page = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background: #f8fafc;
 `;
 

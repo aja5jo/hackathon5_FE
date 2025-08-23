@@ -254,7 +254,7 @@ export default MerchantEventList;
 
 // ===== styled =====
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background: #f8f9fa;
 `;
 

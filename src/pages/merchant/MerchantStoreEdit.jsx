@@ -340,7 +340,7 @@ const timeOptions = Array.from({ length: 24 }, (_, h) => {
 
 // ===== styles =====
 const Page = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background: #fff;
 `;
 

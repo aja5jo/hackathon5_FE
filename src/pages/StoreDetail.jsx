@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
+import { storesAPI } from '../services/api';
 
 
 function StoreDetail() {
@@ -47,15 +48,7 @@ function StoreDetail() {
     setError(null);
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/stores/${id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await storesAPI.getStoreDetail(id);
       
       if (result.success) {
         const data = result.data;
@@ -95,15 +88,7 @@ function StoreDetail() {
     
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/stores/${id}/like`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await storesAPI.toggleStoreLike(id);
       
       if (result.success) {
         setLiked((prev) => !prev);
@@ -244,7 +229,7 @@ export default StoreDetail;
 
 // ===== styles (EventDetail과 동일 레이아웃) =====
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background-color: #f8f9fa;
 `;
 

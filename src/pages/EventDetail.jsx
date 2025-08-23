@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
+import { eventsAPI } from '../services/api';
 
 
 function EventDetail() {
@@ -53,15 +54,7 @@ function EventDetail() {
     setIsLoading(true);
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/events/${eventId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await eventsAPI.getEvent(eventId);
       
       if (result.success) {
         setEventDetail(result.data);
@@ -99,15 +92,7 @@ function EventDetail() {
     
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/events/${eventId}/like`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+              const result = await eventsAPI.toggleEventLike(eventId);
       
       if (result.success) {
         setLiked(!liked);
@@ -283,7 +268,7 @@ function EventDetail() {
 export default EventDetail;
 
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background-color: #f8f9fa;
 `;
 

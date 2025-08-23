@@ -18,6 +18,7 @@ const apiRequest = async (endpoint, options = {}) => {
       'Content-Type': 'application/json',
       ...options.headers,
     },
+    credentials: 'include', // 세션 쿠키 포함
   };
 
   const response = await fetch(url, { ...defaultOptions, ...options });
@@ -83,6 +84,11 @@ export const storesAPI = {
   // 가게 상세 정보 조회
   getStoreDetail: (id) => apiRequest(`/api/stores/${id}`),
   
+  // 가게 좋아요 토글
+  toggleStoreLike: (storeId) => apiRequest(`/api/stores/${storeId}/like`, {
+    method: 'POST',
+  }),
+  
   // 가게 생성
   createStore: (data) => apiRequest('/api/merchants/stores', {
     method: 'POST',
@@ -96,6 +102,11 @@ export const storesAPI = {
   updateStore: (id, data) => apiRequest(`/api/merchants/stores/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
+  }),
+  
+  // 가게 삭제
+  deleteStore: (storeId) => apiRequest(`/api/merchants/stores/${storeId}`, {
+    method: 'DELETE',
   }),
   
   // 가게 부분 수정
@@ -206,23 +217,35 @@ export const authAPI = {
   
   // 사용자 정보 조회
   getProfile: () => apiRequest('/api/profile'),
+  
+  // 현재 사용자 정보 조회
+  getMe: () => apiRequest('/api/users/me'),
 };
 
 // 카테고리 관련 API
 export const categoriesAPI = {
   // 사용자 카테고리 토글 (삭제/추가)
-  toggleUserCategory: (category) => apiRequest(`/api/users/categories/${category}`, {
+  toggleCategory: (category) => apiRequest(`/api/users/categories/${category}`, {
     method: 'POST',
   }),
   
   // 사용자 카테고리 조회
   getUserCategories: () => apiRequest('/api/users/categories'),
   
+  // 사용자 카테고리 저장
+  saveUserCategories: (categories) => apiRequest('/api/users/categories/save', {
+    method: 'POST',
+    body: JSON.stringify(categories),
+  }),
+  
   // 카테고리 목록 조회
   getCategories: () => apiRequest('/api/categories'),
   
   // 특정 카테고리 조회
   getCategory: (category) => apiRequest(`/api/categories/${category}`),
+  
+  // 카테고리별 아이템 조회
+  getCategoryItem: (category, type, itemId) => apiRequest(`/api/categories/${category}/${type}/${itemId}`),
 };
 
 // 메인 페이지 관련 API
@@ -259,8 +282,55 @@ export const eventsAPI = {
   // 필터별 이벤트 목록 조회
   getEventsByFilter: (filter) => apiRequest(`/api/events?filter=${encodeURIComponent(filter)}`),
   
+  // 타입별 이벤트 목록 조회
+  getEventsByType: (type, status) => apiRequest(`/api/events?type=${type}&status=${status}`),
+  
+  // 특정 이벤트 조회
+  getEvent: (eventId) => apiRequest(`/api/events/${eventId}`),
+  
+  // 이벤트 좋아요 토글
+  toggleEventLike: (eventId) => apiRequest(`/api/events/${eventId}/like`, {
+    method: 'POST',
+  }),
+  
   // 팝업 목록 조회
   getPopups: () => apiRequest('/api/popups'),
+  
+  // 특정 팝업 조회
+  getPopup: (popupId) => apiRequest(`/api/popups/${popupId}`),
+  
+  // 팝업 좋아요 토글
+  togglePopupLike: (popupId) => apiRequest(`/api/popups/${popupId}/like`, {
+    method: 'POST',
+  }),
+};
+
+// 사용자 관련 API
+export const usersAPI = {
+  // 사용자 선호도 조회
+  getPreferences: () => apiRequest('/api/users/preferences'),
+  
+  // 사용자 카테고리 토글
+  toggleUserCategory: (category) => apiRequest(`/api/users/categories/${category}`, {
+    method: 'POST',
+  }),
+  
+  // 사용자 리뷰 조회
+  getReviews: () => apiRequest('/api/users/reviews'),
+  
+  // 사용자 리뷰 삭제
+  deleteReview: (reviewId) => apiRequest(`/api/users/reviews/${reviewId}`, {
+    method: 'DELETE',
+  }),
+  
+  // 사용자 방문 기록 조회
+  getHistory: () => apiRequest('/api/users/history'),
+  
+  // 사용자 프로필 업데이트
+  updateProfile: (data) => apiRequest('/api/users/profile', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
 };
 
 // AI 번역 관련 API

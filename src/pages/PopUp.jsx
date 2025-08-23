@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import PopupBannerSection from '../components/popup/PopupBannerSection';
 import EventCard from '../components/common/EventCard';
+import { eventsAPI } from '../services/api';
 
 
 function PopUp() {
@@ -116,15 +117,7 @@ function PopUp() {
     /*
     const loadPopupsFromAPI = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/events?type=popup`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await eventsAPI.getEventsByType('popup');
         
         if (result.success && result.data) {
           const popups = result.data;

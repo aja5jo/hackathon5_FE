@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { eventsAPI } from '../services/api';
 
 function PopupDetail() {
   const { popupId } = useParams();
@@ -46,15 +47,7 @@ function PopupDetail() {
     setIsLoading(true);
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/popups/${popupId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await eventsAPI.getPopup(popupId);
       
       if (result.success) {
         const data = result.data;
@@ -88,15 +81,7 @@ function PopupDetail() {
   const handleLikeToggle = async () => {
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/popups/${popupId}/like`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await eventsAPI.togglePopupLike(popupId);
       
       if (result.success) {
         setLiked((prev) => !prev);
@@ -243,7 +228,7 @@ export default PopupDetail;
 
 // ===== styles (EventDetail과 유사) =====
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background-color: #f8f9fa;
 `;
 

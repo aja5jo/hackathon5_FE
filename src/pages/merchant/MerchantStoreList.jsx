@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
-import { storesAPI } from '../../services/api'
+import { storesAPI } from '../../services/api';
 
 function MerchantStoreList() {
   const navigate = useNavigate();
@@ -82,12 +82,9 @@ function MerchantStoreList() {
         
         // ===== 백엔드 API 버전 (활성화) =====
         
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/merchants/stores/${storeId}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
+        const result = await storesAPI.deleteStore(storeId);
         
-        if (response.ok) {
+        if (result.success) {
           setStores(prev => prev.filter(store => store.id !== storeId));
           alert('가게가 삭제되었습니다.');
         } else {
@@ -212,7 +209,7 @@ export default MerchantStoreList;
 
 // ===== styled =====
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background: #f8f9fa;
 `;
 

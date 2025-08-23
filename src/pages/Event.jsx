@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import EventBannerSection from '../components/event/EventBannerSection';
 import EventCard from '../components/common/EventCard';
+import { eventsAPI } from '../services/api';
 
 
 function Event() {
@@ -13,7 +14,8 @@ function Event() {
   const [events, setEvents] = useState([]);
   
   // ===== 더미 이벤트 데이터 =====
-  const getDummyEvents = () => ({
+  
+  /*const getDummyEvents = () => ({
     '인기': [
       { id: 1, name: '사자 베이커리 팝업', description: '맛있는 빵을 위한 이번달 단 하나의 사자 팝업', startDate: '25.03.06', endDate: '25.04.11', thumbnail: 'https://picsum.photos/seed/bakery1/300/200', likeCount: 128, status: '진행중', category: '이벤트', type: 'event', location: '홍대' },
       { id: 2, name: '사자 카페', description: '핵심 원두로 커피를! 아메리카노 10% 할인 이벤트', startDate: '25.03.06', endDate: '25.04.12', thumbnail: 'https://picsum.photos/seed/cafe1/300/200', likeCount: 95, status: '진행중', category: '이벤트', type: 'event', location: '홍대' },
@@ -49,27 +51,18 @@ function Event() {
   });
   
   const dummyEvents = getDummyEvents();
-
+*/
   useEffect(() => {
     const loadEvents = async () => {
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/events?type=event&status=${activeCategory}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
-        
+        const result = await eventsAPI.getEventsByType('event', activeCategory);
+        console.log(result);
         if (result.success) {
-          setEvents(result.data || []);
+          setEvents(result.data.flat());
         } else {
           console.error('이벤트 로드 실패:', result.message);
-          // 에러 시 더미 데이터 사용
-          setEvents(dummyEvents[activeCategory] || []);
+ 
         }
         
         // ===== 더미데이터 버전 (주석처리) =====
@@ -79,8 +72,6 @@ function Event() {
         
       } catch (error) {
         console.error('이벤트 로드 실패:', error);
-        // 에러 시 더미 데이터 사용
-        setEvents(dummyEvents[activeCategory] || []);
       }
     };
 

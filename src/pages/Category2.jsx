@@ -5,11 +5,13 @@ import Footer from '../components/common/Footer';
 import CategoryBannerSection from '../components/category2/CategoryBannerSection';
 import dummyEvents from '../assets/dummy.json'
 import EventCardListCategory from '../components/category2/EventCardListCategory.jsx';
+import { useAuth } from '../contexts/AuthContext';
+import { categoriesAPI } from '../services/api';
 
 
 
 function Category2() {
-  
+  const { isAuthenticated, isLoading } = useAuth();
 
   // ===== 기존 코드 유지 =====
   const [selected ,setSelected]=useState([]);
@@ -33,6 +35,11 @@ function Category2() {
 
   // 컴포넌트 마운트 시 localStorage에서 선택된 카테고리 불러오기
   useEffect(() => {
+    // 인증되지 않은 경우 API 호출하지 않음
+    if (!isAuthenticated) {
+      return;
+    }
+    
     // ===== 더미데이터 버전 (주석처리) =====
     /*
     const savedCategories = localStorage.getItem('selectedCategories');
@@ -61,15 +68,7 @@ function Category2() {
     // ===== 백엔드 API 버전 (활성화) =====
     const loadUserCategories = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await categoriesAPI.getUserCategories();
         
         if (result.success && result.data && result.data.categories) {
           const categories = result.data.categories;
@@ -101,10 +100,15 @@ function Category2() {
     };
 
     loadUserCategories();
-  }, []);
+  }, [isAuthenticated]);
 
   // ===== 수정: 선택된 카테고리에 따라 이벤트 필터링 로직 개선 =====
   useEffect(() => {
+    // 인증되지 않은 경우 API 호출하지 않음
+    if (!isAuthenticated) {
+      return;
+    }
+    
     // ===== 더미데이터 버전 (주석처리) =====
     /*
     if (userSelectedCategories.length > 0 && dummyEvents.categories) {
@@ -122,15 +126,7 @@ function Category2() {
     // ===== 백엔드 API 버전 (활성화) =====
     const loadFilteredEventsFromAPI = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categories`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await categoriesAPI.getCategories();
         
         if (result.success && result.data && result.data.categories) {
           const categories = result.data.categories;
@@ -153,12 +149,23 @@ function Category2() {
     
     loadFilteredEventsFromAPI();
     
-  }, [userSelectedCategories]);
+  }, [userSelectedCategories, isAuthenticated]);
   // ===== 새로 추가 끝 =====
 
   // ===== 기존 코드 유지 =====
   // ===== 수정: 나의 카테고리 버튼 클릭 시 카테고리 별 모아보기도 함께 토글 =====
   const toggle = async (category) => {
+    // 로딩 중이거나 인증되지 않은 경우 처리
+    if (isLoading) {
+      alert('로딩 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+    
+    if (!isAuthenticated) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    
     // 3개 제한 로직: 이미 3개가 선택되어 있고, 새로운 카테고리를 추가하려는 경우
     if (!selected.includes(category) && selected.length >= 3) {
       alert('최대 3개까지만 선택할 수 있습니다.');
@@ -179,15 +186,7 @@ function Category2() {
 
       const categoryId = translatedToEnglishMapping[category];
       
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories/${categoryId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await categoriesAPI.toggleCategory(categoryId);
       
       if (result.success) {
         console.log('카테고리 토글 성공:', result.message);

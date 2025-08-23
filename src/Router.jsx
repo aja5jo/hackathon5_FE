@@ -67,7 +67,16 @@ const TempPage = ({ title, description }) => (
 );
 
 const router = createBrowserRouter([
-  // 모든 라우트를 AuthProvider 내부에서 처리
+  // 로그인과 회원가입은 별도 라우트 (AuthProvider 내부, 헤더 없음)
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  // 메인 라우트 (헤더 포함)
   {
     path: "/",
     element: <HeaderLayout />,
@@ -75,15 +84,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-      },
-      // 로그인과 회원가입은 헤더 없이 렌더링
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "signup",
-        element: <Signup />,
       },
       {
         path: "categories",

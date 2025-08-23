@@ -5,6 +5,7 @@ import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import dummyEvents from '../assets/dummy.json';
 import { useAuth } from '../contexts/AuthContext';
+import { categoriesAPI, favoritesAPI } from '../services/api';
 
 
 
@@ -158,15 +159,7 @@ function Lookmore() {
       setIsLoading(true);
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categories/${normalizedCategory}/${normalizedType}/${itemId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        const result = await response.json();
+        const result = await categoriesAPI.getCategoryItem(normalizedCategory, normalizedType, itemId);
         
         if (result.success) {
           setItemData(result.data);
@@ -204,15 +197,7 @@ function Lookmore() {
   const handleLikeToggle = async () => {
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-              const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/stores/${itemId}/favorites`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await favoritesAPI.toggleStoreFavorite(itemId);
       
       if (result.success) {
         setIsLiked(!isLiked);
@@ -340,7 +325,7 @@ function Lookmore() {
 export default Lookmore;
 
 const Container = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background-color: #f8f9fa;
 `;
 

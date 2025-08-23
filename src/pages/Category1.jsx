@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import { categoriesAPI } from '../services/api'
 
 
 
 function Category1() {
   const navigate = useNavigate()
+  const { isAuthenticated, isLoading } = useAuth()
   
   const [selectedCategories, setSelectedCategories] = useState([])
 
@@ -20,6 +23,18 @@ function Category1() {
   ]
 
   const handleCategoryClick = async (categoryId) => {
+    // 로딩 중이거나 인증되지 않은 경우 처리
+    if (isLoading) {
+      alert('로딩 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+    
+    if (!isAuthenticated) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    
     // ===== 더미데이터 버전 (주석처리) =====
     /*
     setSelectedCategories(prev => {
@@ -46,15 +61,7 @@ function Category1() {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories/${categoryId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
+      const result = await categoriesAPI.toggleCategory(categoryId);
       
       if (result.success) {
         console.log('카테고리 토글 성공:', result.message);
@@ -101,16 +108,7 @@ function Category1() {
     
     // ===== 백엔드 API 버전 (활성화) =====
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/categories/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ categories: selectedCategories })
-      });
-
-      const result = await response.json();
+      const result = await categoriesAPI.saveUserCategories({ categories: selectedCategories });
       
       if (result.success) {
         console.log('카테고리 저장 성공:', result.message);
