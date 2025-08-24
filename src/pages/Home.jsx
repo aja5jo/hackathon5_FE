@@ -36,6 +36,31 @@ const Home = React.memo(() => {
   // 검색 데이터 상태
   const [searchableData, setSearchableData] = useState([]);
 
+  // EventCardList용 데이터 변환 함수
+  const transformDataForEventCardList = useCallback((data) => {
+    if (!Array.isArray(data) || data.length === 0) return [];
+    
+    // 카테고리별로 그룹화
+    const groupedByCategory = data.reduce((acc, item) => {
+      const category = item.category || 'STORE';
+      if (!acc[category]) {
+        acc[category] = {
+          category: category,
+          items: []
+        };
+      }
+      acc[category].items.push(item);
+      return acc;
+    }, {});
+    
+    return Object.values(groupedByCategory);
+  }, []);
+
+  // EventCardList용 변환된 데이터
+  const eventCardListData = useMemo(() => {
+    return transformDataForEventCardList(searchableData);
+  }, [searchableData, transformDataForEventCardList]);
+
   // 검색 데이터 로드
   useEffect(() => {
     const loadSearchableDataFromAPI = async () => {
@@ -214,7 +239,7 @@ const Home = React.memo(() => {
           </SectionHeader>
 
                      {/* 카드 그리드 */}
-           <EventCardList events={[]} maxItems={6}/>
+           <EventCardList events={eventCardListData} maxItems={6}/>
         </MainContent>
       )}
       

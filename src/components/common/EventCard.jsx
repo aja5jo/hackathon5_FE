@@ -145,6 +145,13 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
   }, [event.id, event.name, event.category, event.type, event.description, event.desc, event.thumbnail, event.location, event.likeCount, like, isAuthenticated, navigate, onRemove, isMerchantUser]);
 
   const handleCardClick = useCallback(() => {
+    // 비로그인 상태에서는 로그인 페이지로 이동
+    if (!isAuthenticated) {
+      console.log('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+    
     const type = (event.type || '').toLowerCase();
     if (type === 'store') {
       navigate(`/store/${event.id}`);
@@ -153,7 +160,7 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
     } else {
       navigate(`/events/${event.id}`);
     }
-  }, [event.type, event.id, navigate]);
+  }, [event.type, event.id, navigate, isAuthenticated]);
 
   const shouldShowStatus = Boolean(event.status) && !excludeStatuses.includes(event.status);
 
