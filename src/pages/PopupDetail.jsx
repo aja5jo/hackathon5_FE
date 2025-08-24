@@ -26,28 +26,6 @@ function PopupDetail() {
     setIsMerchantUser(isMerchant());
   }, []);
 
-  // 더미 팝업 상세 (응답 예시를 반영)
-  const dummyPopupDetail = {
-    id: 17,
-    userId: 5,
-    category: 'K_POP',
-    name: '뉴진스 팝업',
-    description: '앨범 굿즈 한정 판매',
-    intro: '한 줄 소개',
-    thumbnail: 'https://picsum.photos/seed/popup-thumb-17/800/400',
-    images: [
-      'https://picsum.photos/seed/popup17-1/800/400',
-      'https://picsum.photos/seed/popup17-2/800/400',
-    ],
-    startDate: '2025-08-01',
-    endDate: '2025-08-14',
-    startTime: '10:00:00',
-    endTime: '20:00:00',
-    address: '서울시 강남구 테헤란로 123',
-    likeCount: 123,
-    liked: true,
-  };
-
   useEffect(() => {
     fetchPopupDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,7 +34,6 @@ function PopupDetail() {
   const fetchPopupDetail = async () => {
     setIsLoading(true);
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
       const result = await eventsAPI.getPopup(id);
       
       if (result.success) {
@@ -67,18 +44,6 @@ function PopupDetail() {
       } else {
         setError(result.message || '팝업 정보를 불러오는데 실패했습니다.');
       }
-      
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      // 더미 데이터 시뮬레이션
-      setTimeout(() => {
-        const data = dummyPopupDetail;
-        setPopupDetail(data);
-        setLiked(Boolean(data.liked));
-        setLikeCount(Number(data.likeCount || 0));
-        setIsLoading(false);
-      }, 600);
-      */
       
     } catch (e) {
       console.error('팝업 정보 로드 실패:', e);
@@ -102,26 +67,18 @@ function PopupDetail() {
     }
     
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
       const result = await eventsAPI.togglePopupLike(id);
       
       if (result.success) {
         setLiked((prev) => !prev);
         setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
       } else {
-        alert(result.message || '좋아요 처리에 실패했습니다.');
+        console.log(result.message || '좋아요 처리에 실패했습니다.');
       }
-      
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      setLiked((prev) => !prev);
-      setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-      // TODO: 좋아요 API 연동
-      */
       
     } catch (error) {
       console.error('좋아요 처리 실패:', error);
-      alert('좋아요 처리에 실패했습니다.');
+      console.log('좋아요 처리에 실패했습니다.');
     }
   };
 

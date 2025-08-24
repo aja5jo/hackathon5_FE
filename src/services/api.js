@@ -244,9 +244,6 @@ export const storesAPI = {
     return apiRequest(`/api/events?${queryString}`);
   },
   
-  // 이벤트 상세 정보 조회
-  getEventDetail: (id) => apiRequest(`/api/events/${id}`),
-  
   // 이벤트 생성 - 명세서대로 수정
   createEvent: (data) => apiRequest('/api/merchants/events', {
     method: 'POST',
@@ -386,6 +383,9 @@ export const eventsAPI = {
   
   // 개별 이벤트 조회 (누락된 함수)
   getEvent: (eventId) => apiRequest(`/api/event/${eventId}`),
+  
+  // 개별 팝업 조회 (누락된 함수)
+  getPopup: (popupId) => apiRequest(`/api/popup/${popupId}`),
   
   // 이벤트 좋아요 토글 (일반 유저만 사용 가능)
   toggleEventLike: (eventId) => {
