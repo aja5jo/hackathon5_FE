@@ -15,6 +15,7 @@ const KakaoMap = ({
   useEffect(() => {
     // kakao 객체가 전역으로 로드된 경우만 실행
     if (!window.kakao || !window.kakao.maps) {
+      console.log('카카오맵 API가 로드되지 않았습니다. 환경변수 VITE_KAKAO_MAP_KEY를 확인해주세요.');
       return;
     }
 
@@ -22,11 +23,16 @@ const KakaoMap = ({
     
     isMountedRef.current = true;
     
+    // 지도 컨테이너가 DOM에 존재하는지 먼저 확인
+    if (!mapElement.current || !mapElement.current.parentNode) {
+      return;
+    }
+    
     kakao.maps.load(() => {
       // 컴포넌트가 언마운트된 경우 실행하지 않음
       if (!isMountedRef.current) return;
       
-      // 지도 컨테이너가 DOM에 존재하는지 확인
+      // 지도 컨테이너가 여전히 DOM에 존재하는지 다시 확인
       if (!mapElement.current || !mapElement.current.parentNode) {
         return;
       }
@@ -194,20 +200,21 @@ const KakaoMap = ({
       // 지도 인스턴스 제거
       if (mapInstance.current) {
         try {
-          // 지도 컨테이너가 여전히 DOM에 존재하는지 확인
-          if (mapElement.current && mapElement.current.parentNode) {
-            // 지도 컨테이너의 내용을 안전하게 제거
-            try {
-              if (mapElement.current.innerHTML) {
-                mapElement.current.innerHTML = '';
-              }
-            } catch (error) {
-              // 지도 컨테이너 내용 제거 오류 무시
-            }
-            mapInstance.current = null;
-          }
+          mapInstance.current = null;
         } catch (error) {
           // 지도 인스턴스 제거 오류 무시
+        }
+      }
+      
+      // 지도 컨테이너 정리
+      if (mapElement.current) {
+        try {
+          // 지도 컨테이너의 내용을 안전하게 제거
+          if (mapElement.current.innerHTML) {
+            mapElement.current.innerHTML = '';
+          }
+        } catch (error) {
+          // 지도 컨테이너 내용 제거 오류 무시
         }
       }
       

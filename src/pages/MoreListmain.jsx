@@ -4,7 +4,7 @@ import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
 import EventCardList from '../components/common/EventCardList';
 import dummyEvents from '../assets/dummy.json'
-import { usersAPI } from '../services/api'
+// import { usersAPI } from '../services/api' // 명세서에 없는 API이므로 제거
 
 
 function MoreListmain() {
@@ -17,16 +17,8 @@ function MoreListmain() {
       try {
         setLoading(true);
         
-        // ===== 백엔드 API 버전 (활성화) =====
-        const result = await usersAPI.getPreferences();
-        
-        if (result.success && result.data) {
-          setEvents(result.data || []);
-        } else {
-          console.error('사용자 선호도 데이터 로드 실패:', result.message);
-          // 에러 시 더미 데이터 사용
-          setEvents(dummyEvents.categories || []);
-        }
+        // ===== 명세서에 없는 API이므로 더미 데이터 사용 =====
+        setEvents(dummyEvents.categories || []);
         
         // ===== 더미데이터 버전 (주석처리) =====
         /*

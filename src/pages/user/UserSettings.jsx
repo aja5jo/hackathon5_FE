@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Footer from '../../components/common/Footer';
 import bannerImg from '../../assets/banner.png';
-import { usersAPI } from '../../services/api';
+// import { usersAPI } from '../../services/api'; // 명세서에 없는 API이므로 제거
 
 
 function UserSettings() {
@@ -38,8 +38,8 @@ function UserSettings() {
         setSelectedCategories(updatedCategories);
       }
       
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      
+      // ===== 명세서에 없는 API이므로 주석처리 =====
+      /*
       try {
         // API 명세서에 맞는 카테고리 토글 요청
         const result = await usersAPI.toggleUserCategory(category);
@@ -67,6 +67,7 @@ function UserSettings() {
         console.error('카테고리 설정 API 오류:', error);
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
       }
+      */
       
       
 

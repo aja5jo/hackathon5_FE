@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { categoriesAPI } from '../services/api'
+import { useCategoryToggle } from '../hooks/useCategoryToggle'
 
 
 
@@ -12,19 +13,39 @@ function Category1() {
   
   const [selectedCategories, setSelectedCategories] = useState([])
 
+  // 컴포넌트 마운트 시 localStorage에서 기존 선택된 카테고리 불러오기
+  useEffect(() => {
+    const storedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
+    setSelectedCategories(storedCategories);
+  }, []);
+
   const categories = [
-    { id: 'cafe', name: '카페', image: '🍞' },
-    { id: 'restaurant', name: '음식점 (술집 포함)', image: '🍲' },
-    { id: 'shopping', name: '쇼핑', image: '🛍️' },
-    { id: 'entertainment', name: '오락', image: '🎤' },
-    { id: 'kpop', name: 'KPOP', image: '💃' },
-    { id: 'club', name: '클럽', image: '🎉' },
-    { id: 'etc', name: '기타', image: '🏘️' }
+    { id: 'CAFE', name: '카페', image: '🍞' },
+    { id: 'FOOD', name: '음식점 (술집 포함)', image: '🍲' },
+    { id: 'SHOPPING', name: '쇼핑', image: '🛍️' },
+    { id: 'ENTERTAINMENT', name: '오락', image: '🎤' },
+    { id: 'K_POP', name: 'KPOP', image: '💃' },
+    { id: 'CLUB', name: '클럽', image: '🎉' },
+    { id: 'ETC', name: '기타', image: '🏘️' }
   ]
+
+  // 카테고리 토글 커스텀 훅 사용
+  const { toggleCategory, isLoading: isToggleLoading } = useCategoryToggle(
+    (result) => {
+      if (result.data && result.data.categories) {
+        setSelectedCategories(result.data.categories);
+      }
+    },
+    (error) => {
+      if (error.code === 401) {
+        navigate('/login');
+      }
+    }
+  );
 
   const handleCategoryClick = async (categoryId) => {
     // 로딩 중이거나 인증되지 않은 경우 처리
-    if (isLoading) {
+    if (isToggleLoading) {
       alert('로딩 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }
@@ -35,55 +56,35 @@ function Category1() {
       return;
     }
     
-    // ===== 더미데이터 버전 (주석처리) =====
-    /*
+    // 로컬 상태 먼저 업데이트
     setSelectedCategories(prev => {
+      let newSelected;
       if (prev.includes(categoryId)) {
-        // 이미 선택된 카테고리면 제거
-        return prev.filter(id => id !== categoryId)
+        // 이미 선택된 카테고리면 제거 (해제) - 경고 없이 바로 해제
+        newSelected = prev.filter(c => c !== categoryId);
+        console.log('카테고리 해제:', categoryId);
       } else {
-        // 최대 3개까지만 선택 가능
-        if (prev.length < 3) {
-          return [...prev, categoryId]
-        } else {
+        // 새로운 카테고리 추가 (최대 3개 제한)
+        if (prev.length >= 3) {
           alert('최대 3개까지만 선택할 수 있습니다.');
-          return prev
+          return prev;
         }
+        newSelected = [...prev, categoryId];
+        console.log('카테고리 선택:', categoryId);
       }
-    })
-    */
+      
+      // localStorage에 저장
+      localStorage.setItem('selectedCategories', JSON.stringify(newSelected));
+      
+      return newSelected;
+    });
     
-    // ===== 백엔드 API 버전 (활성화) =====
+    // API 호출은 선택사항으로 하고, 에러가 발생해도 UI는 업데이트되도록 함
     try {
-      // 3개 제한 로직: 이미 3개가 선택되어 있고, 새로운 카테고리를 추가하려는 경우
-      if (!selectedCategories.includes(categoryId) && selectedCategories.length >= 3) {
-        alert('최대 3개까지만 선택할 수 있습니다.');
-        return;
-      }
-
-      const result = await categoriesAPI.toggleCategory(categoryId);
-      
-      if (result.success) {
-        console.log('카테고리 토글 성공:', result.message);
-        if (result.data && result.data.categories) {
-          setSelectedCategories(result.data.categories);
-        }
-      } else {
-        if (result.code === 400) {
-          alert(result.message || '카테고리 설정에 실패했습니다.');
-        } else if (result.code === 401) {
-          alert('로그인이 필요합니다.');
-          navigate('/login');
-        } else if (result.code === 403) {
-          alert('접근 권한이 없습니다.');
-        } else {
-          alert(result.message || '카테고리 설정 중 오류가 발생했습니다.');
-        }
-      }
-      
+      await toggleCategory(categoryId, selectedCategories, 3);
     } catch (error) {
-      console.error('카테고리 설정 API 오류:', error);
-      alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
+      console.log('API 호출 실패했지만 UI는 업데이트됨:', error.message);
+      // API 호출이 실패해도 UI 상태는 이미 업데이트되었으므로 사용자에게 알리지 않음
     }
   }
 
@@ -93,34 +94,9 @@ function Category1() {
       return
     }
     
-    // ===== 더미데이터 버전 (주석처리) =====
-    /*
-    // 선택된 카테고리를 localStorage에 저장
-    localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories))
-    localStorage.setItem('hasSelectedCategories', 'true')
-    
-    // ===== 수정: Category2 대신 main으로 이동 =====
+    // 명세서에 카테고리 저장 API가 없으므로 선택만 하고 다음 페이지로 이동
+    console.log('선택된 카테고리:', selectedCategories);
     navigate('/')
-    // ===== 기존 코드: Category2로 이동 (주석 처리) =====
-    // navigate('/category2')
-    // ===== 수정 끝 =====
-    */
-    
-    // ===== 백엔드 API 버전 (활성화) =====
-    try {
-      const result = await categoriesAPI.saveUserCategories({ categories: selectedCategories });
-      
-      if (result.success) {
-        console.log('카테고리 저장 성공:', result.message);
-        navigate('/')
-      } else {
-        alert(result.message || '카테고리 저장에 실패했습니다.');
-      }
-      
-    } catch (error) {
-      console.error('카테고리 저장 실패:', error);
-      alert('카테고리 저장에 실패했습니다.');
-    }
   }
 
   return (
@@ -148,11 +124,11 @@ function Category1() {
         <RightSection>
           <CategoryGrid>
             {categories.map(category => (
-              <CategoryCard
-                key={category.id}
-                selected={selectedCategories.includes(category.id)}
-                onClick={() => handleCategoryClick(category.id)}
-              >
+                             <CategoryCard
+                 key={category.id}
+                 $selected={selectedCategories.includes(category.id)}
+                 onClick={() => handleCategoryClick(category.id)}
+               >
                 <ImageContainer>
                   <CategoryImage>{category.image}</CategoryImage>
                 </ImageContainer>
@@ -261,7 +237,7 @@ const CategoryCard = styled.div`
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
-  ${props => props.selected && `
+  ${props => props.$selected && `
     opacity: 0.6;
     background-color: rgba(255, 107, 53, 0.1);
     box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);

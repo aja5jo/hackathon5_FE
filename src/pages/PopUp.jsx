@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import PopupBannerSection from '../components/popup/PopupBannerSection';
 import EventCard from '../components/common/EventCard';
+import Header from '../components/common/Header';
 import { eventsAPI } from '../services/api';
 
 
@@ -110,17 +111,25 @@ function PopUp() {
   ];
 
   useEffect(() => {
-    // ===== 더미데이터 버전 (활성화) =====
-    filterPopups(activeFilter);
-    
-    // ===== 백엔드 API 버전 (주석처리) =====
-    /*
+    // ===== 백엔드 API 버전 (활성화) =====
     const loadPopupsFromAPI = async () => {
       try {
-        const result = await eventsAPI.getEventsByType('popup');
+        const result = await eventsAPI.getPopups();
         
         if (result.success && result.data) {
-          const popups = result.data;
+          let popups = [];
+          
+          // API 응답 구조에 따라 데이터 추출
+          if (Array.isArray(result.data)) {
+            popups = result.data;
+          } else if (result.data.popups && Array.isArray(result.data.popups)) {
+            popups = result.data.popups;
+          } else if (result.data.data && Array.isArray(result.data.data)) {
+            popups = result.data.data;
+          } else {
+            console.warn('예상하지 못한 팝업 API 응답 구조:', result.data);
+            popups = [];
+          }
           let filteredPopups = popups;
           
           if (activeFilter === '이번주') {
@@ -164,17 +173,21 @@ function PopUp() {
           setPopupEvents(filteredPopups);
         } else {
           console.error('팝업 데이터 로드 실패:', result.message);
+          // 에러 시 더미 데이터 사용
           filterPopups(activeFilter);
         }
         
       } catch (error) {
         console.error('API 호출 실패:', error);
+        // 에러 시 더미 데이터 사용
         filterPopups(activeFilter);
       }
     };
     
     loadPopupsFromAPI();
-    */
+    
+    // ===== 더미데이터 버전 (주석처리) =====
+    // filterPopups(activeFilter);
     
   }, [activeFilter]);
 

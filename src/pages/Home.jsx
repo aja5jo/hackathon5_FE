@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
 import EventCardList from '../components/common/EventCardList';
-import dummyEvents from '../assets/dummy.json'
 import HomeBannerSection from '../components/home/HomeBannerSection';
+import Header from '../components/common/Header';
 import { useNavigate } from 'react-router-dom';
 import { storesAPI, mainAPI } from '../services/api';
 
@@ -20,77 +20,46 @@ const Home = React.memo(() => {
   const [isUpdating, setIsUpdating] = useState(false);
   // const [homeData, setHomeData] = useState(null); // 백엔드 배포 시 사용
 
-  // 더미 검색 데이터 - useMemo로 최적화
-  const searchableData = useMemo(() => {
+  // 검색 데이터 구성 함수 - 중복 제거를 위해 분리
+  const buildSearchableData = useCallback((rawData) => {
+    if (!rawData) return [];
+    
+    return rawData.map(item => ({
+      ...item,
+      category: item.category || 'STORE',
+      type: item.type || 'STORE',
+      description: item.description || item.desc || '홍대의 인기 가게입니다',
+      image: item.thumbnail,
+      searchText: `${item.name} ${item.description || ''} ${item.category || 'STORE'} ${item.type || 'STORE'}`.toLowerCase()
+    }));
+  }, []);
+
+  // 검색 데이터 상태
+  const [searchableData, setSearchableData] = useState([]);
+
+  // 검색 데이터 로드
+  useEffect(() => {
     const loadSearchableDataFromAPI = async () => {
       try {
-        // ===== 백엔드 API 버전 (활성화) =====
         const result = await storesAPI.getStores();
         
         if (result.success && result.data) {
-          const data = result.data.map(item => ({
-            ...item,
-            category: item.category || 'STORE',
-            type: item.type || 'STORE',
-            description: item.description || item.desc || '홍대의 인기 가게입니다',
-            image: item.thumbnail,
-            searchText: `${item.name} ${item.description || ''} ${item.category || 'STORE'} ${item.type || 'STORE'}`.toLowerCase()
-          }));
+          const data = buildSearchableData(result.data);
           console.log('API에서 검색 가능한 데이터 구성 완료:', data.length);
-          return data;
+          setSearchableData(data);
+        } else {
+          setSearchableData([]);
         }
-        
-        // ===== 더미데이터 버전 (주석처리) =====
-        /*
-        const data = [];
-        dummyEvents.categories.forEach(categoryData => {
-          // items 배열에서 모든 항목 추가
-          if (categoryData.items) {
-            categoryData.items.forEach(item => {
-              data.push({
-                ...item,
-                category: categoryData.category,
-                type: item.type || 'STORE',
-                description: item.description || item.desc || '홍대의 인기 가게입니다',
-                image: item.thumbnail,
-                // 검색을 위한 추가 필드
-                searchText: `${item.name} ${item.description || ''} ${categoryData.category} ${item.type || 'STORE'}`.toLowerCase()
-              });
-            });
-          }
-        });
-        console.log('검색 가능한 데이터 구성 완료:', data.length);
-        return data;
-        */
         
       } catch (error) {
         console.error('API 데이터 로드 실패:', error);
-        // 에러 시 더미 데이터 반환
-        const data = [];
-        dummyEvents.categories.forEach(categoryData => {
-          // items 배열에서 모든 항목 추가
-          if (categoryData.items) {
-            categoryData.items.forEach(item => {
-              data.push({
-                ...item,
-                category: categoryData.category,
-                type: item.type || 'STORE',
-                description: item.description || item.desc || '홍대의 인기 가게입니다',
-                image: item.thumbnail,
-                // 검색을 위한 추가 필드
-                searchText: `${item.name} ${item.description || ''} ${categoryData.category} ${item.type || 'STORE'}`.toLowerCase()
-              });
-            });
-          }
-        });
-        console.log('더미 데이터로 검색 가능한 데이터 구성 완료:', data.length);
-        return data;
+        setSearchableData([]);
       }
     };
     
-    return loadSearchableDataFromAPI();
+    loadSearchableDataFromAPI();
     
-  }, []);
+  }, [buildSearchableData]);
 
 
   
@@ -110,7 +79,6 @@ const Home = React.memo(() => {
     
     const performSearch = async () => {
       try {
-        // ===== 백엔드 API 버전 (활성화) =====
         const result = await mainAPI.search(term);
         
         if (result.success) {
@@ -120,61 +88,9 @@ const Home = React.memo(() => {
           setSearchResults([]);
         }
         
-        // ===== 더미데이터 버전 (주석처리) =====
-        /*
-        // 검색 로직 - 더 정확한 검색을 위해 개선
-        const searchLower = term.toLowerCase();
-        const results = searchableData.filter(item => {
-          // 이름으로 검색
-          if (item.name.toLowerCase().includes(searchLower)) return true;
-          
-          // 설명으로 검색
-          if (item.description && item.description.toLowerCase().includes(searchLower)) return true;
-          
-          // 카테고리로 검색
-          if (item.category.toLowerCase().includes(searchLower)) return true;
-          
-          // 타입으로 검색
-          if (item.type && item.type.toLowerCase().includes(searchLower)) return true;
-          
-          // 통합 검색 텍스트로 검색
-          if (item.searchText && item.searchText.includes(searchLower)) return true;
-          
-          return false;
-        });
-        
-        console.log('검색어:', term);
-        console.log('검색 결과:', results);
-        console.log('전체 데이터 개수:', searchableData.length);
-        
-        setSearchResults(results);
-        */
-        
       } catch (error) {
         console.error('검색 실패:', error);
-        // 에러 시 더미 데이터로 검색
-        const searchLower = term.toLowerCase();
-        const results = searchableData.filter(item => {
-          // 이름으로 검색
-          if (item.name.toLowerCase().includes(searchLower)) return true;
-          
-          // 설명으로 검색
-          if (item.description && item.description.toLowerCase().includes(searchLower)) return true;
-          
-          // 카테고리로 검색
-          if (item.category.toLowerCase().includes(searchLower)) return true;
-          
-          // 타입으로 검색
-          if (item.type && item.type.toLowerCase().includes(searchLower)) return true;
-          
-          // 통합 검색 텍스트로 검색
-          if (item.searchText && item.searchText.includes(searchLower)) return true;
-          
-          return false;
-        });
-        
-        console.log('더미 데이터로 검색 결과:', results);
-        setSearchResults(results);
+        setSearchResults([]);
       } finally {
         setIsSearching(false);
       }
@@ -200,7 +116,6 @@ const Home = React.memo(() => {
     
     const updateData = async () => {
       try {
-        // ===== 백엔드 API 버전 (활성화) =====
         const result = await mainAPI.updateHome();
         
         if (result.success) {
@@ -210,14 +125,6 @@ const Home = React.memo(() => {
         } else {
           alert(result.message || '데이터 업데이트에 실패했습니다.');
         }
-        
-        // ===== 더미데이터 버전 (주석처리) =====
-        /*
-        // 페이지 새로고침으로 더미 데이터 리셋
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-        */
         
       } catch (error) {
         console.error('데이터 업데이트 실패:', error);
@@ -300,8 +207,8 @@ const Home = React.memo(() => {
             <MoreButton onClick={() => navigate('/morelistmain')}>더보기</MoreButton>
           </SectionHeader>
 
-          {/* 카드 그리드 */}
-          <EventCardList events={dummyEvents.categories} maxItems={6}/>
+                     {/* 카드 그리드 */}
+           <EventCardList events={[]} maxItems={6}/>
         </MainContent>
       )}
       
@@ -316,7 +223,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const Header = styled.div`
+const HeaderWrapper = styled.div`
   height: 64px;
   background-color: white;
   border-bottom: 1px solid #e9ecef;

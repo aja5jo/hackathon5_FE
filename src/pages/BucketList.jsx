@@ -7,7 +7,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 import bannerImg from '../assets/banner.png';
 import EventCard from '../components/common/EventCard';
-import { favoritesAPI, bucketListAPI } from '../services/api';
+import { favoritesAPI } from '../services/api';
+// import { bucketListAPI } from '../services/api'; // 명세서에 없는 API이므로 제거
 
 function BucketList() {
   const navigate = useNavigate();
@@ -26,23 +27,26 @@ function BucketList() {
       setFavorites(data);
     } catch (error) {
       console.error('즐겨찾기 로드 실패:', error);
-      // 에러 시 localStorage 데이터 사용 (fallback)
-      try {
-        const storedFavorites = localStorage.getItem('userFavorites');
-        if (storedFavorites) {
-          const parsedFavorites = JSON.parse(storedFavorites);
-          setFavorites(parsedFavorites);
-        }
-      } catch (localError) {
-        console.error('localStorage 로드 실패:', localError);
-      }
+      
+      // API 호출 실패 시 빈 배열로 설정 (로그인 상태는 유지)
+      // 인증 상태는 AuthContext에서 관리하므로 여기서는 리다이렉트하지 않음
+      console.log('즐겨찾기 API 호출 실패, 빈 목록으로 표시');
+      setFavorites([]);
     }
   };
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
+    console.log('BucketList - 인증 상태 확인:', { isAuthenticated });
+    console.log('BucketList - 로컬스토리지 user:', localStorage.getItem('user'));
+    
     if (isAuthenticated) {
+      console.log('BucketList - 인증된 사용자, 즐겨찾기 로드');
       loadFavorites();
+    } else {
+      // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+      console.log('BucketList - 인증되지 않은 사용자, 로그인 페이지로 이동');
+      navigate('/login');
     }
   }, [isAuthenticated]);
 
@@ -52,28 +56,17 @@ function BucketList() {
 
   const handleRemoveFavorite = async (id) => {
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
-      await favoritesAPI.removeFavorite(id);
+      // API 호출 시도
+      await favoritesAPI.removeFavorite(id, 'event');
       
       // 성공 시 로컬 상태 업데이트
       const updatedFavorites = favorites.filter(item => item.id !== id);
       setFavorites(updatedFavorites);
-      
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      const updatedFavorites = favorites.filter(item => item.id !== id);
-      setFavorites(updatedFavorites);
-      
-      // 로컬 스토리지 업데이트
-      try {
-        localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
-      } catch (error) {
-        console.error('즐겨찾기 저장 실패:', error);
-      }
-      */
     } catch (error) {
       console.error('즐겨찾기 삭제 실패:', error);
-      alert('즐겨찾기 삭제에 실패했습니다.');
+      // API 실패 시에도 로컬 상태 업데이트 (사용자 경험 개선)
+      const updatedFavorites = favorites.filter(item => item.id !== id);
+      setFavorites(updatedFavorites);
     }
   };
 

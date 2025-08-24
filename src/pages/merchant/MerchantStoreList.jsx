@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
-import { storesAPI } from '../../services/api';
+import ApiService from '../../services/api';
 
 function MerchantStoreList() {
   const navigate = useNavigate();
@@ -18,45 +18,34 @@ function MerchantStoreList() {
   const fetchMyStores = async () => {
     try {
       setLoading(true);
-      
-      // ===== 더미 데이터 버전 (주석처리) =====
-      /*
       const response = await ApiService.getMyStores();
       setStores(response.data || []);
-      */
-      
-      // ===== 백엔드 API 버전 (활성화) =====
-      
-      try {
-        const response = await storesAPI.getStores();
-        setStores(response.data || []);
-      } catch (err) {
-        console.error('Failed to fetch stores:', err);
-        setError('가게 목록을 불러오는데 실패했습니다.');
-        // 임시 더미 데이터
-        setStores([
-          {
-            id: 1,
-            name: '카페 모모',
-            address: '서울시 마포구 홍대입구역 123-45',
-            category: 'CAFE',
-            openAt: '09:00',
-            closeAt: '22:00',
-            createdAt: '2025-01-15',
-            status: 'ACTIVE'
-          },
-          {
-            id: 2,
-            name: '홍대 클럽 나이트',
-            address: '서울시 마포구 와우산로 21길 45',
-            category: 'CLUB',
-            openAt: '20:00',
-            closeAt: '06:00',
-            createdAt: '2025-01-10',
-            status: 'ACTIVE'
-          }
-        ]);
-      }
+    } catch (err) {
+      console.error('Failed to fetch stores:', err);
+      setError('가게 목록을 불러오는데 실패했습니다.');
+      // 임시 더미 데이터
+      setStores([
+        {
+          id: 1,
+          name: '카페 모모',
+          address: '서울시 마포구 홍대입구역 123-45',
+          category: 'CAFE',
+          openAt: '09:00',
+          closeAt: '22:00',
+          createdAt: '2025-01-15',
+          status: 'ACTIVE'
+        },
+        {
+          id: 2,
+          name: '홍대 클럽 나이트',
+          address: '서울시 마포구 와우산로 21길 45',
+          category: 'CLUB',
+          openAt: '20:00',
+          closeAt: '06:00',
+          createdAt: '2025-01-10',
+          status: 'ACTIVE'
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -66,32 +55,13 @@ function MerchantStoreList() {
     navigate(`/merchants/stores/${storeId}/edit`);
   };
 
-  const handlePartialEdit = (storeId) => {
-    navigate(`/merchants/stores/${storeId}/partial-edit`);
-  };
-
   const handleDelete = async (storeId) => {
     if (window.confirm('정말로 삭제하시겠습니까?')) {
       try {
-        // ===== 더미 데이터 버전 (주석처리) =====
-        /*
         // TODO: API 연동
         setStores(prev => prev.filter(store => store.id !== storeId));
         alert('가게가 삭제되었습니다.');
-        */
-        
-        // ===== 백엔드 API 버전 (활성화) =====
-        
-        const result = await storesAPI.deleteStore(storeId);
-        
-        if (result.success) {
-          setStores(prev => prev.filter(store => store.id !== storeId));
-          alert('가게가 삭제되었습니다.');
-        } else {
-          alert('삭제에 실패했습니다.');
-        }
       } catch (err) {
-        console.error('가게 삭제 실패:', err);
         alert('삭제에 실패했습니다.');
       }
     }
@@ -182,11 +152,8 @@ function MerchantStoreList() {
 
                 <ActionRow>
                   <EditButton onClick={() => handleEdit(store.id)}>
-                    전체 수정
+                    수정
                   </EditButton>
-                  <PartialEditButton onClick={() => handlePartialEdit(store.id)}>
-                    부분 수정
-                  </PartialEditButton>
                   <DeleteButton onClick={() => handleDelete(store.id)}>
                     삭제
                   </DeleteButton>
@@ -209,7 +176,7 @@ export default MerchantStoreList;
 
 // ===== styled =====
 const Container = styled.div`
-  width: 100%;
+  min-height: 100vh;
   background: #f8f9fa;
 `;
 
@@ -394,16 +361,6 @@ const EditButton = styled(BaseActionButton)`
 
   &:hover {
     background: #ffe95a;
-  }
-`;
-
-const PartialEditButton = styled(BaseActionButton)`
-  background: #4CAF50; /* A green color for partial edit */
-  color: white;
-  border-color: #4CAF50;
-
-  &:hover {
-    background: #45a049;
   }
 `;
 

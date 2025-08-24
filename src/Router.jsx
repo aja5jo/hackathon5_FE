@@ -67,7 +67,7 @@ const TempPage = ({ title, description }) => (
 );
 
 const router = createBrowserRouter([
-  // 로그인과 회원가입은 별도 라우트 (AuthProvider 내부, 헤더 없음)
+  // 로그인과 회원가입은 별도 라우트 (헤더 없음)
   {
     path: "/login",
     element: <Login />,
@@ -76,7 +76,7 @@ const router = createBrowserRouter([
     path: "/signup",
     element: <Signup />,
   },
-  // 메인 라우트 (헤더 포함)
+  // 모든 메인 라우트는 HeaderLayout 아래에 중첩
   {
     path: "/",
     element: <HeaderLayout />,
@@ -94,10 +94,6 @@ const router = createBrowserRouter([
         element: <Category1 />,
       },
       {
-        path: "category2",
-        element: <Category2 />,
-      },
-      {
         path: "morelistmain",
         element: <MoreListmain />,
       },
@@ -105,6 +101,7 @@ const router = createBrowserRouter([
         path: "categories/:category",
         element: <MoreListcategory />,
       },
+      // 마이페이지 관련
       {
         path: "mypage",
         element: <MyPage />,
@@ -117,6 +114,7 @@ const router = createBrowserRouter([
         path: "merchants/settings",
         element: <MerchantSettings />,
       },
+      // 이벤트 및 팝업
       {
         path: "events",
         element: <Event />,
@@ -145,6 +143,7 @@ const router = createBrowserRouter([
         path: "popup/:popupId",
         element: <PopupDetail />,
       },
+      // 소상공인 관련
       {
         path: "merchants/stores",
         element: <MerchantStore />,
@@ -230,10 +229,7 @@ const router = createBrowserRouter([
         path: "mypage/statistics",
         element: <TempPage title="방문 통계" description="방문 통계를 확인할 수 있습니다." />,
       },
-      {
-        path: "mypage/analytics",
-        element: <TempPage title="활동 분석" description="나의 활동을 분석할 수 있습니다." />,
-      },
+      // 테스트 페이지들
       {
         path: "image-translation-test",
         element: <ImageTranslationTest />,

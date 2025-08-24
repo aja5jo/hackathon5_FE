@@ -8,6 +8,8 @@ export default defineConfig({
     'process.env': {},
     global: 'globalThis',
   },
+  // 환경변수를 HTML에 주입
+  envPrefix: 'VITE_',
   server: {
     port: 5173,
     host: true,
@@ -16,20 +18,5 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          styled: ['styled-components'],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'styled-components'],
   },
 })

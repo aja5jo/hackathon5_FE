@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import EventBannerSection from '../components/event/EventBannerSection';
 import EventCard from '../components/common/EventCard';
+import Header from '../components/common/Header';
 import { eventsAPI } from '../services/api';
 
 
@@ -56,13 +57,41 @@ function Event() {
     const loadEvents = async () => {
       try {
         // ===== 백엔드 API 버전 (활성화) =====
-        const result = await eventsAPI.getEventsByType('event', activeCategory);
+        const result = await eventsAPI.getEvents();
         console.log(result);
         if (result.success) {
-          setEvents(result.data.flat());
+          // API 응답 구조에 따라 데이터 처리
+          let eventsData = [];
+          if (Array.isArray(result.data)) {
+            eventsData = result.data;
+          } else if (result.data && Array.isArray(result.data.events)) {
+            eventsData = result.data.events;
+          } else if (result.data && Array.isArray(result.data.data)) {
+            eventsData = result.data.data;
+          } else if (result.data && result.data.popular && Array.isArray(result.data.popular)) {
+            // 새로운 응답 구조: {popular: [], ongoing: [], olosingToday: [], upooming: []}
+            console.log('새로운 API 응답 구조 감지:', result.data);
+            if (activeCategory === '인기') {
+              eventsData = result.data.popular || [];
+            } else if (activeCategory === '진행중') {
+              eventsData = result.data.ongoing || [];
+            } else if (activeCategory === '오늘마감') {
+              eventsData = result.data.olosingToday || [];
+            } else if (activeCategory === '예정') {
+              eventsData = result.data.upooming || [];
+            } else {
+              // 기본값으로 popular 사용
+              eventsData = result.data.popular || [];
+            }
+          } else {
+            console.warn('예상하지 못한 API 응답 구조:', result.data);
+            eventsData = [];
+          }
+          
+          // 새로운 API 응답 구조에서는 이미 필터링된 데이터가 제공되므로 추가 필터링 불필요
+          setEvents(eventsData);
         } else {
           console.error('이벤트 로드 실패:', result.message);
- 
         }
         
         // ===== 더미데이터 버전 (주석처리) =====
@@ -89,7 +118,7 @@ function Event() {
 
       {/* 카테고리 필터 */}
       <CategoryFilter>
-        {Object.keys(dummyEvents).map((category) => (
+        {['인기', '진행중', '오늘마감', '예정'].map((category) => (
           <CategoryButton
             key={category}
             active={activeCategory === category}

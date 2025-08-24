@@ -38,9 +38,9 @@ function Login() {
       console.log('카테고리 미선택: Category1.jsx로 이동')
       navigate('/category1')
     } else {
-      // 이후 로그인이고 카테고리도 선택한 경우: Category2.jsx로 이동
-      console.log('이후 로그인: Category2.jsx로 이동')
-      navigate('/category2')
+              // 이후 로그인이고 카테고리도 선택한 경우: categories 페이지로 이동
+        console.log('이후 로그인: categories 페이지로 이동')
+        navigate('/categories')
     }
   }
 

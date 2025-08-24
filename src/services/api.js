@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ggoggobackend.duckdns.org';
 
 // 환경변수 디버깅
 console.log('환경변수 확인:', {
@@ -13,6 +13,11 @@ const apiRequest = async (endpoint, options = {}) => {
   // 실제 요청 URL 로그
   console.log('API 요청 URL:', url);
   
+  // 인증 상태 확인
+  const user = localStorage.getItem('user');
+  const userType = localStorage.getItem('userType');
+  console.log('API 요청 시 인증 상태:', { user: user ? JSON.parse(user) : null, userType });
+  
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
@@ -21,16 +26,23 @@ const apiRequest = async (endpoint, options = {}) => {
     credentials: 'include', // 세션 쿠키 포함
   };
 
+  console.log('API 요청 옵션:', { ...defaultOptions, ...options });
+  
   const response = await fetch(url, { ...defaultOptions, ...options });
   
+  console.log('API 응답 상태:', response.status, response.statusText);
+  console.log('API 응답 헤더:', Object.fromEntries(response.headers.entries()));
+  
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('API 에러 응답 내용:', errorText);
     throw new Error(`API 요청 실패: ${response.status}`);
   }
   
   return response.json();
 };
 
-// 즐겨찾기 관련 API
+// 즐겨찾기 관련 API - 명세서대로
 export const favoritesAPI = {
   // 즐겨찾기 목록 조회
   getFavorites: () => apiRequest('/api/users/favorites'),
@@ -45,33 +57,33 @@ export const favoritesAPI = {
     method: 'POST',
   }),
   
-  // 팝업 즐겨찾기 토글
+  // 팝업 즐겨찾기 토글 - 명세서에서는 events로 되어있음
   togglePopupFavorite: (popupId) => apiRequest(`/api/users/events/${popupId}/favorites`, {
     method: 'POST',
   }),
+  
+  // 즐겨찾기 제거 (토글 방식으로 처리)
+  removeFavorite: (id, type) => {
+    if (type === 'store') {
+      return apiRequest(`/api/users/stores/${id}/favorites`, {
+        method: 'POST',
+      });
+    } else if (type === 'event') {
+      return apiRequest(`/api/users/events/${id}/favorites`, {
+        method: 'POST',
+      });
+    } else {
+      return apiRequest(`/api/users/events/${id}/favorites`, {
+        method: 'POST',
+      });
+    }
+  },
 };
 
-// 버킷리스트 관련 API
-export const bucketListAPI = {
-  // 버킷리스트 목록 조회
-  getBucketList: () => apiRequest('/api/bucketlist'),
-  
-  // 버킷리스트 추가
-  addBucketItem: (data) => apiRequest('/api/bucketlist', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-  
-  // 버킷리스트 완료 상태 변경
-  toggleComplete: (id) => apiRequest(`/api/bucketlist/${id}/toggle`, {
-    method: 'PUT',
-  }),
-  
-  // 버킷리스트 삭제
-  removeBucketItem: (id) => apiRequest(`/api/bucketlist/${id}`, {
-    method: 'DELETE',
-  }),
-};
+// 버킷리스트 관련 API - 명세서에 없으므로 제거
+// export const bucketListAPI = {
+//   // 명세서에 버킷리스트 API가 없음
+// };
 
 // 가게/이벤트 관련 API
 export const storesAPI = {
@@ -127,8 +139,8 @@ export const storesAPI = {
   // 이벤트 상세 정보 조회
   getEventDetail: (id) => apiRequest(`/api/events/${id}`),
   
-  // 이벤트 생성
-  createEvent: (data) => apiRequest('/api/merchants/stores/events', {
+  // 이벤트 생성 - 명세서대로 수정
+  createEvent: (data) => apiRequest('/api/merchants/events', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
@@ -172,7 +184,7 @@ export const storesAPI = {
     body: JSON.stringify(data),
   }),
   
-  // AI 이벤트 미리보기
+  // AI 이벤트 미리보기 - 명세서대로
   previewEventAi: (data) => apiRequest('/api/merchants/stores/events/preview', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -224,28 +236,19 @@ export const authAPI = {
 
 // 카테고리 관련 API
 export const categoriesAPI = {
-  // 사용자 카테고리 토글 (삭제/추가)
+  // 사용자 카테고리 토글 (삭제/추가) - 명세서대로
   toggleCategory: (category) => apiRequest(`/api/users/categories/${category}`, {
     method: 'POST',
   }),
   
-  // 사용자 카테고리 조회
+  // 사용자 카테고리 조회 - 명세서대로
   getUserCategories: () => apiRequest('/api/users/categories'),
   
-  // 사용자 카테고리 저장
-  saveUserCategories: (categories) => apiRequest('/api/users/categories/save', {
-    method: 'POST',
-    body: JSON.stringify(categories),
-  }),
-  
-  // 카테고리 목록 조회
+  // 카테고리 목록 조회 - 명세서대로
   getCategories: () => apiRequest('/api/categories'),
   
-  // 특정 카테고리 조회
+  // 특정 카테고리 조회 - 명세서대로
   getCategory: (category) => apiRequest(`/api/categories/${category}`),
-  
-  // 카테고리별 아이템 조회
-  getCategoryItem: (category, type, itemId) => apiRequest(`/api/categories/${category}/${type}/${itemId}`),
 };
 
 // 메인 페이지 관련 API
@@ -274,7 +277,7 @@ export const mainAPI = {
   }),
 };
 
-// 이벤트/팝업 관련 API
+// 이벤트/팝업 관련 API - 명세서대로
 export const eventsAPI = {
   // 전체 이벤트 목록 조회
   getEvents: () => apiRequest('/api/events'),
@@ -282,58 +285,21 @@ export const eventsAPI = {
   // 필터별 이벤트 목록 조회
   getEventsByFilter: (filter) => apiRequest(`/api/events?filter=${encodeURIComponent(filter)}`),
   
-  // 타입별 이벤트 목록 조회
-  getEventsByType: (type, status) => apiRequest(`/api/events?type=${type}&status=${status}`),
-  
-  // 특정 이벤트 조회
-  getEvent: (eventId) => apiRequest(`/api/events/${eventId}`),
-  
-  // 이벤트 좋아요 토글
-  toggleEventLike: (eventId) => apiRequest(`/api/events/${eventId}/like`, {
-    method: 'POST',
-  }),
-  
   // 팝업 목록 조회
   getPopups: () => apiRequest('/api/popups'),
   
-  // 특정 팝업 조회
-  getPopup: (popupId) => apiRequest(`/api/popups/${popupId}`),
-  
-  // 팝업 좋아요 토글
-  togglePopupLike: (popupId) => apiRequest(`/api/popups/${popupId}/like`, {
-    method: 'POST',
-  }),
-};
-
-// 사용자 관련 API
-export const usersAPI = {
-  // 사용자 선호도 조회
-  getPreferences: () => apiRequest('/api/users/preferences'),
-  
-  // 사용자 카테고리 토글
-  toggleUserCategory: (category) => apiRequest(`/api/users/categories/${category}`, {
-    method: 'POST',
-  }),
-  
-  // 사용자 리뷰 조회
-  getReviews: () => apiRequest('/api/users/reviews'),
-  
-  // 사용자 리뷰 삭제
-  deleteReview: (reviewId) => apiRequest(`/api/users/reviews/${reviewId}`, {
+  // 팝업 자동 삭제 (명세서대로)
+  deletePopup: (popupId) => apiRequest(`/api/events/popup/${popupId}`, {
     method: 'DELETE',
   }),
-  
-  // 사용자 방문 기록 조회
-  getHistory: () => apiRequest('/api/users/history'),
-  
-  // 사용자 프로필 업데이트
-  updateProfile: (data) => apiRequest('/api/users/profile', {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
 };
 
-// AI 번역 관련 API
+// 사용자 관련 API - 명세서에 없으므로 제거
+// export const usersAPI = {
+//   // 명세서에 없는 API들
+// };
+
+// AI 번역 관련 API - 명세서대로
 export const translateAPI = {
   // 이미지 번역
   translateImage: (data) => apiRequest('/api/translate/image', {
