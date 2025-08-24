@@ -32,8 +32,9 @@ export const useCategoryToggle = (onSuccess, onError) => {
           errorMessage = '접근 권한이 없습니다.';
         }
         
-        // alert 제거하고 에러를 throw
+        // 에러를 throw하되, 자동 리다이렉트는 하지 않음
         const error = new Error(errorMessage);
+        error.code = result.code;
         if (onError) {
           onError(error);
         }

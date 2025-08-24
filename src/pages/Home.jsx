@@ -40,7 +40,7 @@ const Home = React.memo(() => {
   useEffect(() => {
     const loadSearchableDataFromAPI = async () => {
       try {
-        const result = await storesAPI.getStores();
+        const result = await mainAPI.getHome();
         
         if (result.success && result.data) {
           const data = buildSearchableData(result.data);

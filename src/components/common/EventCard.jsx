@@ -5,6 +5,7 @@ import offlike from '../../assets/offlike.svg'
 import onlike from '../../assets/onlike.svg'
 
 import { useAuth } from '../../contexts/AuthContext'
+import { isMerchant } from '../../services/api'
 // import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
 
 const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
@@ -13,6 +14,12 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
   const { isAuthenticated } = useAuth();
   const [like, setLike] = useState(false);
   const [likeCount, setLikeCount] = useState(event.likeCount || 0);
+  const [isMerchantUser, setIsMerchantUser] = useState(false);
+
+  useEffect(() => {
+    // 사용자 타입 확인
+    setIsMerchantUser(isMerchant());
+  }, []);
 
   useEffect(() => {
     const checkFavoriteStatus = () => {
@@ -54,8 +61,15 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
 
   const toggleLike = useCallback((e) => {
     e.stopPropagation();
+    
+    // 소상공인은 좋아요 기능 사용 불가
+    if (isMerchantUser) {
+      console.log('소상공인은 좋아요 기능을 사용할 수 없습니다.');
+      return;
+    }
+    
     if (!isAuthenticated) {
-      alert('로그인이 필요한 서비스입니다.');
+      console.log('로그인이 필요한 서비스입니다.');
       navigate('/login');
       return;
     }
@@ -128,7 +142,7 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
     
     performToggle();
     */
-  }, [event.id, event.name, event.category, event.type, event.description, event.desc, event.thumbnail, event.location, event.likeCount, like, isAuthenticated, navigate, onRemove]);
+  }, [event.id, event.name, event.category, event.type, event.description, event.desc, event.thumbnail, event.location, event.likeCount, like, isAuthenticated, navigate, onRemove, isMerchantUser]);
 
   const handleCardClick = useCallback(() => {
     const type = (event.type || '').toLowerCase();
@@ -152,7 +166,14 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
         <ButtonContainer>
           {/* 좋아요 버튼 */}
           <LikeContainer>
-            <LikeButton onClick={toggleLike}>
+            <LikeButton 
+              onClick={toggleLike}
+              disabled={isMerchantUser}
+              style={{
+                opacity: isMerchantUser ? 0.5 : 1,
+                cursor: isMerchantUser ? 'not-allowed' : 'pointer'
+              }}
+            >
               {like ? '❤️' : '🤍'}
             </LikeButton>
             <LikeCount>{likeCount}</LikeCount>

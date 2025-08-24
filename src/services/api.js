@@ -6,8 +6,21 @@ console.log('환경변수 확인:', {
   API_BASE_URL: API_BASE_URL
 });
 
+// 사용자 타입 확인 유틸리티 함수
+export const getUserType = () => {
+  return localStorage.getItem('userType');
+};
+
+export const isMerchant = () => {
+  return getUserType() === 'MERCHANT';
+};
+
+export const isUser = () => {
+  return getUserType() === 'USER';
+};
+
 // API 요청 헬퍼 함수
-const apiRequest = async (endpoint, options = {}) => {
+const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
   // 실제 요청 URL 로그
@@ -28,43 +41,133 @@ const apiRequest = async (endpoint, options = {}) => {
 
   console.log('API 요청 옵션:', { ...defaultOptions, ...options });
   
-  const response = await fetch(url, { ...defaultOptions, ...options });
-  
-  console.log('API 응답 상태:', response.status, response.statusText);
-  console.log('API 응답 헤더:', Object.fromEntries(response.headers.entries()));
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('API 에러 응답 내용:', errorText);
-    throw new Error(`API 요청 실패: ${response.status}`);
+  try {
+    const response = await fetch(url, { ...defaultOptions, ...options });
+    
+    console.log('API 응답 상태:', response.status, response.statusText);
+    console.log('API 응답 헤더:', Object.fromEntries(response.headers.entries()));
+    
+    if (response.status === 401) {
+      // 인증 실패 - 콘솔에만 에러 출력
+      console.error('인증 실패 (401) - API:', endpoint);
+      const errorText = await response.text();
+      console.error('401 에러 응답 내용:', errorText);
+      
+      // JSON 에러 메시지 파싱 시도
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.message || '인증이 필요합니다.');
+      } catch (parseError) {
+        throw new Error('인증이 필요합니다.');
+      }
+    }
+    
+    if (response.status === 500) {
+      // 서버 오류 - 콘솔에만 에러 출력
+      console.error('서버 오류 (500) - API:', endpoint);
+      const errorText = await response.text();
+      console.error('500 에러 응답 내용:', errorText);
+      throw new Error('서버 오류가 발생했습니다.');
+    }
+    
+    if (response.status === 403) {
+      // 권한 없음 - 콘솔에만 에러 출력
+      console.error('권한 없음 (403) - API:', endpoint);
+      const errorText = await response.text();
+      console.error('403 에러 응답 내용:', errorText);
+      throw new Error('접근 권한이 없습니다.');
+    }
+    
+    if (response.status === 404) {
+      // 리소스 없음 - 콘솔에만 에러 출력
+      console.error('리소스를 찾을 수 없음 (404) - API:', endpoint);
+      const errorText = await response.text();
+      console.error('404 에러 응답 내용:', errorText);
+      throw new Error('리소스를 찾을 수 없습니다.');
+    }
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API 에러 응답 내용:', errorText);
+      
+      // JSON 에러 메시지 파싱 시도
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.message || `API 요청 실패: ${response.status}`);
+      } catch (parseError) {
+        throw new Error(`API 요청 실패: ${response.status} - ${errorText}`);
+      }
+    }
+    
+    return response.json();
+    
+  } catch (error) {
+    // 네트워크 오류나 기타 오류
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      console.error('네트워크 오류:', error);
+      
+      // 재시도 로직 (최대 3회)
+      if (retryCount < 3) {
+        console.log(`네트워크 오류로 재시도 중... (${retryCount + 1}/3)`);
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000)); // 지수 백오프
+        return apiRequest(endpoint, options, retryCount + 1);
+      }
+      
+      console.error('네트워크 연결을 확인해주세요.');
+      throw new Error('네트워크 연결 오류');
+    }
+    
+    throw error;
   }
-  
-  return response.json();
 };
 
 // 즐겨찾기 관련 API - 명세서대로
 export const favoritesAPI = {
   // 즐겨찾기 목록 조회
-  getFavorites: () => apiRequest('/api/users/favorites'),
+  getFavorites: () => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest('/api/users/favorites');
+  },
   
   // 가게 즐겨찾기 토글
-  toggleStoreFavorite: (storeId) => apiRequest(`/api/users/stores/${storeId}/favorites`, {
-    method: 'POST',
-  }),
+  toggleStoreFavorite: (storeId) => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest(`/api/users/stores/${storeId}/favorites`, {
+      method: 'POST',
+    });
+  },
   
   // 이벤트 즐겨찾기 토글
-  toggleEventFavorite: (eventId) => apiRequest(`/api/users/events/${eventId}/favorites`, {
-    method: 'POST',
-  }),
+  toggleEventFavorite: (eventId) => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest(`/api/users/events/${eventId}/favorites`, {
+      method: 'POST',
+    });
+  },
   
   // 팝업 즐겨찾기 토글 - 명세서에서는 events로 되어있음
-  togglePopupFavorite: (popupId) => apiRequest(`/api/users/events/${popupId}/favorites`, {
-    method: 'POST',
-  }),
+  togglePopupFavorite: (popupId) => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest(`/api/users/events/${popupId}/favorites`, {
+      method: 'POST',
+    });
+  },
   
   // 즐겨찾기 제거 (토글 방식으로 처리)
   removeFavorite: (id, type) => {
-    if (type === 'store') {
+    if (isMerchant()) {
+      throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
+    }
+    
+    if (type === 'stores') {
       return apiRequest(`/api/users/stores/${id}/favorites`, {
         method: 'POST',
       });
@@ -96,10 +199,15 @@ export const storesAPI = {
   // 가게 상세 정보 조회
   getStoreDetail: (id) => apiRequest(`/api/stores/${id}`),
   
-  // 가게 좋아요 토글
-  toggleStoreLike: (storeId) => apiRequest(`/api/stores/${storeId}/like`, {
-    method: 'POST',
-  }),
+  // 가게 좋아요 토글 (일반 유저만 사용 가능)
+  toggleStoreLike: (storeId) => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 좋아요 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest(`/api/stores/${storeId}/like`, {
+      method: 'POST',
+    });
+  },
   
   // 가게 생성
   createStore: (data) => apiRequest('/api/merchants/stores', {
@@ -196,11 +304,6 @@ export const storesAPI = {
     body: JSON.stringify(data),
   }),
   
-  // 가게 삭제
-  deleteStore: (id) => apiRequest(`/api/merchants/stores/${id}`, {
-    method: 'DELETE',
-  }),
-  
   // 사업자 프로필 업데이트
   updateProfile: (data) => apiRequest('/api/merchants/profile', {
     method: 'PUT',
@@ -226,28 +329,32 @@ export const authAPI = {
   logout: () => apiRequest('/api/logout', {
     method: 'POST',
   }),
-  
-  // 사용자 정보 조회
-  getProfile: () => apiRequest('/api/profile'),
-  
-  // 현재 사용자 정보 조회
-  getMe: () => apiRequest('/api/users/me'),
 };
 
 // 카테고리 관련 API
 export const categoriesAPI = {
   // 사용자 카테고리 토글 (삭제/추가) - 명세서대로
-  toggleCategory: (category) => apiRequest(`/api/users/categories/${category}`, {
-    method: 'POST',
-  }),
+  toggleCategory: (category) => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 카테고리 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest(`/api/users/categories/${category}`, {
+      method: 'POST',
+    });
+  },
   
   // 사용자 카테고리 조회 - 명세서대로
-  getUserCategories: () => apiRequest('/api/users/categories'),
+  getUserCategories: () => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 카테고리 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest('/api/users/categories');
+  },
   
-  // 카테고리 목록 조회 - 명세서대로
+  // 카테고리 목록 조회 - 명세서대로 (모든 사용자 가능)
   getCategories: () => apiRequest('/api/categories'),
   
-  // 특정 카테고리 조회 - 명세서대로
+  // 특정 카테고리 조회 - 명세서대로 (모든 사용자 가능)
   getCategory: (category) => apiRequest(`/api/categories/${category}`),
 };
 

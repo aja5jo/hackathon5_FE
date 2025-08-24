@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { categoriesAPI } from '../services/api'
+import { categoriesAPI, isMerchant } from '../services/api'
 import { useCategoryToggle } from '../hooks/useCategoryToggle'
 
 
@@ -12,11 +12,15 @@ function Category1() {
   const { isAuthenticated, isLoading } = useAuth()
   
   const [selectedCategories, setSelectedCategories] = useState([])
+  const [isMerchantUser, setIsMerchantUser] = useState(false)
 
   // 컴포넌트 마운트 시 localStorage에서 기존 선택된 카테고리 불러오기
   useEffect(() => {
     const storedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
     setSelectedCategories(storedCategories);
+    
+    // 사용자 타입 확인
+    setIsMerchantUser(isMerchant());
   }, []);
 
   const categories = [
@@ -37,21 +41,27 @@ function Category1() {
       }
     },
     (error) => {
-      if (error.code === 401) {
-        navigate('/login');
-      }
+      console.log('카테고리 토글 에러:', error.message);
+      // 401 에러가 발생해도 UI는 이미 업데이트되었으므로 사용자에게 알리지 않음
+      // API 호출 실패는 로컬 상태로 처리됨
     }
   );
 
   const handleCategoryClick = async (categoryId) => {
+    // 소상공인은 카테고리 선택 불가
+    if (isMerchantUser) {
+      console.log('소상공인은 카테고리 선택 기능을 사용할 수 없습니다.');
+      return;
+    }
+    
     // 로딩 중이거나 인증되지 않은 경우 처리
     if (isToggleLoading) {
-      alert('로딩 중입니다. 잠시 후 다시 시도해주세요.');
+      console.log('로딩 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }
     
     if (!isAuthenticated) {
-      alert('로그인이 필요합니다.');
+      console.log('로그인이 필요합니다.');
       navigate('/login');
       return;
     }
@@ -66,7 +76,7 @@ function Category1() {
       } else {
         // 새로운 카테고리 추가 (최대 3개 제한)
         if (prev.length >= 3) {
-          alert('최대 3개까지만 선택할 수 있습니다.');
+          console.log('최대 3개까지만 선택할 수 있습니다.');
           return prev;
         }
         newSelected = [...prev, categoryId];
@@ -90,7 +100,7 @@ function Category1() {
 
   const handleNext = async () => {
     if (selectedCategories.length === 0) {
-      alert('최소 1개 이상의 카테고리를 선택해주세요.')
+      console.log('최소 1개 이상의 카테고리를 선택해주세요.')
       return
     }
     
@@ -122,28 +132,43 @@ function Category1() {
         </LeftSection>
 
         <RightSection>
-          <CategoryGrid>
-            {categories.map(category => (
-                             <CategoryCard
-                 key={category.id}
-                 $selected={selectedCategories.includes(category.id)}
-                 onClick={() => handleCategoryClick(category.id)}
-               >
-                <ImageContainer>
-                  <CategoryImage>{category.image}</CategoryImage>
-                </ImageContainer>
-                <TextContainer>
-                  <CategoryName>{category.name}</CategoryName>
-                </TextContainer>
-              </CategoryCard>
-            ))}
-          </CategoryGrid>
+          {isMerchantUser ? (
+            <MerchantMessage>
+              <MessageTitle>소상공인은 카테고리 선택이 불가능합니다</MessageTitle>
+              <MessageText>
+                소상공인 계정으로는 카테고리 선택 기능을 사용할 수 없습니다.<br/>
+                일반 유저 계정으로 로그인하시거나, 홈 화면으로 이동해주세요.
+              </MessageText>
+              <HomeButton onClick={() => navigate('/')}>
+                홈 화면으로 이동
+              </HomeButton>
+            </MerchantMessage>
+          ) : (
+            <CategoryGrid>
+              {categories.map(category => (
+                <CategoryCard
+                  key={category.id}
+                  $selected={selectedCategories.includes(category.id)}
+                  onClick={() => handleCategoryClick(category.id)}
+                >
+                  <ImageContainer>
+                    <CategoryImage>{category.image}</CategoryImage>
+                  </ImageContainer>
+                  <TextContainer>
+                    <CategoryName>{category.name}</CategoryName>
+                  </TextContainer>
+                </CategoryCard>
+              ))}
+            </CategoryGrid>
+          )}
         </RightSection>
       </MainContent>
 
-      <NextButton onClick={handleNext}>
-        Next
-      </NextButton>
+      {!isMerchantUser && (
+        <NextButton onClick={handleNext}>
+          Next
+        </NextButton>
+      )}
     </Container>
   )
 }
@@ -301,5 +326,44 @@ const NextButton = styled.button`
   &:hover {
     background-color: #333;
     transform: translateX(-50%) translateY(-2px);
+  }
+`
+
+const MerchantMessage = styled.div`
+  text-align: center;
+  padding: 4rem;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+`
+
+const MessageTitle = styled.h2`
+  font-size: 2.4rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+`
+
+const MessageText = styled.p`
+  font-size: 1.6rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+`
+
+const HomeButton = styled.button`
+  background-color: #262626;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #333;
   }
 `

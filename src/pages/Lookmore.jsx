@@ -203,7 +203,7 @@ function Lookmore() {
         setIsLiked(!isLiked);
         setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
       } else {
-        alert(result.message || '좋아요 처리에 실패했습니다.');
+        console.log(result.message || '좋아요 처리에 실패했습니다.');
       }
       
       // ===== 더미데이터 버전 (주석처리) =====
@@ -214,7 +214,7 @@ function Lookmore() {
       
     } catch (error) {
       console.error('Failed to toggle like:', error);
-      alert('좋아요 처리에 실패했습니다.');
+      console.log('좋아요 처리에 실패했습니다.');
     }
   };
 

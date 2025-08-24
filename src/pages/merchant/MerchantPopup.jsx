@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
@@ -33,9 +33,33 @@ function MerchantPopup() {
   const [showAiPreview, setShowAiPreview] = useState(false);
   const [aiPreviewResult, setAiPreviewResult] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [hasStore, setHasStore] = useState(false);
 
   const disabled = useMemo(() => !category || !name || !description || !intro || !thumbnail || !startDate || !endDate || !address, 
     [category, name, description, intro, thumbnail, startDate, endDate, address]);
+
+  // 컴포넌트 마운트 시 가게 등록 상태 확인
+  useEffect(() => {
+    checkStoreStatus();
+  }, []);
+
+  const checkStoreStatus = async () => {
+    try {
+      const response = await storesAPI.getMyStores();
+      if (response.success && response.data && response.data.length > 0) {
+        setHasStore(true);
+      } else {
+        setHasStore(false);
+        alert('팝업을 등록하려면 먼저 가게를 등록해야 합니다.');
+        navigate('/merchants/stores');
+      }
+    } catch (error) {
+      console.error('가게 상태 확인 실패:', error);
+      setHasStore(false);
+      alert('가게 상태를 확인할 수 없습니다. 먼저 가게를 등록해주세요.');
+      navigate('/merchants/stores');
+    }
+  };
 
   // AI 미리보기 함수
   const handleAiPreview = async () => {
@@ -142,8 +166,7 @@ function MerchantPopup() {
         } else {
           // API 명세서에 따른 에러 메시지 처리
           if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            navigate('/login');
+            console.log('로그인이 필요합니다.');
           } else if (result.code === 403) {
             alert('접근 권한이 없습니다.');
           } else {

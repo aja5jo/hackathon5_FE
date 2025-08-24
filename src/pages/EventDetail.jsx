@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
-import { eventsAPI } from '../services/api';
+import { eventsAPI, isMerchant } from '../services/api';
 
 
 function EventDetail() {
@@ -18,6 +18,7 @@ function EventDetail() {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isMerchantUser, setIsMerchantUser] = useState(false);
 
   // 더미 이벤트 상세 데이터
   const dummyEventDetail = {
@@ -48,6 +49,8 @@ function EventDetail() {
 
   useEffect(() => {
     fetchEventDetail();
+    // 사용자 타입 확인
+    setIsMerchantUser(isMerchant());
   }, [eventId]);
 
   const fetchEventDetail = async () => {
@@ -84,8 +87,14 @@ function EventDetail() {
   };
 
   const handleLikeToggle = async () => {
+    // 소상공인은 좋아요 기능 사용 불가
+    if (isMerchantUser) {
+      console.log('소상공인은 좋아요 기능을 사용할 수 없습니다.');
+      return;
+    }
+    
     if (!isAuthenticated) {
-      alert('로그인이 필요한 서비스입니다.');
+      console.log('로그인이 필요한 서비스입니다.');
       navigate('/login');
       return;
     }
@@ -209,7 +218,15 @@ function EventDetail() {
           <EventHeader>
             <EventTitle>{eventDetail.name}</EventTitle>
             <LikeContainer>
-              <LikeButton onClick={handleLikeToggle} liked={liked}>
+              <LikeButton 
+                onClick={handleLikeToggle} 
+                liked={liked}
+                disabled={isMerchantUser}
+                style={{
+                  opacity: isMerchantUser ? 0.5 : 1,
+                  cursor: isMerchantUser ? 'not-allowed' : 'pointer'
+                }}
+              >
                 {liked ? '❤️' : '🤍'}
               </LikeButton>
               <LikeCount>{likeCount}</LikeCount>

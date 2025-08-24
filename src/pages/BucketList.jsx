@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import KakaoMap from '../components/map/KakaoMap';
 import { useAuth } from '../contexts/AuthContext';
+import { isMerchant } from '../services/api';
 
 import bannerImg from '../assets/banner.png';
 import EventCard from '../components/common/EventCard';
@@ -13,12 +14,18 @@ import { favoritesAPI } from '../services/api';
 function BucketList() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [isMerchantUser, setIsMerchantUser] = useState(false);
   
   const [favorites, setFavorites] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('전체');
 
   // 카테고리 필터
   const categories = ['전체', '카페', 'KPOP', '쇼핑', '문화생활', '클럽', '음식점', '이벤트'];
+
+  // 컴포넌트 마운트 시 사용자 타입 확인
+  useEffect(() => {
+    setIsMerchantUser(isMerchant());
+  }, []);
 
   // 데이터 로드 함수
   const loadFavorites = async () => {
@@ -40,6 +47,13 @@ function BucketList() {
     console.log('BucketList - 인증 상태 확인:', { isAuthenticated });
     console.log('BucketList - 로컬스토리지 user:', localStorage.getItem('user'));
     
+    // 소상공인은 버킷리스트 접근 불가
+    if (isMerchantUser) {
+      console.log('BucketList - 소상공인은 버킷리스트에 접근할 수 없습니다.');
+      navigate('/');
+      return;
+    }
+    
     if (isAuthenticated) {
       console.log('BucketList - 인증된 사용자, 즐겨찾기 로드');
       loadFavorites();
@@ -48,7 +62,7 @@ function BucketList() {
       console.log('BucketList - 인증되지 않은 사용자, 로그인 페이지로 이동');
       navigate('/login');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isMerchantUser]);
 
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);

@@ -18,34 +18,30 @@ function MerchantStoreList() {
   const fetchMyStores = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const response = await storesAPI.getMyStores();
-      setStores(response.data || []);
+      
+      if (response.success) {
+        setStores(response.data || []);
+      } else {
+        setError(response.message || '가게 목록을 불러오는데 실패했습니다.');
+        setStores([]);
+      }
     } catch (err) {
       console.error('Failed to fetch stores:', err);
-      setError('가게 목록을 불러오는데 실패했습니다.');
-      // 임시 더미 데이터
-      setStores([
-        {
-          id: 1,
-          name: '카페 모모',
-          address: '서울시 마포구 홍대입구역 123-45',
-          category: 'CAFE',
-          openAt: '09:00',
-          closeAt: '22:00',
-          createdAt: '2025-01-15',
-          status: 'ACTIVE'
-        },
-        {
-          id: 2,
-          name: '홍대 클럽 나이트',
-          address: '서울시 마포구 와우산로 21길 45',
-          category: 'CLUB',
-          openAt: '20:00',
-          closeAt: '06:00',
-          createdAt: '2025-01-10',
-          status: 'ACTIVE'
-        }
-      ]);
+      
+      // 에러 메시지 처리
+      if (err.message.includes('인증이 필요합니다')) {
+        console.log('로그인이 필요합니다. 다시 로그인해주세요.');
+        setError('로그인이 필요합니다. 다시 로그인해주세요.');
+      } else if (err.message.includes('서버 오류')) {
+        setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } else {
+        setError('가게 목록을 불러오는데 실패했습니다. 다시 시도해주세요.');
+      }
+      
+      setStores([]);
     } finally {
       setLoading(false);
     }
@@ -101,10 +97,22 @@ function MerchantStoreList() {
           <Title>내 가게 관리</Title>
           <Description>등록한 가게들을 조회하고 관리하세요</Description>
           <ActionButtons>
-            <AddButton onClick={() => navigate('/merchants/stores')}>
-              새 가게 등록
+            <AddButton 
+              onClick={() => navigate('/merchants/stores')}
+              disabled={stores.length > 0}
+              style={{
+                opacity: stores.length > 0 ? 0.5 : 1,
+                cursor: stores.length > 0 ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {stores.length > 0 ? '가게 등록 완료' : '새 가게 등록'}
             </AddButton>
           </ActionButtons>
+          {stores.length > 0 && (
+            <StoreLimitMessage>
+              ⚠️ 소상공인은 가게를 하나만 등록할 수 있습니다.
+            </StoreLimitMessage>
+          )}
         </HeaderSection>
 
         {error && (
@@ -118,7 +126,7 @@ function MerchantStoreList() {
             <EmptyIcon>🏪</EmptyIcon>
             <EmptyTitle>등록된 가게가 없습니다</EmptyTitle>
             <EmptyDescription>
-              첫 번째 가게를 등록해보세요!
+              첫 번째 가게를 등록해보세요! (소상공인은 가게를 하나만 등록할 수 있습니다)
             </EmptyDescription>
             <AddButton onClick={() => navigate('/merchants/stores')}>
               가게 등록하기
@@ -382,4 +390,11 @@ const ViewButton = styled(BaseActionButton)`
   &:hover {
     background: #f9fafb;
   }
+`;
+
+const StoreLimitMessage = styled.p`
+  font-size: 1.2rem;
+  color: #dc2626;
+  margin-top: 1rem;
+  font-weight: 600;
 `;

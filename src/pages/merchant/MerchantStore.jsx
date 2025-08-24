@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import Header from '../../components/common/Header';
 import { storesAPI } from '../../services/api';
 
 const CATEGORIES = [
@@ -24,8 +25,27 @@ function MerchantStore() {
   const [extraInfo, setExtraInfo] = useState('');
   const [intro, setIntro] = useState('');
   const [useAi, setUseAi] = useState(false);
+  const [hasExistingStore, setHasExistingStore] = useState(false);
 
   const disabled = useMemo(() => !name || !address || !category, [name, address, category]);
+
+  // 컴포넌트 마운트 시 기존 가게 확인
+  useEffect(() => {
+    checkExistingStore();
+  }, []);
+
+  const checkExistingStore = async () => {
+    try {
+      const response = await storesAPI.getMyStores();
+      if (response.success && response.data && response.data.length > 0) {
+        setHasExistingStore(true);
+        alert('이미 등록된 가게가 있습니다. 소상공은 가게를 하나만 등록할 수 있습니다.');
+        window.location.href = '/mypage/stores';
+      }
+    } catch (error) {
+      console.error('기존 가게 확인 실패:', error);
+    }
+  };
 
   const onDropImage = (e, setter) => {
     e.preventDefault();
@@ -44,27 +64,49 @@ function MerchantStore() {
 
     try {
       // 폼 데이터 구성
-      const form = new FormData();
-      form.append('name', name);
-      form.append('address', address);
-      form.append('category', category);
-      form.append('openAt', openAt);
-      form.append('closeAt', closeAt);
-      form.append('extraInfo', extraInfo);
-      form.append('intro', intro);
-      form.append('useAi', String(useAi));
-      if (heroImage) form.append('heroImage', heroImage);
-      if (extraImage) form.append('extraImage', extraImage);
+      const formData = {
+        name: name.trim(),
+        address: address.trim(),
+        category: category,
+        openAt: openAt,
+        closeAt: closeAt,
+        extraInfo: extraInfo.trim(),
+        intro: intro.trim(),
+        useAi: useAi
+      };
 
-      // API 연동 (주석 해제 시 실제 API 호출)
-      // await ApiService.createStore(form);
+      // API 연동
+      const result = await storesAPI.createStore(formData);
       
-      alert('가게가 성공적으로 등록되었습니다!');
-      // 성공 시 가게 목록으로 이동
-      window.location.href = '/mypage/stores';
+      if (result.success) {
+        alert('가게가 성공적으로 등록되었습니다!');
+        // 성공 시 홈으로 이동
+        window.location.href = '/';
+      } else {
+        // API 명세서에 따른 에러 메시지 처리
+        if (result.code === 401) {
+          console.log('로그인이 필요합니다.');
+        } else if (result.code === 403) {
+          alert('접근 권한이 없습니다.');
+        } else if (result.code === 400) {
+          alert(result.message || '가게 등록에 실패했습니다.');
+        } else {
+          alert(result.message || '가게 등록 중 오류가 발생했습니다.');
+        }
+      }
     } catch (error) {
       console.error('Failed to create store:', error);
-      alert('가게 등록에 실패했습니다. 다시 시도해주세요.');
+      
+      // 에러 메시지 처리
+      if (error.message.includes('인증이 필요합니다')) {
+        console.log('로그인이 필요합니다. 다시 로그인해주세요.');
+      } else if (error.message.includes('서버 오류')) {
+        alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } else if (error.message.includes('접근 권한이 없습니다')) {
+        alert('접근 권한이 없습니다.');
+      } else {
+        alert('가게 등록에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 

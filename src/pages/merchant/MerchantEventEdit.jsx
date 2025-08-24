@@ -86,8 +86,7 @@ function MerchantEventEdit() {
         } else {
           // API 명세서에 따른 에러 메시지 처리
           if (result.code === 401) {
-            alert('로그인이 필요합니다.');
-            navigate('/login');
+            console.log('로그인이 필요합니다.');
           } else if (result.code === 403) {
             alert('등록된 가게가 없는 사용자입니다.');
             navigate('/mypage/events');
@@ -148,8 +147,7 @@ function MerchantEventEdit() {
       } else {
         // API 명세서에 따른 에러 메시지 처리
         if (result.code === 401) {
-          alert('로그인이 필요합니다.');
-          navigate('/login');
+          console.log('로그인이 필요합니다.');
         } else if (result.code === 403) {
           alert('등록된 가게가 없는 사용자입니다.');
         } else if (result.code === 400) {

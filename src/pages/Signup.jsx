@@ -69,8 +69,13 @@ function Signup() {
       const result = await authAPI.register(signupData);
       
       if (result.success) {
-        alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
-        navigate('/login');
+        if (role === 'MERCHANT') {
+          alert('회원가입이 완료되었습니다! 가게 등록 페이지로 이동합니다.');
+          navigate('/merchants/stores');
+        } else {
+          alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
+          navigate('/login');
+        }
       } else {
         // API 명세서에 맞춘 에러 메시지 처리
         

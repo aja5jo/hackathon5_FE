@@ -17,54 +17,29 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // localStorage에서 사용자 정보 복원
+    // 로컬 스토리지에서 사용자 정보 복원
     const savedUser = localStorage.getItem('user');
     const savedUserType = localStorage.getItem('userType');
     
     if (savedUser) {
       const userData = JSON.parse(savedUser);
       setUser(userData);
-      
-      // userType을 userData에서 추출하거나 저장된 값 사용
-      // API 응답에서는 'role' 필드를 사용하므로 'userType' 대신 'role' 확인
       const type = savedUserType || (userData.role === 'MERCHANT' ? 'merchant' : 'user');
       setUserType(type);
     } else if (savedUserType) {
       setUserType(savedUserType);
     }
     
-    // 백엔드 세션 상태 확인
-    const checkSession = async () => {
-      try {
-        const result = await authAPI.getMe();
-        
-        if (result.success && result.data) {
-          // 백엔드 세션이 유효한 경우
-          setUser(result.data);
-          const type = result.data.role === 'MERCHANT' ? 'merchant' : 'user';
-          setUserType(type);
-          localStorage.setItem('user', JSON.stringify(result.data));
-          localStorage.setItem('userType', type);
-        } else {
-          // 백엔드 세션이 유효하지 않은 경우
-          setUser(null);
-          setUserType('user');
-          localStorage.removeItem('user');
-          localStorage.removeItem('userType');
-        }
-      } catch (error) {
-        console.error('세션 확인 실패:', error);
-        // 에러 발생 시 로컬 상태 유지
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
+    // 로딩 완료
+    setIsLoading(false);
   }, []);
 
   const login = useCallback((userData, type = 'user') => {
     console.log('AuthContext login 함수 호출됨:', userData, type);
+    
+    // 이전 사용자의 카테고리 데이터 삭제
+    localStorage.removeItem('selectedCategories');
+    console.log('이전 사용자 카테고리 데이터 삭제됨');
     
     setUser(userData);
     setUserType(type);
@@ -90,6 +65,7 @@ export const AuthProvider = ({ children }) => {
     // 모든 스토리지에서 제거
     localStorage.removeItem('user');
     localStorage.removeItem('userType');
+    localStorage.removeItem('selectedCategories'); // 카테고리 데이터도 삭제
     sessionStorage.removeItem('user');
     
     console.log('로그아웃 완료');
@@ -117,6 +93,7 @@ export const AuthProvider = ({ children }) => {
       // 모든 스토리지에서 제거
       localStorage.removeItem('user');
       localStorage.removeItem('userType');
+      localStorage.removeItem('selectedCategories'); // 카테고리 데이터도 삭제
       sessionStorage.removeItem('user');
       
       console.log('로그아웃 완료');

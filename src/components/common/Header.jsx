@@ -1,42 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { isMerchant } from '../../services/api';
 import logo from '../../assets/logo.png';
 
-import { useAuth } from '../../contexts/AuthContext';
-
-function Header() {
+const Header = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+  const [isMerchantUser, setIsMerchantUser] = useState(false);
   
-  const { isAuthenticated, isMerchant, user, logout } = useAuth();
-  
-  const [selectedLanguage, setSelectedLanguage] = useState('KOREAN');
+  // 언어 선택 관련 상태
+  const [selectedLanguage, setSelectedLanguage] = useState('ko');
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [currentTexts, setCurrentTexts] = useState({});
 
-  // 디버깅용 로그
-
-
-  // 언어 설정 - API 명세서에 맞는 SupportedLanguage enum 값 사용
+  // 언어 목록
   const languages = [
-    { code: 'KOREAN', name: '한국어', flag: '🇰🇷' },
-    { code: 'ENGLISH', name: 'English', flag: '🇺🇸' },
-    { code: 'JAPANESE', name: '日本語', flag: '🇯🇵' },
-    { code: 'CHINESE', name: '中文', flag: '🇨🇳' },
-    { code: 'FRENCH', name: 'Français', flag: '🇫🇷' },
-    { code: 'ARABIC', name: 'العربية', flag: '🇸🇦' },
-    { code: 'VIETNAMESE', name: 'Tiếng Việt', flag: '🇻🇳' },
-    { code: 'THAI', name: 'ไทย', flag: '🇹🇭' },
-    { code: 'ITALIAN', name: 'Italiano', flag: '🇮🇹' },
-    { code: 'SPANISH', name: 'Español', flag: '🇪🇸' },
-    { code: 'GERMAN', name: 'Deutsch', flag: '🇩🇪' }
+    { code: 'ko', name: '한국어', flag: '🇰🇷' },
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' },
+    { code: 'zh', name: '中文', flag: '🇨🇳' }
   ];
 
+  // 현재 언어 정보
   const currentLanguage = languages.find(lang => lang.code === selectedLanguage) || languages[0];
 
   useEffect(() => {
-    updateTexts();
-  }, [selectedLanguage]);
+    // 사용자 타입 확인
+    setIsMerchantUser(isMerchant());
+    
+    // 저장된 언어 설정 불러오기
+    const savedLanguage = localStorage.getItem('translator:selected') || 'ko';
+    setSelectedLanguage(savedLanguage);
+  }, []);
 
   const updateTexts = () => {
     setCurrentTexts({
@@ -71,13 +68,13 @@ function Header() {
       await logout();
     } catch (error) {
       console.error('로그아웃 오류:', error);
-      alert('로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.log('로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
   
   // 마이페이지 클릭 핸들러 - 사용자 유형에 따라 다른 페이지로 이동
   const handleMyPageClick = () => {
-    if (isMerchant) {
+    if (isMerchantUser) {
       navigate('/merchants/mypage');
     } else {
       navigate('/mypage');
@@ -87,7 +84,7 @@ function Header() {
   // 즐겨찾기 클릭 핸들러 - 로그인 상태 확인
   const handleFavoritesClick = () => {
     if (!isAuthenticated) {
-      alert('즐겨찾기 기능을 사용하려면 로그인이 필요합니다.');
+      console.log('즐겨찾기 기능을 사용하려면 로그인이 필요합니다.');
       navigate('/login');
       return;
     }
@@ -102,7 +99,9 @@ function Header() {
           <NavItem onClick ={()=>navigate('/categories')}>카테고리</NavItem>
           <NavItem onClick ={()=>navigate('/events')}>이벤트</NavItem>
           <NavItem onClick ={()=>navigate('/popup')}>팝업</NavItem>
-          <NavItem onClick={handleFavoritesClick}>버킷리스트</NavItem>
+          {!isMerchantUser && (
+            <NavItem onClick={handleFavoritesClick}>버킷리스트</NavItem>
+          )}
           {/* 로그인 상태에 따른 마이페이지 조건부 렌더링 */}
           {isAuthenticated && (
             <NavItem onClick={handleMyPageClick}>마이페이지</NavItem>
@@ -140,7 +139,7 @@ function Header() {
           // 로그인된 상태: 사용자 정보 + 로그아웃 버튼 표시
           <UserSection>
             <UserInfo>
-              {user?.email || '사용자'}
+              {JSON.parse(localStorage.getItem('user') || '{}')?.email || '사용자'}
             </UserInfo>
             <LogoutButton onClick={handleLogoutClick}>로그아웃</LogoutButton>
           </UserSection>
@@ -320,6 +319,7 @@ const CheckMark = styled.span`
   font-weight: bold;
   margin-left: auto;
 `;
+
 // ===== 언어 선택 드롭다운 스타일 끝 =====
 
 // ===== 새로 추가된 스타일 컴포넌트들 끝 =====

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
-import { storesAPI } from '../services/api';
+import { storesAPI, isMerchant } from '../services/api';
 
 
 function StoreDetail() {
@@ -19,6 +19,7 @@ function StoreDetail() {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isMerchantUser, setIsMerchantUser] = useState(false);
 
   // 더미 스토어 상세 데이터 (EventDetail과 동일한 키 구조로 매핑)
   const dummyStoreDetail = {
@@ -42,6 +43,11 @@ function StoreDetail() {
     fetchStoreDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    // 사용자 타입 확인
+    setIsMerchantUser(isMerchant());
+  }, []);
 
   const fetchStoreDetail = async () => {
     setIsLoading(true);
@@ -80,8 +86,14 @@ function StoreDetail() {
   };
 
   const handleLikeToggle = async () => {
+    // 소상공인은 좋아요 기능 사용 불가
+    if (isMerchantUser) {
+      console.log('소상공인은 좋아요 기능을 사용할 수 없습니다.');
+      return;
+    }
+    
     if (!isAuthenticated) {
-      alert('로그인이 필요한 서비스입니다.');
+      console.log('로그인이 필요한 서비스입니다.');
       navigate('/login');
       return;
     }
@@ -192,7 +204,15 @@ function StoreDetail() {
           <HeaderRow>
             <Title>{storeDetail.name}</Title>
             <LikeContainer>
-              <LikeButton onClick={handleLikeToggle} liked={liked}>
+              <LikeButton 
+                onClick={handleLikeToggle} 
+                liked={liked}
+                disabled={isMerchantUser}
+                style={{
+                  opacity: isMerchantUser ? 0.5 : 1,
+                  cursor: isMerchantUser ? 'not-allowed' : 'pointer'
+                }}
+              >
                 {liked ? '❤️' : '🤍'}
               </LikeButton>
               <LikeCount>{likeCount}</LikeCount>

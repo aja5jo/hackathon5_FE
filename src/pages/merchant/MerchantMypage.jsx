@@ -4,33 +4,33 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
 import MerchantMypageBannerSection from '../../components/merchant/MerchantMypageBannerSection';
+import { storesAPI } from '../../services/api';
 
 function MerchantMypage() {
   const navigate = useNavigate();
-  const [favoritesCount, setFavoritesCount] = useState(0);
+  const [hasStore, setHasStore] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ===== 더미 데이터 버전 (주석처리) =====
-    /*
-    // 즐겨찾기 개수 계산 (userFavorites에서 가져오기)
-    const favorites = JSON.parse(localStorage.getItem('userFavorites') || '[]');
-    setFavoritesCount(favorites.length);
-    */
-    
-    // ===== 백엔드 API 버전 (활성화) =====
-    const fetchFavoritesCount = async () => {
-      try {
-        const response = await fetch('/api/users/favorites');
-        const data = await response.json();
-        setFavoritesCount(data.length || 0);
-      } catch (error) {
-        console.error('즐겨찾기 개수 조회 실패:', error);
-        setFavoritesCount(0);
-      }
-    };
-    
-    fetchFavoritesCount();
+    checkStoreStatus();
   }, []);
+
+  const checkStoreStatus = async () => {
+    try {
+      setLoading(true);
+      const response = await storesAPI.getMyStores();
+      if (response.success && response.data && response.data.length > 0) {
+        setHasStore(true);
+      } else {
+        setHasStore(false);
+      }
+    } catch (error) {
+      console.error('가게 상태 확인 실패:', error);
+      setHasStore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Container>
@@ -40,27 +40,24 @@ function MerchantMypage() {
 
       <Content>
         <CardGrid>
-          {/* 버킷리스트 */}
-          <NavCard>
-            <CardHeader>
-              <CardTitle>버킷리스트</CardTitle>
-              <CountBadge>{favoritesCount}개</CountBadge>
-            </CardHeader>
-            <CardDesc>나만의 특별한 장소와 이벤트 관리</CardDesc>
-            <ButtonRow>
-              <PrimaryButton onClick={() => navigate('/favorites')}>버킷리스트</PrimaryButton>
-              <GhostButton onClick={() => navigate('/favorites')}>버킷리스트 관리</GhostButton>
-            </ButtonRow>
-          </NavCard>
-
           {/* Store */}
           <NavCard>
             <CardHeader>
               <CardTitle>가게 관리</CardTitle>
+              {hasStore && <StoreStatusBadge>등록됨</StoreStatusBadge>}
             </CardHeader>
             <CardDesc>내 가게 등록/조회/수정</CardDesc>
             <ButtonRow>
-              <PrimaryButton onClick={() => navigate('/merchants/stores')}>가게 등록하러 가기</PrimaryButton>
+              <PrimaryButton 
+                onClick={() => navigate('/merchants/stores')}
+                disabled={hasStore}
+                style={{
+                  opacity: hasStore ? 0.5 : 1,
+                  cursor: hasStore ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {hasStore ? '가게 등록 완료' : '가게 등록하러 가기'}
+              </PrimaryButton>
               <GhostButton onClick={() => navigate('/mypage/stores')}>내 가게 보기</GhostButton>
               <GhostButton onClick={() => navigate('/mypage/stores')}>가게 정보 수정하기</GhostButton>
             </ButtonRow>
@@ -173,15 +170,6 @@ const CardHeader = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const CountBadge = styled.span`
-  background: #FEE502;
-  color: #262626;
-  padding: 0.4rem 0.8rem;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: 700;
-`;
-
 const CardTitle = styled.h2`
   margin: 0 0 0.25rem 0;
   font-size: 1.6rem;
@@ -226,4 +214,14 @@ const GhostButton = styled(BaseButton)`
   color: #262626;
   border: 2px solid #e5e7eb;
   &:hover { border-color: #FEE502; }
+`;
+
+const StoreStatusBadge = styled.span`
+  background-color: #e0f2fe;
+  color: #007bff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-left: 1rem;
 `;

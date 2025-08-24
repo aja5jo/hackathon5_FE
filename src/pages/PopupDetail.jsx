@@ -3,11 +3,15 @@ import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import { eventsAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { eventsAPI, isMerchant } from '../services/api';
+
 
 function PopupDetail() {
-  const { popupId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  
 
   const [popupDetail, setPopupDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,6 +19,12 @@ function PopupDetail() {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isMerchantUser, setIsMerchantUser] = useState(false);
+
+  useEffect(() => {
+    // 사용자 타입 확인
+    setIsMerchantUser(isMerchant());
+  }, []);
 
   // 더미 팝업 상세 (응답 예시를 반영)
   const dummyPopupDetail = {
@@ -41,13 +51,13 @@ function PopupDetail() {
   useEffect(() => {
     fetchPopupDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popupId]);
+  }, [id]);
 
   const fetchPopupDetail = async () => {
     setIsLoading(true);
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const result = await eventsAPI.getPopup(popupId);
+      const result = await eventsAPI.getPopup(id);
       
       if (result.success) {
         const data = result.data;
@@ -79,9 +89,21 @@ function PopupDetail() {
   };
 
   const handleLikeToggle = async () => {
+    // 소상공인은 좋아요 기능 사용 불가
+    if (isMerchantUser) {
+      console.log('소상공인은 좋아요 기능을 사용할 수 없습니다.');
+      return;
+    }
+    
+    if (!isAuthenticated) {
+      console.log('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+    
     try {
       // ===== 백엔드 API 버전 (활성화) =====
-      const result = await eventsAPI.togglePopupLike(popupId);
+      const result = await eventsAPI.togglePopupLike(id);
       
       if (result.success) {
         setLiked((prev) => !prev);
@@ -184,7 +206,15 @@ function PopupDetail() {
           <PopupHeader>
             <PopupTitle>{popupDetail.name}</PopupTitle>
             <LikeContainer>
-              <LikeButton onClick={handleLikeToggle} liked={liked}>
+              <LikeButton 
+                onClick={handleLikeToggle} 
+                liked={liked}
+                disabled={isMerchantUser}
+                style={{
+                  opacity: isMerchantUser ? 0.5 : 1,
+                  cursor: isMerchantUser ? 'not-allowed' : 'pointer'
+                }}
+              >
                 {liked ? '❤️' : '🤍'}
               </LikeButton>
               <LikeCount>{likeCount}</LikeCount>
