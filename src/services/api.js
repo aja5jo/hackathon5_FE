@@ -196,8 +196,7 @@ export const storesAPI = {
   //   return apiRequest(`/api/stores?${queryString}`);
   // },
   
-  // 가게 상세 정보 조회
-  getStoreDetail: (id) => apiRequest(`/api/store/${id}`),
+  // 가게 상세 정보 조회는 mainAPI에서 처리
   
   // 가게 좋아요 토글 (일반 유저만 사용 가능)
   toggleStoreLike: (storeId) => {

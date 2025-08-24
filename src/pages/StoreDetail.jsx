@@ -4,11 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
-import { storesAPI, isMerchant } from '../services/api';
+import { storesAPI, mainAPI, isMerchant } from '../services/api';
 
 
 function StoreDetail() {
-  const { id } = useParams();
+  const { storeId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   
@@ -24,7 +24,7 @@ function StoreDetail() {
   useEffect(() => {
     fetchStoreDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [storeId]);
 
   useEffect(() => {
     // 사용자 타입 확인
@@ -35,7 +35,7 @@ function StoreDetail() {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await storesAPI.getStoreDetail(id);
+      const result = await mainAPI.getStoreDetail(storeId);
       
       if (result.success) {
         const data = result.data;
@@ -68,7 +68,7 @@ function StoreDetail() {
     }
     
     try {
-      const result = await storesAPI.toggleStoreLike(id);
+      const result = await storesAPI.toggleStoreLike(storeId);
       
       if (result.success) {
         setLiked((prev) => !prev);
