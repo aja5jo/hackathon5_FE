@@ -197,14 +197,14 @@ export const storesAPI = {
   // },
   
   // 가게 상세 정보 조회
-  getStoreDetail: (id) => apiRequest(`/api/store/${storeId}`),
+  getStoreDetail: (id) => apiRequest(`/api/store/${id}`),
   
   // 가게 좋아요 토글 (일반 유저만 사용 가능)
   toggleStoreLike: (storeId) => {
     if (isMerchant()) {
       throw new Error('소상공인은 좋아요 기능을 사용할 수 없습니다.');
     }
-    return apiRequest(`/api/stores/${storeId}/like`, {
+    return apiRequest(`/api/users/stores/${storeId}/favorites`, {
       method: 'POST',
     });
   },
@@ -219,7 +219,7 @@ export const storesAPI = {
   getMyStores: () => apiRequest('/api/merchants/stores'),
   
   // 가게 전체 수정
-  updateStore: (id, data) => apiRequest(`/api/merchants/stores/${storeId}`, {
+  updateStore: (id, data) => apiRequest(`/api/merchants/stores/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
@@ -281,13 +281,13 @@ export const storesAPI = {
   getMyPopups: () => apiRequest('/api/merchants/popups'),
   
   // 팝업 전체 수정
-  updatePopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popup_Id}`, {
+  updatePopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popupId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
   
   // 팝업 부분 수정
-  patchPopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popup_Id}`, {
+  patchPopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popupId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
@@ -384,6 +384,19 @@ export const eventsAPI = {
   // 전체 이벤트 목록 조회
   getEvents: () => apiRequest('/api/events'),
   
+  // 개별 이벤트 조회 (누락된 함수)
+  getEvent: (eventId) => apiRequest(`/api/event/${eventId}`),
+  
+  // 이벤트 좋아요 토글 (일반 유저만 사용 가능)
+  toggleEventLike: (eventId) => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 좋아요 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest(`/api/users/events/${eventId}/favorites`, {
+      method: 'POST',
+    });
+  },
+  
   // 필터별 이벤트 목록 조회
   getEventsByFilter: (filter) => apiRequest(`/api/events?filter=${encodeURIComponent(filter)}`),
   
@@ -394,6 +407,16 @@ export const eventsAPI = {
   deletePopup: (popupId) => apiRequest(`/api/events/popup/${popupId}`, {
     method: 'DELETE',
   }),
+  
+  // 팝업 좋아요 토글 (일반 유저만 사용 가능)
+  togglePopupLike: (popupId) => {
+    if (isMerchant()) {
+      throw new Error('소상공인은 좋아요 기능을 사용할 수 없습니다.');
+    }
+    return apiRequest(`/api/users/popups/${popupId}/favorites`, {
+      method: 'POST',
+    });
+  },
 };
 
 // 사용자 관련 API - 명세서에 없으므로 제거
