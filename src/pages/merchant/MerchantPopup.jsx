@@ -166,7 +166,8 @@ function MerchantPopup() {
         } else {
           // API 명세서에 따른 에러 메시지 처리
           if (result.code === 401) {
-            console.log('로그인이 필요합니다.');
+            alert('로그인이 필요합니다.');
+            navigate('/login');
           } else if (result.code === 403) {
             alert('접근 권한이 없습니다.');
           } else {

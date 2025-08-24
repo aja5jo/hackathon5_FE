@@ -191,13 +191,13 @@ export const favoritesAPI = {
 // 가게/이벤트 관련 API
 export const storesAPI = {
   // 가게 목록 조회
-  getStores: (params = {}) => {
-    const queryString = new URLSearchParams(params).toString();
-    return apiRequest(`/api/stores?${queryString}`);
-  },
+  // getStores: (params = {}) => {
+  //   const queryString = new URLSearchParams(params).toString();
+  //   return apiRequest(`/api/stores?${queryString}`);
+  // },
   
   // 가게 상세 정보 조회
-  getStoreDetail: (id) => apiRequest(`/api/stores/${id}`),
+  getStoreDetail: (id) => apiRequest(`/api/store/${storeId}`),
   
   // 가게 좋아요 토글 (일반 유저만 사용 가능)
   toggleStoreLike: (storeId) => {
@@ -219,7 +219,7 @@ export const storesAPI = {
   getMyStores: () => apiRequest('/api/merchants/stores'),
   
   // 가게 전체 수정
-  updateStore: (id, data) => apiRequest(`/api/merchants/stores/${id}`, {
+  updateStore: (id, data) => apiRequest(`/api/merchants/stores/${storeId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
@@ -281,13 +281,13 @@ export const storesAPI = {
   getMyPopups: () => apiRequest('/api/merchants/popups'),
   
   // 팝업 전체 수정
-  updatePopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popupId}`, {
+  updatePopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popup_Id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
   
   // 팝업 부분 수정
-  patchPopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popupId}`, {
+  patchPopup: (popupId, data) => apiRequest(`/api/merchants/popups/${popup_Id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
@@ -304,11 +304,6 @@ export const storesAPI = {
     body: JSON.stringify(data),
   }),
   
-  // 사업자 프로필 업데이트
-  updateProfile: (data) => apiRequest('/api/merchants/profile', {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
 };
 
 // 사용자 인증 관련 API

@@ -33,8 +33,10 @@ function MerchantStoreList() {
       
       // 에러 메시지 처리
       if (err.message.includes('인증이 필요합니다')) {
-        console.log('로그인이 필요합니다. 다시 로그인해주세요.');
         setError('로그인이 필요합니다. 다시 로그인해주세요.');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
       } else if (err.message.includes('서버 오류')) {
         setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       } else {

@@ -37,10 +37,6 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback((userData, type = 'user') => {
     console.log('AuthContext login 함수 호출됨:', userData, type);
     
-    // 이전 사용자의 카테고리 데이터 삭제
-    localStorage.removeItem('selectedCategories');
-    console.log('이전 사용자 카테고리 데이터 삭제됨');
-    
     setUser(userData);
     setUserType(type);
     
@@ -65,7 +61,6 @@ export const AuthProvider = ({ children }) => {
     // 모든 스토리지에서 제거
     localStorage.removeItem('user');
     localStorage.removeItem('userType');
-    localStorage.removeItem('selectedCategories'); // 카테고리 데이터도 삭제
     sessionStorage.removeItem('user');
     
     console.log('로그아웃 완료');
@@ -93,7 +88,6 @@ export const AuthProvider = ({ children }) => {
       // 모든 스토리지에서 제거
       localStorage.removeItem('user');
       localStorage.removeItem('userType');
-      localStorage.removeItem('selectedCategories'); // 카테고리 데이터도 삭제
       sessionStorage.removeItem('user');
       
       console.log('로그아웃 완료');

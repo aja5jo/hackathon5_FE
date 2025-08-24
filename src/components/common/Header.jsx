@@ -68,7 +68,7 @@ const Header = () => {
       await logout();
     } catch (error) {
       console.error('로그아웃 오류:', error);
-      console.log('로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert('로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
   
@@ -84,7 +84,7 @@ const Header = () => {
   // 즐겨찾기 클릭 핸들러 - 로그인 상태 확인
   const handleFavoritesClick = () => {
     if (!isAuthenticated) {
-      console.log('즐겨찾기 기능을 사용하려면 로그인이 필요합니다.');
+      alert('즐겨찾기 기능을 사용하려면 로그인이 필요합니다.');
       navigate('/login');
       return;
     }
