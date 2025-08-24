@@ -21,24 +21,6 @@ function StoreDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isMerchantUser, setIsMerchantUser] = useState(false);
 
-  // 더미 스토어 상세 데이터 (EventDetail과 동일한 키 구조로 매핑)
-  const dummyStoreDetail = {
-    id: 1,
-    name: '행복한 서점',
-    description: '이 서점은 지역 주민들에게 다양한 책과 문화를 제공합니다.',
-    intro: '조용한 분위기에서 책과 커피를 즐길 수 있는 아늑한 공간입니다.',
-    thumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
-    ],
-    address: '서울특별시 마포구 어딘가 123',
-    phone: '02-123-4567',
-    likeCount: 42,
-    liked: false,
-  };
-
   useEffect(() => {
     fetchStoreDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,7 +35,6 @@ function StoreDetail() {
     setIsLoading(true);
     setError(null);
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
       const result = await storesAPI.getStoreDetail(id);
       
       if (result.success) {
@@ -64,18 +45,6 @@ function StoreDetail() {
       } else {
         setError(result.message || '가게 정보를 불러오는데 실패했습니다.');
       }
-      
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      // 더미 데이터 시뮬레이션
-      setTimeout(() => {
-        const data = dummyStoreDetail;
-        setStoreDetail(data);
-        setLiked(Boolean(data.liked));
-        setLikeCount(Number(data.likeCount || 0));
-        setIsLoading(false);
-      }, 700);
-      */
       
     } catch (e) {
       console.error('가게 정보 로드 실패:', e);
@@ -99,26 +68,18 @@ function StoreDetail() {
     }
     
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
       const result = await storesAPI.toggleStoreLike(id);
       
       if (result.success) {
         setLiked((prev) => !prev);
         setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
       } else {
-        alert(result.message || '좋아요 처리에 실패했습니다.');
+        console.log(result.message || '좋아요 처리에 실패했습니다.');
       }
-      
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      setLiked((prev) => !prev);
-      setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-      // TODO: 좋아요 API 연동
-      */
       
     } catch (error) {
       console.error('좋아요 처리 실패:', error);
-      alert('좋아요 처리에 실패했습니다.');
+      console.log('좋아요 처리에 실패했습니다.');
     }
   };
 

@@ -56,7 +56,6 @@ function EventDetail() {
   const fetchEventDetail = async () => {
     setIsLoading(true);
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
       const result = await eventsAPI.getEvent(eventId);
       
       if (result.success) {
@@ -66,17 +65,6 @@ function EventDetail() {
       } else {
         setError(result.message || '이벤트 정보를 불러올 수 없습니다.');
       }
-      
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      // 더미 데이터로 시뮬레이션
-      setTimeout(() => {
-        setEventDetail(dummyEventDetail);
-        setLiked(dummyEventDetail.liked);
-        setLikeCount(dummyEventDetail.likeCount);
-        setIsLoading(false);
-      }, 1000);
-      */
       
     } catch (err) {
       console.error('이벤트 정보 로드 실패:', err);
@@ -100,26 +88,18 @@ function EventDetail() {
     }
     
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
-              const result = await eventsAPI.toggleEventLike(eventId);
+      const result = await eventsAPI.toggleEventLike(eventId);
       
       if (result.success) {
         setLiked(!liked);
         setLikeCount(prev => liked ? prev - 1 : prev + 1);
       } else {
-        alert(result.message || '좋아요 처리에 실패했습니다.');
+        console.log(result.message || '좋아요 처리에 실패했습니다.');
       }
-      
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      setLiked(!liked);
-      setLikeCount(prev => liked ? prev - 1 : prev + 1);
-      // 실제 좋아요 API 호출 로직 추가
-      */
       
     } catch (error) {
       console.error('좋아요 처리 실패:', error);
-      alert('좋아요 처리에 실패했습니다.');
+      console.log('좋아요 처리에 실패했습니다.');
     }
   };
 

@@ -151,12 +151,12 @@ export const favoritesAPI = {
     });
   },
   
-  // 팝업 즐겨찾기 토글 - 명세서에서는 events로 되어있음
+  // 팝업 즐겨찾기 토글 - 명세서에 따르면 popups 경로 사용
   togglePopupFavorite: (popupId) => {
     if (isMerchant()) {
       throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
     }
-    return apiRequest(`/api/users/events/${popupId}/favorites`, {
+    return apiRequest(`/api/users/popups/${popupId}/favorites`, {
       method: 'POST',
     });
   },
@@ -176,7 +176,7 @@ export const favoritesAPI = {
         method: 'POST',
       });
     } else {
-      return apiRequest(`/api/users/events/${id}/favorites`, {
+      return apiRequest(`/api/users/popups/${id}/favorites`, {
         method: 'POST',
       });
     }
@@ -219,7 +219,7 @@ export const storesAPI = {
   getMyStores: () => apiRequest('/api/merchants/stores'),
   
   // 가게 전체 수정
-  updateStore: (id, data) => apiRequest(`/api/merchants/stores/${id}`, {
+  updateStore: (storeId, data) => apiRequest(`/api/merchants/stores/${storeId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
@@ -230,13 +230,13 @@ export const storesAPI = {
   }),
   
   // 가게 부분 수정
-  patchStore: (id, data) => apiRequest(`/api/merchants/stores/${id}`, {
+  patchStore: (storeId, data) => apiRequest(`/api/merchants/stores/${storeId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
   
   // 가게 조회 (수정용)
-  getStore: (id) => apiRequest(`/api/merchants/stores/${id}`),
+  getStore: (storeId) => apiRequest(`/api/merchants/stores/${storeId}`),
   
   // 이벤트 목록 조회
   getEvents: (params = {}) => {
@@ -244,29 +244,26 @@ export const storesAPI = {
     return apiRequest(`/api/events?${queryString}`);
   },
   
-  // 이벤트 상세 정보 조회
-  getEventDetail: (id) => apiRequest(`/api/events/${id}`),
-  
   // 이벤트 생성 - 명세서대로 수정
-  createEvent: (data) => apiRequest('/api/merchants/events', {
+  createEvent: (data) => apiRequest('/api/merchants/stores/events', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
   
   // 이벤트 수정
-  updateEvent: (id, data) => apiRequest(`/api/merchants/stores/events/${id}`, {
+  updateEvent: (eventId, data) => apiRequest(`/api/merchants/stores/events/${eventId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
   
   // 이벤트 부분 수정
-  patchEvent: (id, data) => apiRequest(`/api/merchants/stores/events/${id}`, {
+  patchEvent: (eventId, data) => apiRequest(`/api/merchants/stores/events/${eventId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
   
   // 이벤트 조회 (수정용)
-  getEvent: (id) => apiRequest(`/api/merchants/stores/events/${id}`),
+  getEvent: (eventId) => apiRequest(`/api/merchants/stores/events/${eventId}`),
   
   // 내 이벤트 목록 조회
   getMyEvents: () => apiRequest('/api/merchants/stores/events'),
@@ -386,6 +383,9 @@ export const eventsAPI = {
   
   // 개별 이벤트 조회 (누락된 함수)
   getEvent: (eventId) => apiRequest(`/api/event/${eventId}`),
+  
+  // 개별 팝업 조회 (누락된 함수)
+  getPopup: (popupId) => apiRequest(`/api/popup/${popupId}`),
   
   // 이벤트 좋아요 토글 (일반 유저만 사용 가능)
   toggleEventLike: (eventId) => {
