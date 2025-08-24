@@ -4,11 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { useAuth } from '../contexts/AuthContext';
-import { eventsAPI, isMerchant } from '../services/api';
+import { eventsAPI, mainAPI, isMerchant } from '../services/api';
 
 
 function PopupDetail() {
-  const { id } = useParams();
+  const { popupId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   
@@ -29,12 +29,12 @@ function PopupDetail() {
   useEffect(() => {
     fetchPopupDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [popupId]);
 
   const fetchPopupDetail = async () => {
     setIsLoading(true);
     try {
-      const result = await eventsAPI.getPopup(id);
+      const result = await mainAPI.getPopupDetail(popupId);
       
       if (result.success) {
         const data = result.data;
@@ -67,7 +67,7 @@ function PopupDetail() {
     }
     
     try {
-      const result = await eventsAPI.togglePopupLike(id);
+      const result = await eventsAPI.togglePopupLike(popupId);
       
       if (result.success) {
         setLiked((prev) => !prev);

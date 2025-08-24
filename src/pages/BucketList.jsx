@@ -30,8 +30,13 @@ function BucketList() {
   // 데이터 로드 함수
   const loadFavorites = async () => {
     try {
-      const data = await favoritesAPI.getFavorites();
-      setFavorites(data);
+      const result = await favoritesAPI.getFavorites();
+      // API 응답 구조에 맞게 처리
+      if (result.success && result.data) {
+        setFavorites(result.data);
+      } else {
+        setFavorites([]);
+      }
     } catch (error) {
       console.error('즐겨찾기 로드 실패:', error);
       
@@ -68,10 +73,10 @@ function BucketList() {
     setSelectedCategory(category);
   };
 
-  const handleRemoveFavorite = async (id) => {
+  const handleRemoveFavorite = async (id, type) => {
     try {
-      // API 호출 시도
-      await favoritesAPI.removeFavorite(id, 'event');
+      // API 호출 시도 - 아이템 타입에 따라 처리
+      await favoritesAPI.removeFavorite(id, type);
       
       // 성공 시 로컬 상태 업데이트
       const updatedFavorites = favorites.filter(item => item.id !== id);
@@ -168,7 +173,7 @@ function BucketList() {
               key={item.id} 
               event={item}
               excludeStatuses={[]}
-              onRemove={handleRemoveFavorite}
+              onRemove={(id) => handleRemoveFavorite(id, item.type)}
             />
           ))
         )}
