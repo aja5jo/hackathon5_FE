@@ -4,7 +4,6 @@ import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
 import EventCardList from '../components/common/EventCardList';
 import HomeBannerSection from '../components/home/HomeBannerSection';
-import Header from '../components/common/Header';
 import { useNavigate } from 'react-router-dom';
 import { storesAPI, mainAPI } from '../services/api';
 
@@ -48,11 +47,18 @@ const Home = React.memo(() => {
           console.log('API에서 검색 가능한 데이터 구성 완료:', data.length);
           setSearchableData(data);
         } else {
+          console.log('API 응답이 성공이 아니거나 데이터가 없음, 빈 배열로 설정');
           setSearchableData([]);
         }
         
       } catch (error) {
         console.error('API 데이터 로드 실패:', error);
+        
+        // 500 에러인 경우 사용자에게 알림
+        if (error.message && error.message.includes('500')) {
+          console.log('서버 오류 발생, 빈 배열로 설정하고 계속 진행');
+        }
+        
         setSearchableData([]);
       }
     };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import ApiService from '../../services/api';
+import { translateAPI } from '../../services/api';
 
 const LANGUAGES = [
   { code: 'en', label: '영어', flag: '🇺🇸' },
@@ -26,7 +26,7 @@ function ImageTranslator({ imageUrl, menuText, isVisible, onClose }) {
     setError(null);
 
     try {
-      const response = await ApiService.translateText(menuText, selectedLanguage);
+      const response = await translateAPI.translateText(menuText, selectedLanguage);
       setTranslatedText(response.translatedText || response.text);
     } catch (err) {
       console.error('Translation failed:', err);

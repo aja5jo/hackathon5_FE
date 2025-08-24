@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
-import ApiService from '../../services/api';
+import { storesAPI } from '../../services/api';
 
 function MerchantStoreList() {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ function MerchantStoreList() {
   const fetchMyStores = async () => {
     try {
       setLoading(true);
-      const response = await ApiService.getMyStores();
+      const response = await storesAPI.getMyStores();
       setStores(response.data || []);
     } catch (err) {
       console.error('Failed to fetch stores:', err);

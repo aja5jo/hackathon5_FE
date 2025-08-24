@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import Header from '../../components/common/Header';
-// import ApiService from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+import { storesAPI } from '../../services/api';
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },

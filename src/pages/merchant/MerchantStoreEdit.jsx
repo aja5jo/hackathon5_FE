@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
-import ApiService from '../../services/api';
+import { storesAPI } from '../../services/api'
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -99,7 +99,7 @@ function MerchantStoreEdit() {
       if (heroImage) form.append('heroImage', heroImage);
       if (extraImage) form.append('extraImage', extraImage);
 
-      await ApiService.updateStore(storeId, form);
+      await storesAPI.updateStore(storeId, form);
       alert('가게 정보가 수정되었습니다.');
       navigate('/mypage/stores');
     } catch (error) {

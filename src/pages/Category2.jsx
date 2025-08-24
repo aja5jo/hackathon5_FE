@@ -1,14 +1,13 @@
 //메인 탭에서 보이는 카테고리 페이지
 import React, { useState, useEffect } from 'react' // useEffect 추가
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import CategoryBannerSection from '../components/category2/CategoryBannerSection';
 import EventCardListCategory from '../components/category2/EventCardListCategory.jsx';
-import Header from '../components/common/Header';
+import { categoriesAPI, eventsAPI } from '../services/api';
+import { useCategoryToggle } from '../hooks/useCategoryToggle';
 import { useAuth } from '../contexts/AuthContext';
-import { categoriesAPI } from '../services/api';
-import { useCategoryToggle, categoryMapping } from '../hooks/useCategoryToggle';
-
 
 
 function Category2() {

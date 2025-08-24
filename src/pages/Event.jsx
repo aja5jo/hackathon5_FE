@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import EventBannerSection from '../components/event/EventBannerSection';
 import EventCard from '../components/common/EventCard';
-import Header from '../components/common/Header';
 import { eventsAPI } from '../services/api';
 
 
