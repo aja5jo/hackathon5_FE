@@ -383,8 +383,7 @@ export const eventsAPI = {
   // 개별 이벤트 조회 (누락된 함수)
   getEvent: (eventId) => apiRequest(`/api/event/${eventId}`),
   
-  // 개별 팝업 조회 (누락된 함수)
-  getPopup: (popupId) => apiRequest(`/api/popup/${popupId}`),
+  // 개별 팝업 조회는 mainAPI에서 처리
   
   // 이벤트 좋아요 토글 (일반 유저만 사용 가능)
   toggleEventLike: (eventId) => {
