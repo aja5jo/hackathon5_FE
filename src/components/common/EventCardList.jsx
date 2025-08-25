@@ -12,21 +12,26 @@ const EventCardList = ({ events = [], includeTypes = ['EVENT', 'POPUP', 'STORE']
         console.log('카테고리 items가 배열이 아님:', category?.items);
         return [];
       }
-      return category.items.map((item) => ({
-        ...item,
-        category: category.category,
-      }));
+      // ✅ 서버 원본값 보존: category 덮어쓰기 제거
+      return category.items;
     })
     .filter((item) => {
       const isIncluded = includeTypes.includes(item?.type);
       console.log('아이템 필터링:', item?.name, item?.type, isIncluded);
       return isIncluded;
     })
-    .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
+    // .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
 
   console.log('EventCardList allItems:', allItems);
   const visibleItems = typeof maxItems === 'number' ? allItems.slice(0, maxItems) : allItems;
   console.log('EventCardList visibleItems:', visibleItems);
+
+  // ✅ 좋아요 변경 핸들러
+  const handleLikeChange = (itemId, newLiked) => {
+    console.log('EventCardList - 좋아요 변경 감지:', { itemId, newLiked });
+    // 좋아요 변경 이벤트 발생
+    window.dispatchEvent(new Event('favoritesChanged'));
+  };
 
   return (
     <ListContainer>
@@ -38,7 +43,13 @@ const EventCardList = ({ events = [], includeTypes = ['EVENT', 'POPUP', 'STORE']
       ) : (
         visibleItems.map((item, index) => {
           console.log('EventCard 렌더링 시도:', index, item);
-          return <EventCard key={`${item?.type}-${item?.id ?? index}`} event={item} />;
+          return (
+            <EventCard 
+              key={`${item?.type}-${item?.id ?? index}`} 
+              event={item} 
+              onRemove={handleLikeChange}
+            />
+          );
         })
       )}
     </ListContainer>

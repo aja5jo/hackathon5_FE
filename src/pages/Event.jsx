@@ -141,6 +141,11 @@ function Event() {
               key={event.id} 
               event={event}
               excludeStatuses={['추천', '사전신청', '오늘마감']}
+              onRemove={(itemId, newLiked) => {
+                console.log('Event 페이지 - 좋아요 변경:', { itemId, newLiked });
+                // 홈 화면 업데이트를 위한 이벤트 발생
+                window.dispatchEvent(new Event('favoritesChanged'));
+              }}
             />
           ))}
         </EventGrid>

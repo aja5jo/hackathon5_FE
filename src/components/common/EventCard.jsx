@@ -84,35 +84,52 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
         
         console.log('API 응답:', result);
         
+        // 다양한 API 응답 구조 처리
+        let newLiked, newLikeCount;
+        
         if (result.success && result.data) {
-          // API 응답에 따라 상태 업데이트
-          const newLiked = result.data.liked;
-          const newLikeCount = result.data.likeCount;
-          
-          setLike(newLiked);
-          setLikeCount(newLikeCount);
-          
-          console.log('좋아요 상태 업데이트:', { liked: newLiked, likeCount: newLikeCount });
-          
-          // 좋아요가 해제된 경우 부모 컴포넌트에 제거 알림
-          if (!newLiked && onRemove) {
-            onRemove(event.id);
-          }
-          
-          // 버킷리스트 업데이트를 위한 이벤트 발생
-          window.dispatchEvent(new Event('favoritesChanged'));
-          
-          // 부모 컴포넌트에 상태 변경 알림 (새로 추가)
-          if (onRemove) {
-            // 좋아요 상태가 변경되었음을 알림 (id와 함께)
-            onRemove(event.id, newLiked);
-          }
+          // success 필드가 있는 경우
+          newLiked = result.data.liked;
+          newLikeCount = result.data.likeCount;
+        } else if (result.liked !== undefined || result.likeCount !== undefined) {
+          // success 필드 없이 직접 데이터가 반환되는 경우
+          newLiked = result.liked;
+          newLikeCount = result.likeCount;
+        } else if (result.data && (result.data.liked !== undefined || result.data.likeCount !== undefined)) {
+          // data 필드만 있는 경우
+          newLiked = result.data.liked;
+          newLikeCount = result.data.likeCount;
         } else {
-          console.error('API 응답이 성공이 아님:', result);
+          console.warn('예상하지 못한 API 응답 구조:', result);
+          // 응답 구조를 알 수 없으면 현재 상태를 유지
+          return;
+        }
+        
+        // 상태 업데이트
+        setLike(newLiked);
+        setLikeCount(newLikeCount);
+        
+        console.log('좋아요 상태 업데이트:', { liked: newLiked, likeCount: newLikeCount });
+        
+        // 좋아요가 해제된 경우 부모 컴포넌트에 제거 알림
+        if (!newLiked && onRemove) {
+          onRemove(event.id);
+        }
+        
+        // 버킷리스트 업데이트를 위한 이벤트 발생
+        window.dispatchEvent(new Event('favoritesChanged'));
+        
+        // 부모 컴포넌트에 상태 변경 알림 (새로 추가)
+        if (onRemove) {
+          // 좋아요 상태가 변경되었음을 알림 (id와 함께)
+          onRemove(event.id, newLiked);
         }
       } catch (error) {
         console.error('즐겨찾기 토글 중 오류:', error);
-        alert('즐겨찾기 처리 중 오류가 발생했습니다.');
+        // 네트워크 오류나 서버 오류가 아닌 경우에만 사용자에게 알림
+        if (error.message && !error.message.includes('인증이 필요합니다')) {
+          console.warn('즐겨찾기 처리 중 오류가 발생했습니다:', error.message);
+        }
       }
     };
     

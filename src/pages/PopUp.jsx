@@ -246,6 +246,11 @@ function PopUp() {
             key={popup.id} 
             event={popup}
             excludeStatuses={[]}
+            onRemove={(itemId, newLiked) => {
+              console.log('PopUp 페이지 - 좋아요 변경:', { itemId, newLiked });
+              // 홈 화면 업데이트를 위한 이벤트 발생
+              window.dispatchEvent(new Event('favoritesChanged'));
+            }}
           />
         ))}
       </PopupGrid>

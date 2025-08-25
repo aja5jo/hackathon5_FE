@@ -3,7 +3,7 @@ import EventCard from '../../components/common/EventCard'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
-const EventCardListCategory = ({ events }) => {
+const EventCardListCategory = ({ events, onRemove }) => {
   const navigate = useNavigate();
   const groupedItems = events.reduce((acc, category) => {
     if (!Array.isArray(category?.items)) return acc;
@@ -32,7 +32,13 @@ const EventCardListCategory = ({ events }) => {
           </SectionHeader>
           <ListContainer>
           {group.items.slice(0, 3).map((item, i) => (
-              <EventCard key={`${group.category}-${item?.type || 'ITEM'}-${item?.id ?? i}`} event={item} excludeStatuses={["진행중","예정"]} />))}
+              <EventCard 
+                key={`${group.category}-${item?.type || 'ITEM'}-${item?.id ?? i}`} 
+                event={item} 
+                excludeStatuses={["진행중","예정"]}
+                onRemove={onRemove}
+              />
+            ))}
           </ListContainer>
         </CategoryBlock>
       ))}

@@ -21,6 +21,7 @@ function Category2() {
   // ===== 새로 추가: localStorage에서 선택된 카테고리 불러오기 =====
   const [userSelectedCategories, setUserSelectedCategories] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   // ===== 수정: Category1에서 선택한 카테고리 ID를 dummy.json의 카테고리명으로 매핑 =====
   const categoryMapping = {
@@ -44,78 +45,92 @@ function Category2() {
     }
   };
 
-  // 컴포넌트 마운트 시 API에서 선택된 카테고리 불러오기 (통합된 로직으로 대체됨)
-
-  // ===== 수정: 사용자 선택 카테고리와 전체 카테고리를 하나의 API 호출로 통합 =====
-  useEffect(() => {
-    // 인증 여부와 관계없이 카테고리 데이터를 로드
-    // if (!isAuthenticated) {
-    //   return;
-    // }
-    
-    const loadCategoriesData = async () => {
-      try {
-        // 전체 카테고리만 로드 (사용자 카테고리는 401 오류로 인해 임시 제외)
-        const apiCalls = [categoriesAPI.getCategories()];
+  // ===== 수정: 선택된 카테고리에 따라 데이터 로드 =====
+  const loadCategoryData = async (selectedCategories) => {
+    setIsLoadingData(true);
+    try {
+      let allData = [];
+      
+      if (selectedCategories.length === 0) {
+        // 선택된 카테고리가 없으면 모든 가게/이벤트 데이터 로드
+        console.log('카테고리 미선택: 모든 가게/이벤트 데이터 로드');
         
-        const results = await Promise.all(apiCalls);
-        const categoriesResult = results[0];
+        // 가게와 이벤트 데이터를 모두 가져오기
+        const [storesResult, eventsResult] = await Promise.all([
+          eventsAPI.getEvents(), // 가게 데이터
+          eventsAPI.getPopups()  // 이벤트 데이터
+        ]);
         
-        // Category1에서 선택한 카테고리를 localStorage에서 불러오기
-        const storedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
-        if (storedCategories.length > 0) {
-          // 영어 카테고리 ID를 한국어 이름으로 변환
-          const koreanNames = storedCategories.map(catId => {
-            const koreanMapping = {
-              'CAFE': '카페',
-              'FOOD': '맛집 & 술집',
-              'K_POP': 'KPOP',
-              'ENTERTAINMENT': '오락',
-              'SHOPPING': '쇼핑',
-              'CLUB': '클럽',
-              'ETC': '기타'
-            };
-            return koreanMapping[catId] || catId;
-          });
-          setSelected(koreanNames);
-          setUserSelectedCategories(storedCategories);
+        if (storesResult.success && storesResult.data) {
+          allData = [...allData, ...storesResult.data];
         }
         
-        // 전체 카테고리 처리
-        if (categoriesResult.success && categoriesResult.data) {
-          let categories = [];
-          
-          // API 응답 구조에 따라 데이터 추출
-          if (Array.isArray(categoriesResult.data)) {
-            categories = categoriesResult.data;
-          } else if (categoriesResult.data.categories && Array.isArray(categoriesResult.data.categories)) {
-            categories = categoriesResult.data.categories;
-          } else if (categoriesResult.data.data && Array.isArray(categoriesResult.data.data)) {
-            categories = categoriesResult.data.data;
-          } else {
-            console.warn('예상하지 못한 카테고리 API 응답 구조:', categoriesResult.data);
-            categories = [];
-          }
-          
-          if (userSelectedCategories.length > 0) {
-            const filteredCategories = categories.filter(cat => 
-              userSelectedCategories.includes(cat.category)
-            );
-            setFilteredEvents(filteredCategories);
-          } else {
-            setFilteredEvents(categories);
-          }
+        if (eventsResult.success && eventsResult.data) {
+          allData = [...allData, ...eventsResult.data];
         }
+      } else {
+        // 선택된 카테고리가 있으면 해당 카테고리의 데이터만 로드
+        console.log('선택된 카테고리:', selectedCategories);
         
-      } catch (error) {
-        console.error('카테고리 데이터 로드 실패:', error);
+        const categoryPromises = selectedCategories.map(async (categoryId) => {
+          try {
+            const result = await categoriesAPI.getCategory(categoryId);
+            if (result.success && result.data) {
+              return result.data;
+            }
+            return [];
+          } catch (error) {
+            console.error(`카테고리 ${categoryId} 데이터 로드 실패:`, error);
+            return [];
+          }
+        });
+        
+        const categoryResults = await Promise.all(categoryPromises);
+        allData = categoryResults.flat();
       }
-    };
+      
+      console.log('로드된 데이터:', allData);
+      setFilteredEvents(allData);
+      
+    } catch (error) {
+      console.error('카테고리 데이터 로드 실패:', error);
+      setFilteredEvents([]);
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  // 컴포넌트 마운트 시 카테고리 데이터 로드
+  useEffect(() => {
+    // Category1에서 선택한 카테고리를 localStorage에서 불러오기
+    const storedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
+    if (storedCategories.length > 0) {
+      // 영어 카테고리 ID를 한국어 이름으로 변환
+      const koreanNames = storedCategories.map(catId => {
+        const koreanMapping = {
+          'CAFE': '카페',
+          'FOOD': '맛집 & 술집',
+          'K_POP': 'KPOP',
+          'ENTERTAINMENT': '오락',
+          'SHOPPING': '쇼핑',
+          'CLUB': '클럽',
+          'ETC': '기타'
+        };
+        return koreanMapping[catId] || catId;
+      });
+      setSelected(koreanNames);
+      setUserSelectedCategories(storedCategories);
+    }
     
-    loadCategoriesData();
+    // 선택된 카테고리에 따라 데이터 로드
+    loadCategoryData(storedCategories);
     
-  }, [isAuthenticated]);
-  // ===== 새로 추가 끝 =====
+  }, []);
+
+  // ===== 수정: 카테고리 선택 변경 시 데이터 다시 로드 =====
+  useEffect(() => {
+    loadCategoryData(userSelectedCategories);
+  }, [userSelectedCategories]);
 
   // ===== 기존 코드 유지 =====
   // 카테고리 토글 커스텀 훅 사용
@@ -215,10 +230,27 @@ function Category2() {
       </FilterSection>
       <ListSection>
         <SectionHeader>
-          <CategoryTitle>카테고리 모음</CategoryTitle>
+          <CategoryTitle>
+            {selected.length > 0 
+              ? `${selected.join(', ')} 카테고리` 
+              : '전체 카테고리'
+            }
+          </CategoryTitle>
         </SectionHeader>
-        {/* ===== 수정: 필터링된 이벤트만 표시 ===== */}
-        <EventCardListCategory events={filteredEvents} maxItems={3}/>
+        {/* ===== 수정: 로딩 상태 표시 및 필터링된 이벤트만 표시 ===== */}
+        {isLoadingData ? (
+          <LoadingMessage>데이터를 불러오는 중...</LoadingMessage>
+        ) : (
+          <EventCardListCategory 
+            events={filteredEvents} 
+            maxItems={selected.length > 0 ? undefined : 3} // 카테고리 선택 시 제한 없음
+            onRemove={(itemId, newLiked) => {
+              console.log('Category2 페이지 - 좋아요 변경:', { itemId, newLiked });
+              // 홈 화면 업데이트를 위한 이벤트 발생
+              window.dispatchEvent(new Event('favoritesChanged'));
+            }}
+          />
+        )}
         {/* ===== 기존 코드: 모든 이벤트 표시 (주석 처리) ===== */}
         {/* <EventCardListCategory events={dummyEvents.categories}/> */}
         {/* ===== 수정 끝 ===== */}
@@ -269,7 +301,14 @@ const CategoryTitle = styled.div`
   font-weight: 600;
   line-height: 32.5px; 
   font-size: 2.6rem;
-`
+`;
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.6rem;
+  color: #666;
+`;
 // ===== 기존 스타일 컴포넌트들 유지 끝 =====
 
 const FilterSection = styled.div`

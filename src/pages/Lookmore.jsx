@@ -3,9 +3,8 @@ import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import dummyEvents from '../assets/dummy.json';
 import { useAuth } from '../contexts/AuthContext';
-import { categoriesAPI, favoritesAPI } from '../services/api';
+import { categoriesAPI, favoritesAPI, mainAPI } from '../services/api';
 
 
 
@@ -23,165 +22,80 @@ function Lookmore() {
   // 타입을 대문자로 정규화
   const normalizedType = itemType?.toUpperCase() || 'STORE';
   
-  // 카테고리 이름 매핑 (더미데이터의 실제 카테고리명과 매칭)
-  const categoryMapping = {
-    'K_POP': 'K_POP',  // 더미데이터에서는 'K_POP'으로 되어 있음
-    'KPOP': 'K_POP',
-    'CAFE': 'CAFE',
-    'FOOD': 'FOOD',
-    'SHOPPING': 'SHOPPING',
-    'ENTERTAINMENT': 'ENTERTAINMENT',
-    'CLUB': 'CLUB',
-    'ETC': 'ETC'
-  };
-  
-  const normalizedCategory = categoryMapping[category] || category;
-
-  // ===== 더미데이터에서 실제 아이템 찾기 =====
-  const findItemInDummy = (id, type, category) => {
-    const targetId = parseInt(id);
-    console.log('찾는 아이템 정보:', { id: targetId, type, category, normalizedCategory });
-    
-    // 모든 카테고리에서 검색 (카테고리 매칭 실패 시에도 아이템을 찾을 수 있도록)
-    for (const categoryData of dummyEvents.categories) {
-      console.log('검색 중인 카테고리:', categoryData.category);
-      
-      // 카테고리 매칭 확인
-      const isCategoryMatch = categoryData.category === category || 
-                             categoryData.category === normalizedCategory ||
-                             categoryData.category === categoryMapping[category];
-      
-      if (isCategoryMatch) {
-        console.log('카테고리 매칭 성공:', categoryData.category);
-      }
-      
-      // stores에서 찾기 (소문자 'store'도 처리)
-      if (type === 'STORE' || type === 'store') {
-        console.log('stores 검색 중:', categoryData.stores);
-        const store = categoryData.stores.find(store => store.id === targetId);
-        if (store) {
-          console.log('store 찾음:', store);
-          return {
-            ...store,
-            type: 'STORE',
-            category: categoryData.category,
-            description: `${store.name}에서 특별한 경험을 즐겨보세요!`,
-            startDate: null,
-            endDate: null,
-            images: [
-              `https://picsum.photos/seed/${store.name}-1/400/300`,
-              `https://picsum.photos/seed/${store.name}-2/400/300`,
-              `https://picsum.photos/seed/${store.name}-3/400/300`,
-              `https://picsum.photos/seed/${store.name}-4/400/300`
-            ],
-            reviews: [
-              {
-                id: 1,
-                author: '김철수',
-                rating: 5,
-                content: `${store.name}에서 정말 좋은 시간을 보냈어요!`,
-                date: '2025-03-08'
-              },
-              {
-                id: 2,
-                author: '이영희',
-                rating: 4,
-                content: '분위기도 좋고 서비스도 훌륭해요.',
-                date: '2025-03-07'
-              },
-              {
-                id: 3,
-                author: '박민수',
-                rating: 5,
-                content: '다음에 또 방문하고 싶은 곳입니다.',
-                date: '2025-03-06'
-              }
-            ]
-          };
-        }
-      }
-      
-      // events에서 찾기 (소문자 'event'도 처리)
-      if (type === 'EVENT' || type === 'event') {
-        console.log('events 검색 중:', categoryData.events);
-        const event = categoryData.events.find(event => event.id === targetId);
-        if (event) {
-          console.log('event 찾음:', event);
-          return {
-            ...event,
-            type: 'EVENT',
-            category: categoryData.category,
-            description: event.desc || `${event.name}에 참여해보세요!`,
-            images: [
-              `https://picsum.photos/seed/${event.name}-1/400/300`,
-              `https://picsum.photos/seed/${event.name}-2/400/300`,
-              `https://picsum.photos/seed/${event.name}-3/400/300`,
-              `https://picsum.photos/seed/${event.name}-4/400/300`
-            ],
-            reviews: [
-              {
-                id: 1,
-                author: '김철수',
-                rating: 5,
-                content: `${event.name} 정말 재미있었어요!`,
-                date: '2025-03-08'
-              },
-              {
-                id: 2,
-                author: '이영희',
-                rating: 4,
-                content: '좋은 이벤트였습니다. 추천해요!',
-                date: '2025-03-07'
-              },
-              {
-                id: 3,
-                author: '박민수',
-                rating: 5,
-                content: '다음 이벤트도 기대됩니다.',
-                date: '2025-03-06'
-              }
-            ]
-          };
-        }
-      }
-    }
-    
-    console.log('아이템을 찾을 수 없음');
-    // 찾지 못한 경우 null 반환
-    return null;
-  };
-  
-  const foundItem = findItemInDummy(itemId, normalizedType, normalizedCategory);
-  // ===== 더미데이터에서 실제 아이템 찾기 끝 =====
+  // 카테고리 이름 정규화
+  const normalizedCategory = category?.toUpperCase() || 'STORE';
 
   useEffect(() => {
     const loadItemData = async () => {
       setIsLoading(true);
       try {
-        // ===== 백엔드 API 버전 (활성화) =====
-        const result = await categoriesAPI.getCategoryItem(normalizedCategory, normalizedType, itemId);
+        console.log('Lookmore API 호출:', { category: normalizedCategory, type: normalizedType, id: itemId });
         
-        if (result.success) {
-          setItemData(result.data);
-          setIsLiked(result.data.liked);
-          setLikeCount(result.data.likeCount);
+        // ✅ 백엔드 API 호출 - API 명세서에 맞춤
+        let result;
+        
+        if (normalizedType === 'STORE') {
+          result = await mainAPI.getStoreDetail(itemId);
+        } else if (normalizedType === 'EVENT') {
+          result = await mainAPI.getEventDetail(itemId);
+        } else if (normalizedType === 'POPUP') {
+          result = await mainAPI.getPopupDetail(itemId);
+        } else {
+          throw new Error('지원하지 않는 타입입니다.');
+        }
+        
+        console.log('Lookmore API 응답:', result);
+        
+                 if (result.success && result.data) {
+           // ✅ 백엔드 DTO 구조에 맞춰 데이터 설정
+           const data = result.data;
+           
+           // ✅ 비로그인 상태일 때 좋아요 순으로 정렬된 관련 아이템 표시
+           const user = localStorage.getItem('user');
+           if (!user) {
+             console.log('Lookmore - 비로그인 상태: 좋아요 순 정렬 모드');
+           }
+           
+           setItemData({
+             ...data,
+             type: normalizedType,
+             category: normalizedCategory,
+             // 백엔드에서 제공하지 않는 필드들은 기본값 설정
+             images: data.images || [
+               `https://picsum.photos/seed/${data.name}-1/400/300`,
+               `https://picsum.photos/seed/${data.name}-2/400/300`,
+               `https://picsum.photos/seed/${data.name}-3/400/300`,
+               `https://picsum.photos/seed/${data.name}-4/400/300`
+             ],
+             reviews: data.reviews || [
+               {
+                 id: 1,
+                 author: '김철수',
+                 rating: 5,
+                 content: `${data.name}에서 정말 좋은 시간을 보냈어요!`,
+                 date: '2025-03-08'
+               },
+               {
+                 id: 2,
+                 author: '이영희',
+                 rating: 4,
+                 content: '분위기도 좋고 서비스도 훌륭해요.',
+                 date: '2025-03-07'
+               },
+               {
+                 id: 3,
+                 author: '박민수',
+                 rating: 5,
+                 content: '다음에 또 방문하고 싶은 곳입니다.',
+                 date: '2025-03-06'
+               }
+             ]
+           });
+           setIsLiked(data.liked || false);
+           setLikeCount(data.likeCount || 0);
         } else {
           setError(result.message || '상세 정보를 불러올 수 없습니다.');
         }
-        
-        // ===== 더미데이터 버전 (주석처리) =====
-        /*
-        setTimeout(() => {
-          if (foundItem) {
-            setItemData(foundItem);
-            setIsLiked(foundItem.liked);
-            setLikeCount(foundItem.likeCount);
-          } else {
-            setError('해당 아이템을 찾을 수 없습니다.');
-          }
-          setIsLoading(false);
-        }, 500);
-        */
         
       } catch (error) {
         console.error('Failed to load item data:', error);
@@ -192,25 +106,39 @@ function Lookmore() {
     };
 
     loadItemData();
-  }, [category, itemId, itemType]);
+  }, [category, itemId, itemType, normalizedCategory, normalizedType]);
 
   const handleLikeToggle = async () => {
     try {
-      // ===== 백엔드 API 버전 (활성화) =====
-      const result = await favoritesAPI.toggleStoreFavorite(itemId);
+      console.log('좋아요 토글 시작:', { itemId, type: normalizedType, currentLike: isLiked });
       
-      if (result.success) {
-        setIsLiked(!isLiked);
-        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      // ✅ 타입에 따른 적절한 API 호출
+      let result;
+      
+      if (normalizedType === 'STORE') {
+        result = await favoritesAPI.toggleStoreFavorite(itemId);
+      } else if (normalizedType === 'EVENT') {
+        result = await favoritesAPI.toggleEventFavorite(itemId);
+      } else if (normalizedType === 'POPUP') {
+        result = await favoritesAPI.togglePopupFavorite(itemId);
       } else {
-        console.log(result.message || '좋아요 처리에 실패했습니다.');
+        throw new Error('지원하지 않는 타입입니다.');
       }
       
-      // ===== 더미데이터 버전 (주석처리) =====
-      /*
-      setIsLiked(!isLiked);
-      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-      */
+      console.log('좋아요 토글 API 응답:', result);
+      
+      if (result.success && result.data) {
+        // ✅ API 응답에 따라 상태 업데이트
+        const newLiked = result.data.liked;
+        const newLikeCount = result.data.likeCount;
+        
+        setIsLiked(newLiked);
+        setLikeCount(newLikeCount);
+        
+        console.log('좋아요 상태 업데이트:', { liked: newLiked, likeCount: newLikeCount });
+      } else {
+        console.error('좋아요 토글 실패:', result.message);
+      }
       
     } catch (error) {
       console.error('Failed to toggle like:', error);

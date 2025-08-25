@@ -16,12 +16,7 @@ const Home = React.memo(() => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태를 false로 강제 설정
-  
-  // 강제로 로딩 상태를 false로 유지
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
   
   // isLoading 상태 변경 추적
   useEffect(() => {
@@ -29,30 +24,32 @@ const Home = React.memo(() => {
   }, [isLoading]);
   // const [homeData, setHomeData] = useState(null); // 백엔드 배포 시 사용
 
-  // 검색 데이터 구성 함수 - 중복 제거를 위해 분리
+  // 검색 데이터 구성 함수 - 백엔드 원본값 보존
   const buildSearchableData = useCallback((rawData) => {
     if (!rawData) return [];
     
-    // 데이터 변환
-    const transformedData = rawData.map(item => ({
-      ...item,
-      category: item.category || 'STORE',
-      type: item.type || 'STORE',
-      description: item.description || item.desc || '홍대의 인기 가게입니다',
-      image: item.thumbnail,
-      searchText: `${item.name} ${item.description || ''} ${item.category || 'STORE'} ${item.type || 'STORE'}`.toLowerCase()
-    }));
+    // ✅ 서버가 준 값을 최대한 그대로 사용
+    const transformedData = rawData.map(item => {
+      const desc = item.description ?? item.desc ?? '';
+      const image = item.image ?? item.thumbnail ?? item.imageUrl ?? '';
+      return {
+        ...item,
+        description: desc,
+        image,
+        searchText: `${item.name ?? item.title ?? ''} ${desc} ${(item.category ?? '')} ${(item.type ?? '')}`.toLowerCase(),
+      };
+    });
 
     // 백엔드에서 이미 정렬된 데이터를 제공하므로 프론트엔드에서 추가 정렬하지 않음
     // API 명세서: "정렬 로직만 서비스에서 분기 처리"
-    console.log('백엔드에서 제공된 정렬된 데이터 사용:', transformedData.length, '개');
+    console.log('백엔드에서 제공된 정렬된 데이터 사용 (원본값 보존):', transformedData.length, '개');
     return transformedData;
   }, []);
 
   // 검색 데이터 상태
   const [searchableData, setSearchableData] = useState([]);
 
-  // EventCardList용 데이터 변환 함수
+  // EventCardList용 데이터 변환 함수 - 서버 순서 100% 보존
   const transformDataForEventCardList = useCallback((data) => {
     console.log('transformDataForEventCardList 입력 데이터:', data);
     
@@ -61,109 +58,131 @@ const Home = React.memo(() => {
       return [];
     }
     
-    // 카테고리별로 그룹화
-    const groupedByCategory = data.reduce((acc, item) => {
-      const category = item.category || 'STORE';
-      if (!acc[category]) {
-        acc[category] = {
-          category: category,
-          items: []
-        };
-      }
-      acc[category].items.push(item);
-      return acc;
-    }, {});
-    
-    const result = Object.values(groupedByCategory);
-    console.log('transformDataForEventCardList 결과:', result);
+    // ✅ 서버 랭킹 보존: 단일 그룹으로 그대로 전달
+    const result = [{ category: 'ALL', items: data }]; // 순서 그대로
+    console.log('transformDataForEventCardList 결과 (서버 순서 보존):', result);
     return result;
   }, []);
 
   // EventCardList용 변환된 데이터
   const eventCardListData = useMemo(() => {
-    return transformDataForEventCardList(searchableData);
+    const transformed = transformDataForEventCardList(searchableData);
+    console.log('eventCardListData 최종 결과:', transformed);
+    return transformed;
   }, [searchableData, transformDataForEventCardList]);
 
-  // 검색 데이터 로드
-  useEffect(() => {
-    const loadSearchableDataFromAPI = async () => {
-      setIsLoading(true); // 로딩 시작
-      try {
-        // 사용자 타입에 따라 다른 API 호출
-        const user = localStorage.getItem('user');
-        const userType = localStorage.getItem('userType');
-        
-        console.log('사용자 타입 확인:', { user: user ? JSON.parse(user) : null, userType });
-        console.log('isMerchant():', isMerchant());
-        console.log('isUser():', isUser());
-        
-        let result;
-        
-        if (!user) {
-          // 비로그인 상태: 좋아요 순으로 정렬된 추천
-          console.log('비로그인 상태: /api/home 호출');
-          result = await mainAPI.getHome();
-        } else if (isMerchant()) {
-          // 소상공인: 본인 가게의 카테고리에 맞는 AI 추천
-          console.log('소상공인 상태: /api/home 호출 (백엔드에서 AI 추천 처리)');
-          result = await mainAPI.getHome();
-        } else if (isUser()) {
-          // 일반 유저: 사용자가 선택한 카테고리에 맞는 AI 추천
-          console.log('일반 유저 상태: /api/home 호출 (백엔드에서 AI 추천 처리)');
-          result = await mainAPI.getHome();
-        } else {
-          // 기본값: 일반 홈 API 호출
-          console.log('기본 상태: /api/home 호출');
-          result = await mainAPI.getHome();
+  // 검색 데이터 로드 함수
+  const loadSearchableDataFromAPI = useCallback(async () => {
+    setIsLoading(true); // 로딩 시작
+    try {
+      // 사용자 타입에 따라 다른 API 호출
+      const user = localStorage.getItem('user');
+      const userType = localStorage.getItem('userType');
+      
+      // user가 null이 아닐 때만 파싱 시도
+      let userData = null;
+      if (user) {
+        try {
+          userData = JSON.parse(user);
+        } catch (error) {
+          console.warn('사용자 데이터 파싱 실패:', error);
         }
+      }
+      
+      console.log('사용자 타입 확인:', { user: userData, userType });
+      console.log('isMerchant():', isMerchant());
+      console.log('isUser():', isUser());
+      
+      let result;
+      
+      if (!user) {
+        // 비로그인 상태: 좋아요 순으로 정렬된 추천 (6개)
+        console.log('비로그인 상태: /api/home 호출 (6개) - 좋아요 순 정렬');
+        result = await mainAPI.getHome();
+      } else {
+        // 로그인 상태: 개인화된 추천 (6개)
+        console.log('로그인 상태: /api/home 호출 (6개) - 개인화 추천');
+        result = await mainAPI.getHome();
+      }
+      
+      console.log('✅ API 호출 완료 - 인증 상태:', { user: userData, userType });
+      console.log('✅ API 응답:', result);
+      
+      if (result.success && result.data) {
+        console.log('API 응답 데이터 구조:', result.data);
         
-        if (result.success && result.data) {
-          console.log('API 응답 데이터 구조:', result.data);
-          
-          // API 명세서에 따른 응답 구조 처리
-          let combinedData = [];
-          
-          if (result.data.stores || result.data.events) {
-            // 명세서 구조: {stores: [], events: []}
-            const stores = result.data.stores || [];
-            const events = result.data.events || [];
-            combinedData = [...stores, ...events];
-            console.log('명세서 구조 데이터 - 가게:', stores.length, '개, 이벤트:', events.length, '개');
-          } else if (Array.isArray(result.data)) {
-            // 대체 구조: 직접 배열
-            combinedData = result.data;
-            console.log('직접 배열 데이터:', combinedData.length, '개');
-          } else {
-            console.log('알 수 없는 데이터 구조:', result.data);
-            combinedData = [];
-          }
-         
-         const data = buildSearchableData(combinedData);
-         console.log('API에서 검색 가능한 데이터 구성 완료:', data.length);
-         setSearchableData(data);
+        // ✅ 서버 포맷 신뢰: 백엔드가 준 구조 그대로 사용
+        let combinedData = [];
+        
+        if (result.data.stores || result.data.events) {
+          // 명세서 구조: {stores: [], events: []}
+          const stores = result.data.stores || [];
+          const events = result.data.events || [];
+          combinedData = [...stores, ...events];
+          console.log('명세서 구조 데이터 - 가게:', stores.length, '개, 이벤트:', events.length, '개');
+        } else if (Array.isArray(result.data)) {
+          // 대체 구조: 직접 배열
+          combinedData = result.data;
+          console.log('직접 배열 데이터:', combinedData.length, '개');
+        } else {
+          console.log('알 수 없는 데이터 구조:', result.data);
+          combinedData = [];
+        }
+       
+       let data = buildSearchableData(combinedData);
+       
+       // ✅ 비로그인 상태일 때만 좋아요 순으로 정렬 (백엔드에서 이미 정렬된 경우 제외)
+       if (!user) {
+         console.log('비로그인 상태: 좋아요 순으로 정렬 적용');
+         data = data.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
        } else {
-         console.log('API 응답이 성공이 아니거나 데이터가 없음, 빈 배열로 설정');
-         setSearchableData([]);
+         console.log('로그인 상태: 백엔드에서 제공한 정렬 순서 유지');
        }
        
-     } catch (error) {
-       console.error('API 데이터 로드 실패:', error);
-       
-       // 500 에러인 경우 사용자에게 알림
-       if (error.message && error.message.includes('500')) {
-         console.log('서버 오류 발생, 빈 배열로 설정하고 계속 진행');
-       }
-       
+       console.log('API에서 검색 가능한 데이터 구성 완료:', data.length, '개');
+       console.log('데이터 샘플:', data.slice(0, 2));
+       setSearchableData(data);
+     } else {
+       console.log('API 응답이 성공이 아니거나 데이터가 없음, 빈 배열로 설정');
        setSearchableData([]);
-     } finally {
-       console.log('finally 블록 실행: isLoading을 false로 설정');
-       setIsLoading(false); // 로딩 완료
      }
-   };
-   
-   loadSearchableDataFromAPI();
-   
+     
+   } catch (error) {
+     console.error('API 데이터 로드 실패:', error);
+     
+     // 500 에러인 경우 사용자에게 알림
+     if (error.message && error.message.includes('500')) {
+       console.log('서버 오류 발생, 빈 배열로 설정하고 계속 진행');
+     }
+     
+     setSearchableData([]);
+   } finally {
+     console.log('finally 블록 실행: isLoading을 false로 설정');
+     setIsLoading(false); // 로딩 완료
+   }
  }, [buildSearchableData]);
+
+  // 초기 데이터 로드
+  useEffect(() => {
+    loadSearchableDataFromAPI();
+  }, [loadSearchableDataFromAPI]);
+
+  // ✅ 좋아요 변경 이벤트 감지 및 홈 화면 업데이트
+  useEffect(() => {
+    const handleFavoritesChanged = () => {
+      console.log('좋아요 변경 이벤트 감지 - 홈 화면 업데이트 시작');
+      // 좋아요가 변경되었으므로 홈 화면 데이터를 다시 로드
+      loadSearchableDataFromAPI();
+    };
+
+    // 이벤트 리스너 등록
+    window.addEventListener('favoritesChanged', handleFavoritesChanged);
+
+    // 클린업 함수
+    return () => {
+      window.removeEventListener('favoritesChanged', handleFavoritesChanged);
+    };
+  }, [loadSearchableDataFromAPI]);
 
 
   
@@ -211,8 +230,10 @@ const Home = React.memo(() => {
   }, []);
 
   const handleItemClick = useCallback((item) => {
-    const category = item.category.toLowerCase();
-    navigate(`/lookmore/${category}/${item.type}/${item.id}`);
+    // ✅ 백엔드 원본값 사용 + 방어 로직
+    const category = (item.category ?? item.type ?? 'store').toString().toLowerCase();
+    const type = (item.type ?? 'store').toString().toUpperCase();
+    navigate(`/lookmore/${category}/${type}/${item.id}`);
   }, [navigate]);
 
   const handleUpdateClick = useCallback(() => {
@@ -278,7 +299,6 @@ const Home = React.memo(() => {
         <MainContent>
           {/* 상단 헤더 */}
           <TopHeader>
-            <BrandName>홍대 해커톤</BrandName>
             <UpdateButton onClick={handleUpdateClick} disabled={isLoading}>
               <UpdateIcon className={isLoading ? 'spinning' : ''}>🔄</UpdateIcon>
               {isLoading ? '업데이트 중...' : '업데이트'}
@@ -294,6 +314,7 @@ const Home = React.memo(() => {
                                 {/* 카드 그리드 */}
            {console.log('EventCardList에 전달할 데이터:', eventCardListData)}
            {console.log('isLoading 상태:', isLoading)}
+           {console.log('searchableData 길이:', searchableData.length)}
            <EventCardList events={eventCardListData} maxItems={6}/>
         </MainContent>
       )}

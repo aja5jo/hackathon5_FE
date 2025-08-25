@@ -69,12 +69,15 @@ function PopupDetail() {
     try {
       const result = await eventsAPI.togglePopupLike(popupId);
       
-      if (result.success) {
-        setLiked((prev) => !prev);
-        setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-      } else {
-        console.log(result.message || '좋아요 처리에 실패했습니다.');
-      }
+              if (result.success) {
+          setLiked((prev) => !prev);
+          setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+          
+          // ✅ 홈 화면 업데이트를 위한 이벤트 발생
+          window.dispatchEvent(new Event('favoritesChanged'));
+        } else {
+          console.log(result.message || '좋아요 처리에 실패했습니다.');
+        }
       
     } catch (error) {
       console.error('좋아요 처리 실패:', error);

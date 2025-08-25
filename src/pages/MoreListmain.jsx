@@ -3,8 +3,7 @@ import styled from 'styled-components'
 import SearchBox from '../components/home/SearchBox'
 import Footer from '../components/common/Footer';
 import EventCardList from '../components/common/EventCardList';
-import dummyEvents from '../assets/dummy.json'
-// import { usersAPI } from '../services/api' // 명세서에 없는 API이므로 제거
+import { mainAPI } from '../services/api'
 
 
 function MoreListmain() {
@@ -17,18 +16,53 @@ function MoreListmain() {
       try {
         setLoading(true);
         
-        // ===== 명세서에 없는 API이므로 더미 데이터 사용 =====
-        setEvents(dummyEvents.categories || []);
+        console.log('MoreListmain: /api/home/detail 호출 (18개)');
         
-        // ===== 더미데이터 버전 (주석처리) =====
-        /*
-        setEvents(dummyEvents.categories || []);
-        */
+        // ✅ API 명세서에 맞춰 /api/home/detail 호출 (18개)
+        const result = await mainAPI.getHomeDetail();
+        
+        console.log('MoreListmain API 응답:', result);
+        
+        if (result.success && result.data) {
+          // ✅ 서버 포맷 신뢰: 백엔드가 준 구조 그대로 사용
+          let combinedData = [];
+          
+          if (result.data.stores || result.data.events) {
+            // 명세서 구조: {stores: [], events: []}
+            const stores = result.data.stores || [];
+            const events = result.data.events || [];
+            combinedData = [...stores, ...events];
+            console.log('MoreListmain - 가게:', stores.length, '개, 이벤트:', events.length, '개');
+          } else if (Array.isArray(result.data)) {
+            // 대체 구조: 직접 배열
+            combinedData = result.data;
+            console.log('MoreListmain - 직접 배열 데이터:', combinedData.length, '개');
+          } else {
+            console.log('MoreListmain - 알 수 없는 데이터 구조:', result.data);
+            combinedData = [];
+          }
+          
+                     // ✅ 서버 랭킹 보존: 단일 그룹으로 그대로 전달
+           let finalData = combinedData;
+           
+           // ✅ 비로그인 상태일 때 좋아요 순으로 정렬
+           const user = localStorage.getItem('user');
+           if (!user) {
+             console.log('MoreListmain - 비로그인 상태: 좋아요 순으로 정렬 적용');
+             finalData = combinedData.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
+           }
+           
+           const eventCardListData = [{ category: 'ALL', items: finalData }];
+           setEvents(eventCardListData);
+          
+        } else {
+          console.log('MoreListmain - API 응답이 성공이 아니거나 데이터가 없음');
+          setEvents([]);
+        }
         
       } catch (error) {
-        console.error('사용자 선호도 데이터 로드 실패:', error);
-        // 에러 시 더미 데이터 사용
-        setEvents(dummyEvents.categories || []);
+        console.error('MoreListmain - 사용자 선호도 데이터 로드 실패:', error);
+        setEvents([]);
       } finally {
         setLoading(false);
       }

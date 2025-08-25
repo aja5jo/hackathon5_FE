@@ -46,14 +46,14 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   const authHeaders = {};
   if (userData) {
     // 세션 기반 인증을 위한 헤더 추가
-    authHeaders['Authorization'] = `Bearer ${userData.id || userData.token || ''}`;
+    console.log("asdasdasdasd" + userData.id || null);
+    authHeaders['Authorization'] = `Bearer ${userData.id || null}`;
     // 사용자 ID를 헤더에 포함
     authHeaders['X-User-ID'] = userData.id || '';
     authHeaders['X-User-Type'] = userType || '';
   }
   
   // 세션 쿠키가 자동으로 포함되도록 credentials 설정
-  
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
@@ -357,8 +357,8 @@ export const mainAPI = {
   // 메인 페이지 조회 - 사용자 타입에 따라 백엔드에서 AI 추천 처리
   getHome: () => apiRequest('/api/home'),
   
-  // 메인 페이지 전체 조회
-  getHomeDetail: () => apiRequest('/api/home/detail'),
+  // 메인 페이지 전체 조회 - API 명세서에 맞춤
+  getHomeDetail: () => apiRequest('/api/users/home/detail'),
   
   // 가게 상세 조회
   getStoreDetail: (storeId) => apiRequest(`/api/store/${storeId}`),
