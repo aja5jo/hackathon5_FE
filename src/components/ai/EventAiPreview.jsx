@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-// import ApiService from '../../utils/apiService';
+import { storesAPI } from '../../services/api';
 
 const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
@@ -18,7 +18,7 @@ function EventAiPreview() {
     category: '',
     address: '',
     introHint: '',
-    imageUrls: ['']
+    imageUrls: []
   });
 
   const [previewResult, setPreviewResult] = useState(null);
@@ -28,33 +28,7 @@ function EventAiPreview() {
   // 필수 필드 검증
   const isFormValid = formData.name.trim() !== '';
 
-  // 추가 이미지 URL 추가
-  const addImageUrl = () => {
-    setFormData(prev => ({
-      ...prev,
-      imageUrls: [...prev.imageUrls, '']
-    }));
-  };
 
-  // 이미지 URL 제거
-  const removeImageUrl = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      imageUrls: prev.imageUrls.filter((_, i) => i !== index)
-    }));
-  };
-
-  // 이미지 URL 변경
-  const updateImageUrl = (index, value) => {
-    setFormData(prev => {
-      const newImageUrls = [...prev.imageUrls];
-      newImageUrls[index] = value;
-      return {
-        ...prev,
-        imageUrls: newImageUrls
-      };
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,37 +42,31 @@ function EventAiPreview() {
     setPreviewResult(null);
 
     try {
-      // ===== 현재 더미 미리보기 버전 (실제 사용 중) =====
       console.log('AI 이벤트 미리보기 요청:', formData);
       
-      // 더미 응답 데이터 (명세서의 AiPreviewResponse 구조에 맞춤)
-      const dummyResponse = {
-        success: true,
-        code: 200,
-        message: "AI 이벤트 카피 미리보기 생성 성공",
-        data: {
-          intro: `${formData.name}을(를) 위한 특별한 이벤트를 준비했습니다. ${formData.category ? formData.category + ' 카테고리의 ' : ''}${formData.address ? formData.address + '에서 ' : ''}즐거운 시간을 보내세요!`,
-          description: `${formData.introHint ? formData.introHint + ' ' : ''}특별한 혜택과 함께하는 이벤트입니다. 친구들과 함께 방문하시면 더욱 즐거운 시간을 보낼 수 있습니다. 많은 관심과 참여 부탁드립니다!`
-        }
-      };
-
-      // 실제 API 호출을 시뮬레이션하기 위한 지연
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setPreviewResult(dummyResponse.data);
-      
-      // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-      /*
-      const response = await ApiService.previewEventAi({
+      // 백엔드 요구사항에 맞는 요청 데이터 구성
+      const requestData = {
         name: formData.name.trim(),
         category: formData.category || undefined,
         address: formData.address || undefined,
         introHint: formData.introHint || undefined,
         imageUrls: formData.imageUrls.filter(url => url.trim() !== '')
-      });
+      };
       
-      setPreviewResult(response.data);
-      */
+      console.log('전송할 데이터:', requestData);
+      
+      // 실제 API 호출 (명세서에 맞춤)
+      const response = await storesAPI.previewEventAi(requestData);
+      
+      console.log('API 응답:', response);
+      
+      if (response.success && response.data) {
+        console.log('미리보기 결과 설정:', response.data);
+        setPreviewResult(response.data);
+      } else {
+        console.error('API 응답 실패:', response);
+        throw new Error(response.message || 'AI 미리보기 생성에 실패했습니다.');
+      }
     } catch (error) {
       console.error('AI 이벤트 미리보기 실패:', error);
       setError(error.message || 'AI 미리보기 생성에 실패했습니다.');
@@ -169,24 +137,17 @@ function EventAiPreview() {
         <Field>
           <Label>참고 이미지 URL들</Label>
           <Helper>선택사항입니다. 빈 URL은 자동으로 제외됩니다.</Helper>
-          {formData.imageUrls.map((imageUrl, index) => (
-            <ImageUrlRow key={index}>
-              <Input
-                placeholder={`이미지 URL ${index + 1}을 입력해주세요`}
-                value={imageUrl}
-                onChange={(e) => updateImageUrl(index, e.target.value)}
-              />
-              {formData.imageUrls.length > 1 && (
-                <RemoveButton type="button" onClick={() => removeImageUrl(index)}>
-                  삭제
-                </RemoveButton>
-              )}
-            </ImageUrlRow>
-          ))}
-          <AddButton type="button" onClick={addImageUrl}>
-            + 이미지 추가
-          </AddButton>
+          <Input
+            placeholder="이미지 URL들을 쉼표(,)로 구분하여 입력해주세요"
+            value={formData.imageUrls.join(', ')}
+            onChange={(e) => setFormData(prev => ({ 
+              ...prev, 
+              imageUrls: e.target.value.split(',').map(url => url.trim()).filter(url => url !== '')
+            }))}
+          />
         </Field>
+
+
 
         {/* 제출 버튼 */}
         <SubmitButton type="submit" disabled={!isFormValid || isLoading}>
@@ -208,17 +169,20 @@ function EventAiPreview() {
           
           <PreviewCard>
             <PreviewLabel>인트로 (요약/후킹)</PreviewLabel>
-            <PreviewContent>{previewResult.intro}</PreviewContent>
+            <PreviewContent>{previewResult.intro || '인트로 내용이 없습니다.'}</PreviewContent>
           </PreviewCard>
 
           <PreviewCard>
             <PreviewLabel>상세 설명</PreviewLabel>
-            <PreviewContent>{previewResult.description}</PreviewContent>
+            <PreviewContent>{previewResult.description || '상세 설명이 없습니다.'}</PreviewContent>
           </PreviewCard>
+
+          
 
           <ActionButtons>
             <CopyButton onClick={() => {
-              navigator.clipboard.writeText(`${previewResult.intro}\n\n${previewResult.description}`);
+              const text = `${previewResult.intro || ''}\n\n${previewResult.description || ''}`;
+              navigator.clipboard.writeText(text);
               alert('홍보글이 클립보드에 복사되었습니다!');
             }}>
               전체 복사
@@ -229,7 +193,7 @@ function EventAiPreview() {
                 category: '',
                 address: '',
                 introHint: '',
-                imageUrls: ['']
+                imageUrls: []
               });
               setPreviewResult(null);
               setError('');
@@ -345,45 +309,7 @@ const CategoryButton = styled.button`
   }
 `;
 
-const ImageUrlRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
 
-const RemoveButton = styled.button`
-  height: 32px;
-  padding: 0 10px;
-  background: #ef4444;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-
-  &:hover {
-    background: #dc2626;
-  }
-`;
-
-const AddButton = styled.button`
-  height: 42px;
-  background: #e5e7eb;
-  color: #222;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 1.4rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.16s ease;
-
-  &:hover {
-    background: #d1d5db;
-    transform: translateY(-1px);
-  }
-`;
 
 const SubmitButton = styled.button`
   height: 48px;
@@ -449,6 +375,18 @@ const PreviewContent = styled.p`
   color: #4b5563;
   line-height: 1.6;
   margin: 0;
+`;
+
+const DebugInfo = styled.div`
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 1.2rem;
+  color: #374151;
+  white-space: pre-wrap;
+  font-family: monospace;
 `;
 
 const ActionButtons = styled.div`

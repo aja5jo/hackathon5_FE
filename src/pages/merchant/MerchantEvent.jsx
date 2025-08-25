@@ -110,19 +110,32 @@ function MerchantEvent() {
       
       // ===== 백엔드 API 버전 (활성화) =====
       
-      const response = await storesAPI.previewEventAi({
+      // 백엔드 요구사항에 맞는 요청 데이터 구성
+      const requestData = {
         name: name.trim(),
-        description: description.trim() || undefined,
-        intro: intro.trim() || undefined,
-        thumbnail: thumbnail.trim() || undefined,
-        images: images.filter(img => img.trim() !== '') // 빈 문자열 제거
-      });
+        category: undefined, // 현재 폼에 카테고리 필드가 없음
+        address: undefined,  // 현재 폼에 주소 필드가 없음
+        introHint: intro.trim() || undefined, // intro를 introHint로 매핑
+        imageUrls: images.filter(img => img.trim() !== '') // 빈 문자열 제거
+      };
       
-      setAiPreviewResult(response.data);
+      console.log('AI 미리보기 요청 데이터:', requestData);
+      
+      const response = await storesAPI.previewEventAi(requestData);
+      
+      console.log('AI 미리보기 응답:', response);
+      
+      if (response.success && response.data) {
+        console.log('AI 미리보기 결과 설정:', response.data);
+        setAiPreviewResult(response.data);
+      } else {
+        console.error('AI 미리보기 응답 실패:', response);
+        throw new Error(response.message || 'AI 미리보기 생성에 실패했습니다.');
+      }
       
     } catch (error) {
       console.error('AI 미리보기 실패:', error);
-      alert('AI 미리보기 생성에 실패했습니다.');
+      alert(error.message || 'AI 미리보기 생성에 실패했습니다.');
     } finally {
       setIsAiLoading(false);
     }
@@ -354,12 +367,20 @@ function MerchantEvent() {
                 <>
                   <AiPreviewCard>
                     <AiPreviewLabel>인트로 (요약/후킹)</AiPreviewLabel>
-                    <AiPreviewContent>{aiPreviewResult.intro}</AiPreviewContent>
+                    <AiPreviewContent>{aiPreviewResult.intro || '인트로 내용이 없습니다.'}</AiPreviewContent>
                   </AiPreviewCard>
 
                   <AiPreviewCard>
                     <AiPreviewLabel>상세 설명</AiPreviewLabel>
-                    <AiPreviewContent>{aiPreviewResult.description}</AiPreviewContent>
+                    <AiPreviewContent>{aiPreviewResult.description || '상세 설명이 없습니다.'}</AiPreviewContent>
+                  </AiPreviewCard>
+
+                  {/* 디버그 정보 (개발 중에만 표시) */}
+                  <AiPreviewCard style={{ backgroundColor: '#f3f4f6' }}>
+                    <AiPreviewLabel>디버그 정보</AiPreviewLabel>
+                    <pre style={{ fontSize: '12px', margin: 0, whiteSpace: 'pre-wrap' }}>
+                      {JSON.stringify(aiPreviewResult, null, 2)}
+                    </pre>
                   </AiPreviewCard>
 
                   <AiActionButtons>

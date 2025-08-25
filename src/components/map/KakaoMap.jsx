@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { Map } from "react-kakao-maps-sdk"
 
 /**
  * props:
@@ -21,55 +22,14 @@ const KakaoMap = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // SDK 로더
+  // SDK 로더 - index.html에서 이미 로드되므로 간단하게 처리
   const loadKakaoSDK = () =>
     new Promise((resolve, reject) => {
       if (typeof window === 'undefined') return reject(new Error('Window is undefined (SSR)'));
       if (window.kakao && window.kakao.maps) return resolve();
 
-      // 스크립트가 이미 존재하는지 확인
-      const existing = document.querySelector('script[data-kakao-sdk="true"]')
-        || document.querySelector('script[src*="dapi.kakao.com/v2/maps/sdk.js"]');
-
-      const onLoaded = () => {
-        if (window.kakao && window.kakao.maps) {
-          window.kakao.maps.load(resolve);
-        } else {
-          reject(new Error('카카오 SDK가 로드되었지만 window.kakao.maps가 없습니다.'));
-        }
-      };
-
-      if (existing) {
-        existing.addEventListener('load', onLoaded, { once: true });
-        existing.addEventListener('error', () => reject(new Error('기존 카카오 SDK 로드 실패')), { once: true });
-        // 혹시 이미 로드 완료 상태라면 즉시 처리
-        if (existing.readyState === 'complete' || existing.getAttribute('data-loaded') === 'true') {
-          onLoaded();
-        }
-        return;
-      }
-
-             if (!kakaoKey) {
-         // 환경 변수에서 키 가져오기
-         const envKey = import.meta.env.VITE_KAKAO_MAP_KEY;
-         if (!envKey) {
-           reject(new Error('카카오맵 API 키가 설정되지 않았습니다. VITE_KAKAO_MAP_KEY 환경 변수를 설정하거나 kakaoKey prop을 전달하세요.'));
-           return;
-         }
-         kakaoKey = envKey;
-       }
-
-      const s = document.createElement('script');
-      s.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false`;
-      s.async = true;
-      s.defer = true;
-      s.setAttribute('data-kakao-sdk', 'true');
-      s.addEventListener('load', () => {
-        s.setAttribute('data-loaded', 'true');
-        onLoaded();
-      }, { once: true });
-      s.addEventListener('error', () => reject(new Error('카카오 SDK 스크립트 로드 실패')), { once: true });
-      document.head.appendChild(s);
+      // index.html에서 이미 로드되어야 함
+      reject(new Error('카카오맵 API가 로드되지 않았습니다. index.html에서 스크립트를 확인해주세요.'));
     });
 
   // 공통 정리 함수
@@ -360,39 +320,40 @@ const KakaoMap = ({
   }, [markers]);
 
   return (
-    <MapContainer ref={mapElement} width={width} height={height}>
-      {isLoading && (
-        <Overlay>
-          <LoadingMessage>
-            <LoadingIcon>🔄</LoadingIcon>
-            <LoadingText>지도를 불러오는 중...</LoadingText>
-          </LoadingMessage>
-        </Overlay>
-      )}
+    // <MapContainer ref={mapElement} center={{lat: 37.55, lng:126.92}}>
+    //   {isLoading && (
+    //     <Overlay>
+    //       <LoadingMessage>
+    //         <LoadingIcon>🔄</LoadingIcon>
+    //         <LoadingText>지도를 불러오는 중...</LoadingText>
+    //       </LoadingMessage>
+    //     </Overlay>
+    //   )}
 
-             {error && (
-         <Overlay>
-           <ErrorMessage>
-             <ErrorIcon>🗺️</ErrorIcon>
-             <ErrorText>지도를 불러올 수 없습니다</ErrorText>
-             <ErrorDetail style={{ whiteSpace: 'pre-line' }}>{error}</ErrorDetail>
-             <ErrorHelp>
-               💡 카카오맵 API 키 발급 방법:<br/>
-               1. <a href="https://developers.kakao.com" target="_blank" rel="noopener noreferrer">Kakao Developers</a> 접속<br/>
-               2. 애플리케이션 생성 후 JavaScript 키 복사<br/>
-               3. .env 파일에 VITE_KAKAO_MAP_KEY=키값 추가
-             </ErrorHelp>
-           </ErrorMessage>
-         </Overlay>
-       )}
-    </MapContainer>
+    //          {error && (
+    //      <Overlay>
+    //        <ErrorMessage>
+    //          <ErrorIcon>🗺️</ErrorIcon>
+    //          <ErrorText>지도를 불러올 수 없습니다</ErrorText>
+    //          <ErrorDetail style={{ whiteSpace: 'pre-line' }}>{error}</ErrorDetail>
+    //          <ErrorHelp>
+    //            💡 카카오맵 API 키 발급 방법:<br/>
+    //            1. <a href="https://developers.kakao.com" target="_blank" rel="noopener noreferrer">Kakao Developers</a> 접속<br/>
+    //            2. 애플리케이션 생성 후 JavaScript 키 복사<br/>
+    //            3. .env 파일에 VITE_KAKAO_MAP_KEY=키값 추가
+    //          </ErrorHelp>
+    //        </ErrorMessage>
+    //      </Overlay>
+    //    )}
+    // </MapContainer>
+    <MapContainer ref={mapElement} center={{lat: 37.55, lng:126.92}}></MapContainer>
   );
 };
 
 export default KakaoMap;
 
 /* ======================= styles ======================= */
-const MapContainer = styled.div`
+const MapContainer = styled(Map)`
   width: ${props => props.width};
   height: ${props => props.height};
   border-radius: 12px;
