@@ -9,9 +9,9 @@ import { Map } from "react-kakao-maps-sdk"
  * - markers: [{ name, position: { lat, lng } }]
  * - kakaoKey: (옵션) 카카오 JS SDK 키. 전달하면 없을 때 자동 로드함. 전달 안 해도 페이지에 스크립트가 이미 있으면 동작.
  */
-const KakaoMap = ({
-  width = '100%',
-  height = '400px',
+const KakaoMap = ({ 
+  width = '100%', 
+  height = '400px', 
   center = { lat: 37.5563, lng: 126.9244 },
   markers = [],
   kakaoKey, // optional
@@ -47,12 +47,12 @@ const KakaoMap = ({
   // 초기화
   useEffect(() => {
     let cancelled = false;
-
+      
     const init = async () => {
       try {
         setIsLoading(true);
         setError(null);
-
+        
         // 컨테이너는 항상 렌더되어 있어야 함
         if (!mapElement.current) {
           // 아주 드물게 첫 틱에서 null인 경우 살짝 대기
@@ -65,7 +65,7 @@ const KakaoMap = ({
 
         if (cancelled) return;
         const { kakao } = window;
-
+        
         // 지도 생성
         const mapOptions = {
           center: new kakao.maps.LatLng(center.lat, center.lng),
@@ -176,7 +176,7 @@ const KakaoMap = ({
       } catch (e) {
         if (!cancelled) {
           setError(e?.message || '알 수 없는 오류');
-          setIsLoading(false);
+        setIsLoading(false);
         }
       }
     };
@@ -319,7 +319,7 @@ const KakaoMap = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [markers]);
 
-  return (
+    return (
     // <MapContainer ref={mapElement} center={{lat: 37.55, lng:126.92}}>
     //   {isLoading && (
     //     <Overlay>
@@ -388,7 +388,7 @@ const LoadingIcon = styled.div`
   font-size: 3rem;
   margin-bottom: 1rem;
   animation: spin 1s linear infinite;
-
+  
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }

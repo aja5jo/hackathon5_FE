@@ -60,9 +60,15 @@ function EventAiPreview() {
       
       console.log('API 응답:', response);
       
+      // 백엔드에서 success 필드 없이 직접 데이터를 반환하는 경우 처리
       if (response.success && response.data) {
+        // success 필드가 있는 경우 (기존 방식)
         console.log('미리보기 결과 설정:', response.data);
         setPreviewResult(response.data);
+      } else if (response.intro || response.description) {
+        // success 필드 없이 직접 데이터가 반환되는 경우
+        console.log('미리보기 결과 설정 (직접 응답):', response);
+        setPreviewResult(response);
       } else {
         console.error('API 응답 실패:', response);
         throw new Error(response.message || 'AI 미리보기 생성에 실패했습니다.');
