@@ -86,6 +86,25 @@ function BucketList() {
     }
   }, [isAuthenticated, isMerchantUser]);
 
+  // ✅ 좋아요 변경 이벤트 감지 및 버킷리스트 업데이트
+  useEffect(() => {
+    const handleFavoritesChanged = () => {
+      console.log('BucketList - 좋아요 변경 이벤트 감지, 버킷리스트 업데이트');
+      // 로그인된 일반 사용자인 경우에만 업데이트
+      if (isAuthenticated && !isMerchantUser) {
+        loadFavorites();
+      }
+    };
+
+    // 이벤트 리스너 등록
+    window.addEventListener('favoritesChanged', handleFavoritesChanged);
+
+    // 클린업 함수
+    return () => {
+      window.removeEventListener('favoritesChanged', handleFavoritesChanged);
+    };
+  }, [isAuthenticated, isMerchantUser]);
+
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);
   };

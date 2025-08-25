@@ -25,6 +25,12 @@ function Login() {
     
     // localStorage 저장이 완료될 때까지 잠시 대기
     await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // 로그인 후 세션 상태 확인
+    console.log('로그인 후 세션 상태 확인:');
+    console.log('- localStorage user:', localStorage.getItem('user'));
+    console.log('- localStorage userType:', localStorage.getItem('userType'));
+    console.log('- 쿠키 확인:', document.cookie);
 
     // 소상공인인 경우 기존 가게 확인 후 페이지 이동
     if (userType === 'merchant') {

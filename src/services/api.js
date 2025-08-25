@@ -46,9 +46,12 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   const authHeaders = {};
   if (userData) {
     // 세션 기반 인증을 위한 헤더 추가
-    console.log("asdasdasdasd" + userData.id || null);
-    authHeaders['Authorization'] = `Bearer ${userData.id || null}`;
-    // 사용자 ID를 헤더에 포함
+    console.log('인증 헤더 설정:', { userId: userData.id, userType });
+    
+    // 세션 기반 인증 (Bearer 토큰 제거, 쿠키만 사용)
+    // authHeaders['Authorization'] = `Bearer ${userData.id || ''}`;
+    
+    // 사용자 ID를 헤더에 포함 (백엔드에서 필요할 수 있음)
     authHeaders['X-User-ID'] = userData.id || '';
     authHeaders['X-User-Type'] = userType || '';
   }
@@ -64,6 +67,8 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   };
 
   console.log('API 요청 옵션:', { ...defaultOptions, ...options });
+  console.log('최종 요청 URL:', url);
+  console.log('최종 요청 헤더:', { ...defaultOptions, ...options }.headers);
   
   try {
     const response = await fetch(url, { ...defaultOptions, ...options });
@@ -76,6 +81,11 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
       console.error('인증 실패 (401) - API:', endpoint);
       const errorText = await response.text();
       console.error('401 에러 응답 내용:', errorText);
+      
+      // 로컬스토리지 클리어 (세션 만료로 간주)
+      localStorage.removeItem('user');
+      localStorage.removeItem('userType');
+      console.log('401 에러로 인해 로컬스토리지 클리어됨');
       
       // JSON 에러 메시지 파싱 시도
       try {

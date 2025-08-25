@@ -62,6 +62,17 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
       return;
     }
     
+    // 인증 상태 재확인
+    const user = localStorage.getItem('user');
+    const userType = localStorage.getItem('userType');
+    if (!user || !userType) {
+      console.log('로컬스토리지에 사용자 정보가 없습니다. 로그인 페이지로 이동합니다.');
+      navigate('/login');
+      return;
+    }
+    
+    console.log('좋아요 토글 시 인증 상태 확인:', { user, userType });
+    
     // ===== API 명세서에 맞는 백엔드 API 호출 =====
     const performToggle = async () => {
       try {
@@ -126,6 +137,14 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
         }
       } catch (error) {
         console.error('즐겨찾기 토글 중 오류:', error);
+        
+        // 401 에러인 경우 로그인 페이지로 이동
+        if (error.message && error.message.includes('인증이 필요합니다')) {
+          console.log('인증이 필요합니다. 로그인 페이지로 이동합니다.');
+          navigate('/login');
+          return;
+        }
+        
         // 네트워크 오류나 서버 오류가 아닌 경우에만 사용자에게 알림
         if (error.message && !error.message.includes('인증이 필요합니다')) {
           console.warn('즐겨찾기 처리 중 오류가 발생했습니다:', error.message);

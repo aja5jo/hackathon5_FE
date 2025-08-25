@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
 import CategoryBannerSection from '../components/category2/CategoryBannerSection';
 import EventCardListCategory from '../components/category2/EventCardListCategory.jsx';
-import { categoriesAPI, eventsAPI } from '../services/api';
+import { categoriesAPI, eventsAPI, mainAPI } from '../services/api';
 import { useCategoryToggle } from '../hooks/useCategoryToggle';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -52,21 +52,18 @@ function Category2() {
       let allData = [];
       
       if (selectedCategories.length === 0) {
-        // 선택된 카테고리가 없으면 모든 가게/이벤트 데이터 로드
-        console.log('카테고리 미선택: 모든 가게/이벤트 데이터 로드');
+        // 선택된 카테고리가 없으면 홈 API와 동일한 데이터 로드
+        console.log('카테고리 미선택: 홈 API와 동일한 데이터 로드');
         
-        // 가게와 이벤트 데이터를 모두 가져오기
-        const [storesResult, eventsResult] = await Promise.all([
-          eventsAPI.getEvents(), // 가게 데이터
-          eventsAPI.getPopups()  // 이벤트 데이터
-        ]);
-        
-        if (storesResult.success && storesResult.data) {
-          allData = [...allData, ...storesResult.data];
-        }
-        
-        if (eventsResult.success && eventsResult.data) {
-          allData = [...allData, ...eventsResult.data];
+        const result = await mainAPI.getHome();
+        if (result.success && result.data) {
+          if (result.data.stores || result.data.events) {
+            const stores = result.data.stores || [];
+            const events = result.data.events || [];
+            allData = [...stores, ...events];
+          } else if (Array.isArray(result.data)) {
+            allData = result.data;
+          }
         }
       } else {
         // 선택된 카테고리가 있으면 해당 카테고리의 데이터만 로드
@@ -130,6 +127,22 @@ function Category2() {
   // ===== 수정: 카테고리 선택 변경 시 데이터 다시 로드 =====
   useEffect(() => {
     loadCategoryData(userSelectedCategories);
+  }, [userSelectedCategories]);
+
+  // ✅ 좋아요 변경 이벤트 감지 및 카테고리 데이터 업데이트
+  useEffect(() => {
+    const handleFavoritesChanged = () => {
+      console.log('Category2 - 좋아요 변경 이벤트 감지, 카테고리 데이터 업데이트');
+      loadCategoryData(userSelectedCategories);
+    };
+
+    // 이벤트 리스너 등록
+    window.addEventListener('favoritesChanged', handleFavoritesChanged);
+
+    // 클린업 함수
+    return () => {
+      window.removeEventListener('favoritesChanged', handleFavoritesChanged);
+    };
   }, [userSelectedCategories]);
 
   // ===== 기존 코드 유지 =====
