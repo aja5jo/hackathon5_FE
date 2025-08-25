@@ -12,11 +12,11 @@ export const getUserType = () => {
 };
 
 export const isMerchant = () => {
-  return getUserType() === 'MERCHANT';
+  return getUserType() === 'merchant';
 };
 
 export const isUser = () => {
-  return getUserType() === 'USER';
+  return getUserType() === 'user';
 };
 
 // API 요청 헬퍼 함수
@@ -29,11 +29,35 @@ const apiRequest = async (endpoint, options = {}, retryCount = 0) => {
   // 인증 상태 확인
   const user = localStorage.getItem('user');
   const userType = localStorage.getItem('userType');
-  console.log('API 요청 시 인증 상태:', { user: user ? JSON.parse(user) : null, userType });
+  
+  // user가 null이 아닐 때만 파싱 시도
+  let userData = null;
+  if (user) {
+    try {
+      userData = JSON.parse(user);
+    } catch (error) {
+      console.warn('사용자 데이터 파싱 실패:', error);
+    }
+  }
+  
+  console.log('API 요청 시 인증 상태:', { user: userData, userType });
+  
+  // 인증 헤더 구성 - 세션 기반 인증
+  const authHeaders = {};
+  if (userData) {
+    // 세션 기반 인증을 위한 헤더 추가
+    authHeaders['Authorization'] = `Bearer ${userData.id || userData.token || ''}`;
+    // 사용자 ID를 헤더에 포함
+    authHeaders['X-User-ID'] = userData.id || '';
+    authHeaders['X-User-Type'] = userType || '';
+  }
+  
+  // 세션 쿠키가 자동으로 포함되도록 credentials 설정
   
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...options.headers,
     },
     credentials: 'include', // 세션 쿠키 포함
@@ -151,7 +175,7 @@ export const favoritesAPI = {
     });
   },
   
-  // 팝업 즐겨찾기 토글 - 명세서에 따르면 popups 경로 사용
+  // 팝업 즐겨찾기 토글
   togglePopupFavorite: (popupId) => {
     if (isMerchant()) {
       throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
@@ -159,27 +183,6 @@ export const favoritesAPI = {
     return apiRequest(`/api/users/popups/${popupId}/favorites`, {
       method: 'POST',
     });
-  },
-  
-  // 즐겨찾기 제거 (토글 방식으로 처리)
-  removeFavorite: (id, type) => {
-    if (isMerchant()) {
-      throw new Error('소상공인은 즐겨찾기 기능을 사용할 수 없습니다.');
-    }
-    
-    if (type === 'stores') {
-      return apiRequest(`/api/users/stores/${id}/favorites`, {
-        method: 'POST',
-      });
-    } else if (type === 'event') {
-      return apiRequest(`/api/users/events/${id}/favorites`, {
-        method: 'POST',
-      });
-    } else {
-      return apiRequest(`/api/users/popups/${id}/favorites`, {
-        method: 'POST',
-      });
-    }
   },
 };
 
@@ -351,7 +354,7 @@ export const categoriesAPI = {
 
 // 메인 페이지 관련 API
 export const mainAPI = {
-  // 메인 페이지 조회
+  // 메인 페이지 조회 - 사용자 타입에 따라 백엔드에서 AI 추천 처리
   getHome: () => apiRequest('/api/home'),
   
   // 메인 페이지 전체 조회
@@ -368,11 +371,6 @@ export const mainAPI = {
   
   // 검색
   search: (keyword) => apiRequest(`/api/search?keyword=${encodeURIComponent(keyword)}`),
-  
-  // 홈 업데이트
-  updateHome: () => apiRequest('/api/home/update', {
-    method: 'POST',
-  }),
 };
 
 // 이벤트/팝업 관련 API - 명세서대로
@@ -435,4 +433,65 @@ export const translateAPI = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+};
+
+// 파일 업로드 관련 API - 명세서대로
+export const uploadAPI = {
+  // 파일 업로드를 위한 presigned URL 요청
+  getPresignedUrl: (data) => apiRequest('/api/upload', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  
+  // 실제 파일 업로드 (S3에 직접 업로드)
+  uploadFile: async (uploadUrl, file) => {
+    try {
+      const response = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('파일 업로드 실패');
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('파일 업로드 오류:', error);
+      throw error;
+    }
+  },
+  
+  // 파일 업로드 전체 프로세스
+  uploadFileProcess: async (file, dir = 'misc') => {
+    try {
+      // 1. presigned URL 요청
+      const presignedResponse = await uploadAPI.getPresignedUrl({
+        dir: dir,
+        count: 1,
+        contentType: file.type
+      });
+      
+      if (!presignedResponse.success || !presignedResponse.data || presignedResponse.data.length === 0) {
+        throw new Error('Presigned URL 생성 실패');
+      }
+      
+      const presignedData = presignedResponse.data[0];
+      
+      // 2. S3에 파일 업로드
+      await uploadAPI.uploadFile(presignedData.uploadUrl, file);
+      
+      // 3. 업로드된 파일 정보 반환
+      return {
+        key: presignedData.key,
+        publicUrl: presignedData.publicUrl
+      };
+    } catch (error) {
+      console.error('파일 업로드 프로세스 오류:', error);
+      throw error;
+    }
+  },
 };

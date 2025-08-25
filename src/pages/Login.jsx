@@ -15,32 +15,113 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false)
 
   // 로그인 성공 후 페이지 이동 로직
-  const handleLoginSuccess = (userData) => {
+  const handleLoginSuccess = async (userData) => {
     console.log('handleLoginSuccess 호출됨:', userData);
     
     // AuthContext의 login 함수 사용
     const userType = userData.role === 'MERCHANT' ? 'merchant' : 'user';
     console.log('userType 결정됨:', userType);
     login(userData, userType);
+    
+    // localStorage 저장이 완료될 때까지 잠시 대기
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // 최초 로그인 여부 확인
-    const hasLoggedInBefore = localStorage.getItem('hasLoggedInBefore')
-    // 카테고리 선택 여부 확인
-    const hasSelectedCategories = localStorage.getItem('hasSelectedCategories')
-
-    if (!hasLoggedInBefore) {
-      // 최초 로그인: Category1.jsx로 이동
-      localStorage.setItem('hasLoggedInBefore', 'true') // 플래그 설정
-      console.log('최초 로그인: Category1.jsx로 이동')
-      navigate('/category1')
-    } else if (!hasSelectedCategories) {
-      // 최초 로그인은 아니지만 카테고리를 선택하지 않은 경우: Category1.jsx로 이동
-      console.log('카테고리 미선택: Category1.jsx로 이동')
-      navigate('/category1')
+    // 소상공인인 경우 기존 가게 확인 후 페이지 이동
+    if (userType === 'merchant') {
+      console.log('소상공인 로그인: 기존 가게 확인 중...');
+      
+             try {
+         // 기존 가게 확인 API 호출
+         const { storesAPI } = await import('../services/api');
+         console.log('storesAPI.getMyStores() 호출 시작...');
+         const response = await storesAPI.getMyStores();
+         console.log('API 응답 전체:', response);
+         console.log('response.success:', response.success);
+         console.log('response.data:', response.data);
+         console.log('response.data.length:', response.data?.length);
+         
+         // API 응답 구조 확인: data가 배열인지 단일 객체인지 확인
+         const hasStore = response.success && response.data && (
+           Array.isArray(response.data) ? response.data.length > 0 : 
+           typeof response.data === 'object' && response.data.id
+         );
+         
+         console.log('가게 존재 여부 판단:', {
+           success: response.success,
+           hasData: !!response.data,
+           isArray: Array.isArray(response.data),
+           isObject: typeof response.data === 'object',
+           hasId: response.data?.id,
+           dataType: typeof response.data
+         });
+         
+         if (hasStore) {
+           // 이미 가게가 등록된 경우: 홈으로 이동
+           console.log('기존 가게 발견: 홈으로 이동');
+           navigate('/');
+         } else {
+           // 가게가 등록되지 않은 경우: 가게등록 페이지로 이동
+           console.log('가게 미등록: 가게등록 페이지로 이동');
+           console.log('이유:', {
+             success: response.success,
+             hasData: !!response.data,
+             isArray: Array.isArray(response.data),
+             isObject: typeof response.data === 'object',
+             hasId: response.data?.id
+           });
+           navigate('/merchants/stores');
+         }
+       } catch (error) {
+         console.error('기존 가게 확인 실패:', error);
+         console.error('에러 상세:', {
+           message: error.message,
+           status: error.status,
+           response: error.response
+         });
+         // 에러 발생 시 가게등록 페이지로 이동
+         console.log('에러 발생: 가게등록 페이지로 이동');
+         navigate('/merchants/stores');
+       }
     } else {
-              // 이후 로그인이고 카테고리도 선택한 경우: categories 페이지로 이동
-        console.log('이후 로그인: categories 페이지로 이동')
-        navigate('/categories')
+      // 일반 사용자인 경우
+      console.log('일반 유저 로그인 처리 시작');
+      
+      // 사용자별 최초 로그인 여부 확인 (이메일 기반)
+      const userEmail = userData.email;
+      const userLoginKey = `hasLoggedInBefore_${userEmail}`;
+      const hasLoggedInBefore = localStorage.getItem(userLoginKey);
+      
+      // 카테고리 선택 여부 확인
+      const hasSelectedCategories = localStorage.getItem('hasSelectedCategories');
+      
+      // 디버깅: 기존 잘못된 플래그가 있다면 제거 (개발 중에만 사용)
+      const oldFlag = localStorage.getItem('hasLoggedInBefore');
+      if (oldFlag && !hasLoggedInBefore) {
+        console.log('기존 잘못된 플래그 발견, 제거:', oldFlag);
+        localStorage.removeItem('hasLoggedInBefore');
+      }
+      
+      console.log('일반 유저 상태 확인:', {
+        userEmail,
+        hasLoggedInBefore,
+        hasSelectedCategories,
+        oldFlag
+      });
+      
+      if (!hasLoggedInBefore) {
+        // 최초 로그인: Category1.jsx로 이동
+        localStorage.setItem(userLoginKey, 'true'); // 해당 사용자의 최초 로그인 플래그 설정
+        console.log('최초 로그인: Category1.jsx로 이동');
+        navigate('/category1');
+      } else if (!hasSelectedCategories) {
+        // 최초 로그인은 아니지만 카테고리를 선택하지 않은 경우: Category1.jsx로 이동
+        console.log('카테고리 미선택: Category1.jsx로 이동');
+        navigate('/category1');
+      } else {
+        // 이후 로그인이고 카테고리도 선택한 경우: categories 페이지로 이동
+        console.log('이후 로그인: categories 페이지로 이동');
+        navigate('/categories');
+      }
     }
   }
 

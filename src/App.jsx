@@ -40,12 +40,10 @@ function App() {
   }, []);
 
   return (
-    <>
+    <AuthProvider>
       <GlobalStyles/>
-      <AuthProvider>
-        <RouterProvider router={router}/>
-      </AuthProvider>
-    </>
+      <RouterProvider router={router}/>
+    </AuthProvider>
   )
 }
 

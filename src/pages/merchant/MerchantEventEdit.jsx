@@ -21,7 +21,15 @@ function MerchantEventEdit() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const disabled = useMemo(() => !name || !description || !intro || !thumbnail || !startDate || !endDate, [name, description, intro, thumbnail, startDate, endDate]);
+  const disabled = useMemo(() => {
+    // API 명세서에 따른 필수 필드 검증
+    return !name.trim() || 
+           !description.trim() || 
+           !intro.trim() || 
+           !thumbnail.trim() || 
+           !startDate || 
+           !endDate;
+  }, [name, description, intro, thumbnail, startDate, endDate]);
 
   // 이벤트 데이터 로드
   useEffect(() => {
@@ -138,6 +146,8 @@ function MerchantEventEdit() {
         endTime: endTime,
         isPopup: isPopup
       };
+
+      console.log('이벤트 수정 요청 데이터:', eventData);
 
       const result = await storesAPI.updateEvent(eventId, eventData);
       
@@ -356,8 +366,7 @@ const timeOptions = Array.from({ length: 24 }, (_, h) => {
   const hh = h.toString().padStart(2, '0');
   return [`${hh}:00`, `${hh}:30`];
 })
-  .flat()
-  .filter((_, i) => i % 1 === 0);
+  .flat();
 
 // ===== styles =====
 const Page = styled.div`

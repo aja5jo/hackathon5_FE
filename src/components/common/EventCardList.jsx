@@ -3,24 +3,44 @@ import EventCard from './EventCard'
 import styled from 'styled-components'
 
 const EventCardList = ({ events = [], includeTypes = ['EVENT', 'POPUP', 'STORE'], maxItems }) => {
+  console.log('EventCardList 받은 events:', events);
+  
   const allItems = events
     .flatMap((category) => {
-      if (!Array.isArray(category?.items)) return [];
+      console.log('카테고리 처리:', category);
+      if (!Array.isArray(category?.items)) {
+        console.log('카테고리 items가 배열이 아님:', category?.items);
+        return [];
+      }
       return category.items.map((item) => ({
         ...item,
         category: category.category,
       }));
     })
-    .filter((item) => includeTypes.includes(item?.type))
+    .filter((item) => {
+      const isIncluded = includeTypes.includes(item?.type);
+      console.log('아이템 필터링:', item?.name, item?.type, isIncluded);
+      return isIncluded;
+    })
     .sort((a, b) => (b?.likeCount ?? 0) - (a?.likeCount ?? 0));
 
+  console.log('EventCardList allItems:', allItems);
   const visibleItems = typeof maxItems === 'number' ? allItems.slice(0, maxItems) : allItems;
+  console.log('EventCardList visibleItems:', visibleItems);
 
   return (
     <ListContainer>
-      {visibleItems.map((item, index) => (
-        <EventCard key={`${item?.type}-${item?.id ?? index}`} event={item} />
-      ))}
+      {console.log('EventCardList 렌더링 시작, visibleItems 개수:', visibleItems.length)}
+      {visibleItems.length === 0 ? (
+        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: '#666' }}>
+          표시할 항목이 없습니다.
+        </div>
+      ) : (
+        visibleItems.map((item, index) => {
+          console.log('EventCard 렌더링 시도:', index, item);
+          return <EventCard key={`${item?.type}-${item?.id ?? index}`} event={item} />;
+        })
+      )}
     </ListContainer>
   )
 }

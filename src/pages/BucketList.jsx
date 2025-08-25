@@ -30,11 +30,28 @@ function BucketList() {
   // 데이터 로드 함수
   const loadFavorites = async () => {
     try {
+      console.log('즐겨찾기 목록 조회 시작');
       const result = await favoritesAPI.getFavorites();
-      // API 응답 구조에 맞게 처리
+      console.log('즐겨찾기 API 응답:', result);
+      
+      // API 명세서에 따른 응답 구조 처리
       if (result.success && result.data) {
+        console.log('즐겨찾기 목록 설정:', result.data.length, '개');
+        
+        // 각 항목의 liked 상태 확인
+        result.data.forEach(item => {
+          console.log('즐겨찾기 항목:', {
+            id: item.id,
+            type: item.type,
+            name: item.name,
+            liked: item.liked,
+            likeCount: item.likeCount
+          });
+        });
+        
         setFavorites(result.data);
       } else {
+        console.log('즐겨찾기 데이터가 없음');
         setFavorites([]);
       }
     } catch (error) {
@@ -52,20 +69,20 @@ function BucketList() {
     console.log('BucketList - 인증 상태 확인:', { isAuthenticated });
     console.log('BucketList - 로컬스토리지 user:', localStorage.getItem('user'));
     
-    // 소상공인은 버킷리스트 접근 불가
+    // 소상공인은 버킷리스트 접근 불가 - 리다이렉트 제거, 대신 안내 메시지 표시
     if (isMerchantUser) {
       console.log('BucketList - 소상공인은 버킷리스트에 접근할 수 없습니다.');
-      navigate('/');
+      // navigate('/'); // 리다이렉트 제거
       return;
     }
     
-    if (isAuthenticated) {
+    // 로그인된 일반 사용자인 경우에만 즐겨찾기 로드
+    if (isAuthenticated && !isMerchantUser) {
       console.log('BucketList - 인증된 사용자, 즐겨찾기 로드');
       loadFavorites();
     } else {
-      // 인증되지 않은 경우 로그인 페이지로 리다이렉트
-      console.log('BucketList - 인증되지 않은 사용자, 로그인 페이지로 이동');
-      navigate('/login');
+      console.log('BucketList - 로그인되지 않은 사용자 또는 소상공인, 즐겨찾기 로드하지 않음');
+      // 로그인되지 않은 경우에도 페이지는 표시되지만 즐겨찾기는 로드하지 않음
     }
   }, [isAuthenticated, isMerchantUser]);
 
@@ -73,16 +90,34 @@ function BucketList() {
     setSelectedCategory(category);
   };
 
-  const handleRemoveFavorite = async (id, type) => {
+  const handleRemoveFavorite = async (id, type, liked = null) => {
     try {
-      // API 호출 시도 - 아이템 타입에 따라 처리
-      await favoritesAPI.removeFavorite(id, type);
+      console.log('즐겨찾기 상태 변경 시작:', { id, type, liked });
       
-      // 성공 시 로컬 상태 업데이트
-      const updatedFavorites = favorites.filter(item => item.id !== id);
-      setFavorites(updatedFavorites);
+      // API 명세서에 따른 토글 API 호출
+      let result;
+      if (type === 'store') {
+        result = await favoritesAPI.toggleStoreFavorite(id);
+      } else if (type === 'event') {
+        result = await favoritesAPI.toggleEventFavorite(id);
+      } else if (type === 'popup') {
+        result = await favoritesAPI.togglePopupFavorite(id);
+      } else {
+        console.error('알 수 없는 타입:', type);
+        return;
+      }
+      
+      console.log('즐겨찾기 상태 변경 API 응답:', result);
+      
+      if (result.success) {
+        // 성공 시 즐겨찾기 목록을 다시 로드하여 최신 상태 반영
+        console.log('즐겨찾기 상태 변경 완료, 목록 새로고침');
+        await loadFavorites();
+      } else {
+        console.error('즐겨찾기 상태 변경 실패:', result.message);
+      }
     } catch (error) {
-      console.error('즐겨찾기 삭제 실패:', error);
+      console.error('즐겨찾기 상태 변경 실패:', error);
       // API 실패 시에도 로컬 상태 업데이트 (사용자 경험 개선)
       const updatedFavorites = favorites.filter(item => item.id !== id);
       setFavorites(updatedFavorites);
@@ -123,8 +158,8 @@ function BucketList() {
         </BannerContent>
       </BannerSection>
 
-      {/* 카테고리 필터 */}
-      <FilterSection>
+      {/* 카테고리 필터 - 숨김 처리 */}
+      {/* <FilterSection>
         <FilterContainer>
           {categories.map((category) => (
             <FilterButton
@@ -136,7 +171,7 @@ function BucketList() {
             </FilterButton>
           ))}
         </FilterContainer>
-      </FilterSection>
+      </FilterSection> */}
 
       {/* 현재 상태 표시 */}
       <StatusSection>
@@ -146,7 +181,7 @@ function BucketList() {
         </StatusInfo>
       </StatusSection>
 
-      {/* 네이버 지도 섹션 */}
+      {/* 네이버 지도 섹션 - 로그인 여부와 상관없이 항상 표시 */}
       <MapSection>
         <SectionTitle>🗺️ 홍대 지역 지도</SectionTitle>
         <MapDescription>
@@ -157,27 +192,61 @@ function BucketList() {
         />
       </MapSection>
 
-      {/* 아이템 그리드 */}
-      <ItemGrid>
-        {filteredItems.length === 0 ? (
-          <EmptyState>
-            <EmptyIcon>📝</EmptyIcon>
-            <EmptyTitle>버킷리스트가 비어있습니다</EmptyTitle>
-            <EmptyDescription>
-              관심있는 가게나 이벤트에 하트를 눌러보세요!
-            </EmptyDescription>
-          </EmptyState>
-        ) : (
-          filteredItems.map((item) => (
-            <EventCard 
-              key={item.id} 
-              event={item}
-              excludeStatuses={[]}
-              onRemove={(id) => handleRemoveFavorite(id, item.type)}
-            />
-          ))
-        )}
-      </ItemGrid>
+      {/* 아이템 그리드 - 로그인된 경우에만 표시 */}
+      {isAuthenticated && !isMerchantUser && (
+        <ItemGrid>
+          {filteredItems.length === 0 ? (
+            <EmptyState>
+              <EmptyIcon>📝</EmptyIcon>
+              <EmptyTitle>버킷리스트가 비어있습니다</EmptyTitle>
+              <EmptyDescription>
+                관심있는 가게나 이벤트에 하트를 눌러보세요!
+              </EmptyDescription>
+            </EmptyState>
+          ) : (
+            filteredItems.map((item) => (
+              <EventCard 
+                key={item.id} 
+                event={item}
+                excludeStatuses={[]}
+                onRemove={(id, liked) => handleRemoveFavorite(id, item.type, liked)}
+              />
+            ))
+          )}
+        </ItemGrid>
+      )}
+
+      {/* 로그인되지 않은 경우 안내 메시지 */}
+      {!isAuthenticated && (
+        <LoginPromptSection>
+          <LoginPrompt>
+            <LoginIcon>🔐</LoginIcon>
+            <LoginTitle>로그인이 필요한 서비스입니다</LoginTitle>
+            <LoginDescription>
+              버킷리스트를 사용하려면 로그인해주세요
+            </LoginDescription>
+            <LoginButton onClick={() => navigate('/login')}>
+              로그인하기
+            </LoginButton>
+          </LoginPrompt>
+        </LoginPromptSection>
+      )}
+
+      {/* 소상공인인 경우 안내 메시지 */}
+      {isMerchantUser && (
+        <MerchantPromptSection>
+          <MerchantPrompt>
+            <MerchantIcon>🏪</MerchantIcon>
+            <MerchantTitle>소상공인은 버킷리스트를 사용할 수 없습니다</MerchantTitle>
+            <MerchantDescription>
+              소상공인은 가게와 이벤트를 등록할 수 있습니다
+            </MerchantDescription>
+            <MerchantButton onClick={() => navigate('/merchants/mypage')}>
+              마이페이지로 이동
+            </MerchantButton>
+          </MerchantPrompt>
+        </MerchantPromptSection>
+      )}
 
       <Footer />
     </Container>
@@ -346,4 +415,102 @@ const EmptyDescription = styled.p`
   font-size: 1.6rem;
   color: #888;
   margin: 0;
+`;
+
+const LoginPromptSection = styled.div`
+  max-width: 1200px;
+  margin: 0 auto 3rem auto;
+  padding: 0 2rem;
+  text-align: center;
+`;
+
+const LoginPrompt = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 4rem 2rem;
+  margin-bottom: 2rem;
+`;
+
+const LoginIcon = styled.div`
+  font-size: 6rem;
+  margin-bottom: 2rem;
+`;
+
+const LoginTitle = styled.h3`
+  font-size: 2.4rem;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 1rem 0;
+`;
+
+const LoginDescription = styled.p`
+  font-size: 1.6rem;
+  color: #888;
+  margin: 0 0 2rem 0;
+`;
+
+const LoginButton = styled.button`
+  padding: 1rem 2rem;
+  background-color: #FEE502;
+  color: #262626;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #E6CF00;
+  }
+`;
+
+const MerchantPromptSection = styled.div`
+  max-width: 1200px;
+  margin: 0 auto 3rem auto;
+  padding: 0 2rem;
+  text-align: center;
+`;
+
+const MerchantPrompt = styled.div`
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 4rem 2rem;
+  margin-bottom: 2rem;
+`;
+
+const MerchantIcon = styled.div`
+  font-size: 6rem;
+  margin-bottom: 2rem;
+`;
+
+const MerchantTitle = styled.h3`
+  font-size: 2.4rem;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 1rem 0;
+`;
+
+const MerchantDescription = styled.p`
+  font-size: 1.6rem;
+  color: #888;
+  margin: 0 0 2rem 0;
+`;
+
+const MerchantButton = styled.button`
+  padding: 1rem 2rem;
+  background-color: #FEE502;
+  color: #262626;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #E6CF00;
+  }
 `;

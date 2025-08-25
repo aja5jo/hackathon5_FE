@@ -8,29 +8,42 @@ const CATEGORIES = [
   { key: 'CAFE', label: '카페' },
   { key: 'CLUB', label: '클럽' },
   { key: 'SHOPPING', label: '쇼핑' },
-  { key: 'ETC', label: '기타' },
-  { key: 'FOOD', label: '음식점(술집)' },
-  { key: 'K_POP', label: 'KPOP' },
+  { key: 'OTHER', label: '기타' },
+  { key: 'RESTAURANT', label: '음식점(술집)' },
+  { key: 'KPOP', label: 'KPOP' },
   { key: 'ENTERTAINMENT', label: '오락' },
 ];
 
 function MerchantStore() {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
-  const [category, setCategory] = useState(''); // 단일 선택
+  const [number, setNumber] = useState('');
+  const [category, setCategory] = useState('CAFE'); // 기본값 설정
   const [openAt, setOpenAt] = useState('09:00');
   const [closeAt, setCloseAt] = useState('22:00');
-  const [heroImage, setHeroImage] = useState(null);
-  const [extraImage, setExtraImage] = useState(null);
+  const [thumbnail, setThumbnail] = useState(''); // URL 입력 방식으로 변경
+  const [images, setImages] = useState([]); // 추가 이미지들 URL 배열
   const [extraInfo, setExtraInfo] = useState('');
   const [intro, setIntro] = useState('');
-  const [useAi, setUseAi] = useState(false);
+  // AI 추천 필드는 API 명세서에 없으므로 제거
   const [hasExistingStore, setHasExistingStore] = useState(false);
 
-  const disabled = useMemo(() => !name || !address || !category, [name, address, category]);
+  const disabled = useMemo(() => !name || !address || !number || !category || !thumbnail || !intro, [name, address, number, category, thumbnail, intro]);
+
+  // 디버깅용: 카테고리 상태 확인
+  useEffect(() => {
+    console.log('현재 선택된 카테고리:', category);
+  }, [category]);
 
   // 컴포넌트 마운트 시 기존 가게 확인
   useEffect(() => {
+    // localStorage 상태 확인 (디버깅용)
+    console.log('=== MerchantStore localStorage 상태 확인 ===');
+    console.log('localStorage user:', localStorage.getItem('user'));
+    console.log('localStorage userType:', localStorage.getItem('userType'));
+    console.log('localStorage 전체:', Object.keys(localStorage));
+    console.log('==========================================');
+    
     checkExistingStore();
   }, []);
 
@@ -39,7 +52,7 @@ function MerchantStore() {
       const response = await storesAPI.getMyStores();
       if (response.success && response.data && response.data.length > 0) {
         setHasExistingStore(true);
-        alert('이미 등록된 가게가 있습니다. 소상공인은 가게를 하나만 등록할 수 있습니다.');
+        alert('이미 등록된 가게가 있습니다. 소상공은 가게를 하나만 등록할 수 있습니다.');
         window.location.href = '/mypage/stores';
       }
     } catch (error) {
@@ -47,42 +60,70 @@ function MerchantStore() {
     }
   };
 
-  const onDropImage = (e, setter) => {
-    e.preventDefault();
-    const file = e.dataTransfer?.files?.[0];
-    if (file) setter(file);
-  };
-
-  const onChooseImage = (e, setter) => {
-    const file = e.target.files?.[0];
-    if (file) setter(file);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 인증 상태 확인 (디버깅용)
+    const user = localStorage.getItem('user');
+    const userType = localStorage.getItem('userType');
+    
+    console.log('=== 가게 등록 시도 - 인증 상태 확인 ===');
+    console.log('localStorage user:', user);
+    console.log('localStorage userType:', userType);
+    console.log('localStorage 전체 키:', Object.keys(localStorage));
+    console.log('==========================================');
+    
+    // 추가 유효성 검사
+    if (!category || category === '') {
+      alert('카테고리를 선택해주세요.');
+      return;
+    }
+    
     if (disabled) return;
 
     try {
-      // 폼 데이터 구성
+      console.log('폼 제출 시작');
+      console.log('현재 카테고리 상태:', category);
+      console.log('썸네일 URL:', thumbnail);
+      console.log('추가 이미지들:', images);
+
+      // 폼 데이터 구성 (API 명세서에 맞게 필드명 수정)
       const formData = {
         name: name.trim(),
         address: address.trim(),
+        number: number.trim(),
         category: category,
-        openAt: openAt,
-        closeAt: closeAt,
-        extraInfo: extraInfo.trim(),
+        startTime: `${openAt}:00`, // HH:mm:ss 형식으로 변경
+        endTime: `${closeAt}:00`, // HH:mm:ss 형식으로 변경
         intro: intro.trim(),
-        useAi: useAi
+        thumbnail: thumbnail.trim(),
+        images: images.filter(img => img.trim() !== '') // 빈 문자열 제거
       };
 
+      console.log('=== API 요청 데이터 상세 ===');
+      console.log('name:', formData.name);
+      console.log('address:', formData.address);
+      console.log('number:', formData.number);
+      console.log('category:', formData.category);
+      console.log('startTime:', formData.startTime);
+      console.log('endTime:', formData.endTime);
+      console.log('intro:', formData.intro);
+      console.log('thumbnail:', formData.thumbnail);
+      console.log('images:', formData.images);
+      console.log('전체 formData:', JSON.stringify(formData, null, 2));
+      console.log('==========================');
+
       // API 연동
+      console.log('storesAPI.createStore 호출 시작');
       const result = await storesAPI.createStore(formData);
+      console.log('API 응답:', result);
       
       if (result.success) {
         alert('가게가 성공적으로 등록되었습니다!');
         // 성공 시 홈으로 이동
         window.location.href = '/';
       } else {
+        console.log('API 오류 응답:', result);
         // API 명세서에 따른 에러 메시지 처리
         if (result.code === 401) {
           alert('로그인이 필요합니다.');
@@ -147,24 +188,51 @@ function MerchantStore() {
               />
             </Field>
 
+            {/* 전화번호 */}
+            <Field>
+              <Label>
+                전화번호 <Required>*</Required>
+              </Label>
+              <Input
+                type="tel"
+                placeholder="가게 전화번호를 입력해주세요 (예: 02-1234-5678)"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+              />
+            </Field>
+
             {/* 카테고리 */}
             <Field>
               <Label>
                 가게 카테고리 선택 <Required>*</Required>
               </Label>
               <Helper>하나의 카테고리만 선택 가능합니다</Helper>
-              <CategoryGrid>
-                {CATEGORIES.map((c) => (
-                  <CategoryButton
-                    type="button"
-                    key={c.key}
-                    selected={category === c.key}
-                    onClick={() => setCategory(c.key)}
-                  >
-                    {c.label}
-                  </CategoryButton>
-                ))}
-              </CategoryGrid>
+                             <CategoryGrid>
+                 {CATEGORIES.map((c) => (
+                   <button
+                     key={c.key}
+                     type="button"
+                                           onClick={() => {
+                        console.log('카테고리 클릭됨!', c.key, c.label);
+                        setCategory(c.key);
+                        console.log('카테고리 상태 업데이트:', c.key);
+                      }}
+                                           style={{
+                        height: '42px',
+                        borderRadius: '10px',
+                        border: `1.5px solid ${category === c.key ? '#fee502' : '#e5e7eb'}`,
+                        background: category === c.key ? '#fff9c4' : '#fff',
+                        color: '#222',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        transition: 'all 0.2s ease'
+                      }}
+                   >
+                     {c.label}
+                   </button>
+                 ))}
+               </CategoryGrid>
             </Field>
 
             {/* 운영시간 */}
@@ -193,37 +261,27 @@ function MerchantStore() {
 
             {/* 이미지 업로드 */}
             <Field>
-              <Label>가게 이미지</Label>
-              <UploadRow>
-                <Dropzone
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDropImage(e, setHeroImage)}
-                >
-                  <UploadIcon>📷</UploadIcon>
-                  <UploadTitle>대표 사진 업로드</UploadTitle>
-                  <UploadSub>1장 필수 (최대 5MB)</UploadSub>
-                  <HiddenFile
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => onChooseImage(e, setHeroImage)}
-                  />
-                  {heroImage && <Preview>{heroImage.name}</Preview>}
-                </Dropzone>
-                <Dropzone
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDropImage(e, setExtraImage)}
-                >
-                  <UploadIcon>📷</UploadIcon>
-                  <UploadTitle>추가 사진 업로드</UploadTitle>
-                  <UploadSub>최소 0장 최대 5장</UploadSub>
-                  <HiddenFile
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => onChooseImage(e, setExtraImage)}
-                  />
-                  {extraImage && <Preview>{extraImage.name}</Preview>}
-                </Dropzone>
-              </UploadRow>
+              <Label>
+                썸네일 이미지 <Required>*</Required>
+              </Label>
+              <Input
+                type="url"
+                placeholder="썸네일 이미지 URL을 입력해주세요"
+                value={thumbnail}
+                onChange={(e) => setThumbnail(e.target.value)}
+              />
+            </Field>
+
+            {/* 추가 이미지들 */}
+            <Field>
+              <Label>추가 이미지들</Label>
+              <Input
+                type="url"
+                placeholder="추가 이미지 URL을 입력해주세요 (선택사항)"
+                value={images.join(', ')}
+                onChange={(e) => setImages(e.target.value.split(',').map(url => url.trim()).filter(url => url !== ''))}
+              />
+              <Helper>여러 이미지는 쉼표(,)로 구분해주세요</Helper>
             </Field>
 
             {/* 기타 정보 */}
@@ -239,7 +297,9 @@ function MerchantStore() {
 
             {/* 소개 */}
             <Field>
-              <Label>가게 소개</Label>
+              <Label>
+                가게 소개 <Required>*</Required>
+              </Label>
               <Textarea
                 rows={3}
                 placeholder="가게에 대한 소개를 작성해주세요"
@@ -248,30 +308,7 @@ function MerchantStore() {
               />
             </Field>
 
-            {/* AI 추천 */}
-            <Field>
-              <Label>AI 추천을 받으시겠습니까?</Label>
-              <RadioRow>
-                <RadioLabel>
-                  <input
-                    type="radio"
-                    name="useAi"
-                    checked={useAi === true}
-                    onChange={() => setUseAi(true)}
-                  />
-                  <span>예</span>
-                </RadioLabel>
-                <RadioLabel>
-                  <input
-                    type="radio"
-                    name="useAi"
-                    checked={useAi === false}
-                    onChange={() => setUseAi(false)}
-                  />
-                  <span>아니오</span>
-                </RadioLabel>
-              </RadioRow>
-            </Field>
+            {/* AI 추천 필드는 API 명세서에 없으므로 제거 */}
 
             <SubmitBar>
               <Submit type="submit" disabled={disabled}>
@@ -403,6 +440,9 @@ const CategoryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 
   @media (max-width: 480px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -418,72 +458,28 @@ const CategoryButton = styled.button`
   font-weight: 700;
   cursor: pointer;
   transition: all 0.16s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 
   &:hover {
     border-color: #fee502;
     transform: translateY(-1px);
+    background: ${p => (p.selected ? '#fff9c4' : '#f9f9f9')};
   }
-`;
 
-const UploadRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+  &:active {
+    transform: translateY(0);
   }
-`;
 
-const Dropzone = styled.label`
-  position: relative;
-  border: 2px dashed #e5e7eb;
-  border-radius: 12px;
-  min-height: 140px;
-  background: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-
-  &:hover {
-    background: #f7f7f7;
+  &:focus {
+    outline: 2px solid #fee502;
+    outline-offset: 2px;
   }
-`;
-
-const HiddenFile = styled.input`
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-`;
-
-const UploadIcon = styled.div`
-  font-size: 22px;
-`;
-
-const UploadTitle = styled.div`
-  font-size: 14px;
-  font-weight: 700;
-`;
-
-const UploadSub = styled.div`
-  font-size: 11px;
-  color: #9ca3af;
-`;
-
-const Preview = styled.div`
-  position: absolute;
-  bottom: 10px;
-  left: 12px;
-  right: 12px;
-  font-size: 12px;
-  color: #6b7280;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 const Textarea = styled.textarea`

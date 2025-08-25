@@ -22,8 +22,18 @@ function MerchantStoreList() {
       
       const response = await storesAPI.getMyStores();
       
+      console.log('API 응답:', response);
+      
       if (response.success) {
-        setStores(response.data || []);
+        // API 명세서에 따르면 data는 단일 객체이므로 배열로 변환
+        const storeData = response.data;
+        if (storeData && typeof storeData === 'object' && storeData.id) {
+          // 단일 가게 객체를 배열로 변환
+          setStores([storeData]);
+        } else {
+          // data가 null이거나 유효하지 않은 경우 빈 배열
+          setStores([]);
+        }
       } else {
         setError(response.message || '가게 목록을 불러오는데 실패했습니다.');
         setStores([]);
@@ -94,10 +104,14 @@ function MerchantStoreList() {
     <Container>
       <Header />
       
-      <Content>
-        <HeaderSection>
-          <Title>내 가게 관리</Title>
-          <Description>등록한 가게들을 조회하고 관리하세요</Description>
+             <Content>
+         <BackButton onClick={() => navigate('/merchants/mypage')}>
+           ← 마이페이지로 돌아가기
+         </BackButton>
+         
+         <HeaderSection>
+           <Title>내 가게 관리</Title>
+           <Description>등록한 가게들을 조회하고 관리하세요</Description>
           <ActionButtons>
             <AddButton 
               onClick={() => navigate('/merchants/stores')}
@@ -152,11 +166,11 @@ function MerchantStoreList() {
                   </InfoRow>
                   <InfoRow>
                     <InfoLabel>🕐 운영시간:</InfoLabel>
-                    <InfoValue>{store.openAt} ~ {store.closeAt}</InfoValue>
+                    <InfoValue>{store.startTime} ~ {store.endTime}</InfoValue>
                   </InfoRow>
                   <InfoRow>
-                    <InfoLabel>📅 등록일:</InfoLabel>
-                    <InfoValue>{store.createdAt}</InfoValue>
+                    <InfoLabel>📞 전화번호:</InfoLabel>
+                    <InfoValue>{store.number}</InfoValue>
                   </InfoRow>
                 </StoreInfo>
 
@@ -195,6 +209,25 @@ const Content = styled.main`
   margin: 0 auto;
   padding: 2rem;
   margin-top: 64px;
+`;
+
+const BackButton = styled.button`
+  background: #f8f9fa;
+  color: #666;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+
+  &:hover {
+    background: #e9ecef;
+    border-color: #FEE502;
+    color: #262626;
+  }
 `;
 
 const HeaderSection = styled.div`
