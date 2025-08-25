@@ -21,21 +21,46 @@ export const AuthProvider = ({ children }) => {
     const savedUser = localStorage.getItem('user');
     const savedUserType = localStorage.getItem('userType');
     
+    console.log('AuthContext 초기화 - savedUser:', savedUser);
+    console.log('AuthContext 초기화 - savedUserType:', savedUserType);
+    
     if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
-      const type = savedUserType || (userData.role === 'MERCHANT' ? 'merchant' : 'user');
-      setUserType(type);
+      try {
+        const userData = JSON.parse(savedUser);
+        console.log('AuthContext - 사용자 데이터 파싱 성공:', userData);
+        setUser(userData);
+        
+        // userType 설정
+        let type = savedUserType;
+        if (!type && userData.role) {
+          type = userData.role === 'MERCHANT' ? 'merchant' : 'user';
+        }
+        if (!type) {
+          type = 'user'; // 기본값
+        }
+        
+        setUserType(type);
+        console.log('AuthContext - 사용자 타입 설정:', type);
+      } catch (error) {
+        console.error('AuthContext - 사용자 데이터 파싱 실패:', error);
+        // 파싱 실패 시 로컬스토리지 정리
+        localStorage.removeItem('user');
+        localStorage.removeItem('userType');
+      }
     } else if (savedUserType) {
       setUserType(savedUserType);
+      console.log('AuthContext - 사용자 타입만 설정:', savedUserType);
     }
     
     // 로딩 완료
     setIsLoading(false);
+    console.log('AuthContext 초기화 완료');
   }, []);
 
   const login = useCallback((userData, type = 'user') => {
-    console.log('AuthContext login 함수 호출됨:', userData, type);
+    console.log('=== AuthContext login 함수 호출됨 ===');
+    console.log('userData:', userData);
+    console.log('type:', type);
     
     setUser(userData);
     setUserType(type);
@@ -46,6 +71,8 @@ export const AuthProvider = ({ children }) => {
     
     console.log('AuthContext 로그인 완료 - user:', userData, 'userType:', type);
     console.log('localStorage 저장됨 - user:', localStorage.getItem('user'), 'userType:', localStorage.getItem('userType'));
+    console.log('localStorage 전체 키 확인:', Object.keys(localStorage));
+    console.log('=== AuthContext login 함수 완료 ===');
   }, []);
 
 

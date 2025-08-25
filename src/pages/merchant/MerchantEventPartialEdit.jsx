@@ -145,6 +145,8 @@ function MerchantEventPartialEdit() {
         }
       });
 
+      console.log('이벤트 부분 수정 요청 데이터:', patchData);
+
       // ===== 더미 부분 수정 버전 (주석처리) =====
       /*
       // 더미 이벤트 부분 수정 성공 처리
@@ -484,8 +486,7 @@ const timeOptions = Array.from({ length: 24 }, (_, h) => {
   const hh = h.toString().padStart(2, '0');
   return [`${hh}:00`, `${hh}:30`];
 })
-  .flat()
-  .filter((_, i) => i % 1 === 0);
+  .flat();
 
 // ===== styles =====
 const Page = styled.div`

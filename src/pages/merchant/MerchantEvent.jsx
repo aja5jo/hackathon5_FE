@@ -29,7 +29,15 @@ function MerchantEvent() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [hasStore, setHasStore] = useState(false);
 
-  const disabled = useMemo(() => !name || !description || !intro || !thumbnail || !startDate || !endDate, [name, description, intro, thumbnail, startDate, endDate]);
+  const disabled = useMemo(() => {
+    // API 명세서에 따른 필수 필드 검증
+    return !name.trim() || 
+           !description.trim() || 
+           !intro.trim() || 
+           !thumbnail.trim() || 
+           !startDate || 
+           !endDate;
+  }, [name, description, intro, thumbnail, startDate, endDate]);
 
   // 컴포넌트 마운트 시 가게 등록 상태 확인
   useEffect(() => {
@@ -39,7 +47,10 @@ function MerchantEvent() {
   const checkStoreStatus = async () => {
     try {
       const response = await storesAPI.getMyStores();
-      if (response.success && response.data && response.data.length > 0) {
+      console.log('가게 상태 확인 API 응답:', response);
+      
+      // API 명세서에 따르면 data는 단일 객체이므로 id 존재 여부로 확인
+      if (response.success && response.data && response.data.id) {
         setHasStore(true);
       } else {
         setHasStore(false);
@@ -104,7 +115,7 @@ function MerchantEvent() {
         description: description.trim() || undefined,
         intro: intro.trim() || undefined,
         thumbnail: thumbnail.trim() || undefined,
-        images: images.filter(img => img.trim() !== '')
+        images: images.filter(img => img.trim() !== '') // 빈 문자열 제거
       });
       
       setAiPreviewResult(response.data);
@@ -138,13 +149,15 @@ function MerchantEvent() {
         description: description.trim(),
         intro: intro.trim(),
         thumbnail: thumbnail.trim(),
-        images: images.filter(img => img.trim() !== ''),
+        images: images.filter(img => img.trim() !== ''), // 빈 문자열 제거
         startDate: startDate,
         endDate: endDate,
         startTime: startTime,
         endTime: endTime,
         isPopup: isPopup
       };
+
+      console.log('이벤트 등록 요청 데이터:', eventData);
 
       const result = await storesAPI.createEvent(eventData);
       
@@ -380,8 +393,7 @@ const timeOptions = Array.from({ length: 24 }, (_, h) => {
   const hh = h.toString().padStart(2, '0');
   return [`${hh}:00`, `${hh}:30`];
 })
-  .flat()
-  .filter((_, i) => i % 1 === 0);
+  .flat();
 
 // ===== styles =====
 const Page = styled.div`

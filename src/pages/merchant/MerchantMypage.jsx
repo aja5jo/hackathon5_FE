@@ -19,7 +19,10 @@ function MerchantMypage() {
     try {
       setLoading(true);
       const response = await storesAPI.getMyStores();
-      if (response.success && response.data && response.data.length > 0) {
+      console.log('가게 상태 확인 API 응답:', response);
+      
+      // API 명세서에 따르면 data는 단일 객체이므로 id 존재 여부로 확인
+      if (response.success && response.data && response.data.id) {
         setHasStore(true);
       } else {
         setHasStore(false);

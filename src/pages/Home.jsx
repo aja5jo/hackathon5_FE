@@ -5,7 +5,7 @@ import Footer from '../components/common/Footer';
 import EventCardList from '../components/common/EventCardList';
 import HomeBannerSection from '../components/home/HomeBannerSection';
 import { useNavigate } from 'react-router-dom';
-import { storesAPI, mainAPI } from '../services/api';
+import { storesAPI, mainAPI, isMerchant, isUser } from '../services/api';
 
 import { debounce } from '../utils/performance';
 
@@ -16,14 +16,25 @@ const Home = React.memo(() => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태를 false로 강제 설정
+  
+  // 강제로 로딩 상태를 false로 유지
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+  
+  // isLoading 상태 변경 추적
+  useEffect(() => {
+    console.log('isLoading 상태 변경:', isLoading);
+  }, [isLoading]);
   // const [homeData, setHomeData] = useState(null); // 백엔드 배포 시 사용
 
   // 검색 데이터 구성 함수 - 중복 제거를 위해 분리
   const buildSearchableData = useCallback((rawData) => {
     if (!rawData) return [];
     
-    return rawData.map(item => ({
+    // 데이터 변환
+    const transformedData = rawData.map(item => ({
       ...item,
       category: item.category || 'STORE',
       type: item.type || 'STORE',
@@ -31,6 +42,11 @@ const Home = React.memo(() => {
       image: item.thumbnail,
       searchText: `${item.name} ${item.description || ''} ${item.category || 'STORE'} ${item.type || 'STORE'}`.toLowerCase()
     }));
+
+    // 백엔드에서 이미 정렬된 데이터를 제공하므로 프론트엔드에서 추가 정렬하지 않음
+    // API 명세서: "정렬 로직만 서비스에서 분기 처리"
+    console.log('백엔드에서 제공된 정렬된 데이터 사용:', transformedData.length, '개');
+    return transformedData;
   }, []);
 
   // 검색 데이터 상태
@@ -38,7 +54,12 @@ const Home = React.memo(() => {
 
   // EventCardList용 데이터 변환 함수
   const transformDataForEventCardList = useCallback((data) => {
-    if (!Array.isArray(data) || data.length === 0) return [];
+    console.log('transformDataForEventCardList 입력 데이터:', data);
+    
+    if (!Array.isArray(data) || data.length === 0) {
+      console.log('데이터가 배열이 아니거나 비어있음');
+      return [];
+    }
     
     // 카테고리별로 그룹화
     const groupedByCategory = data.reduce((acc, item) => {
@@ -53,7 +74,9 @@ const Home = React.memo(() => {
       return acc;
     }, {});
     
-    return Object.values(groupedByCategory);
+    const result = Object.values(groupedByCategory);
+    console.log('transformDataForEventCardList 결과:', result);
+    return result;
   }, []);
 
   // EventCardList용 변환된 데이터
@@ -64,33 +87,83 @@ const Home = React.memo(() => {
   // 검색 데이터 로드
   useEffect(() => {
     const loadSearchableDataFromAPI = async () => {
+      setIsLoading(true); // 로딩 시작
       try {
-        const result = await mainAPI.getHome();
+        // 사용자 타입에 따라 다른 API 호출
+        const user = localStorage.getItem('user');
+        const userType = localStorage.getItem('userType');
+        
+        console.log('사용자 타입 확인:', { user: user ? JSON.parse(user) : null, userType });
+        console.log('isMerchant():', isMerchant());
+        console.log('isUser():', isUser());
+        
+        let result;
+        
+        if (!user) {
+          // 비로그인 상태: 좋아요 순으로 정렬된 추천
+          console.log('비로그인 상태: /api/home 호출');
+          result = await mainAPI.getHome();
+        } else if (isMerchant()) {
+          // 소상공인: 본인 가게의 카테고리에 맞는 AI 추천
+          console.log('소상공인 상태: /api/home 호출 (백엔드에서 AI 추천 처리)');
+          result = await mainAPI.getHome();
+        } else if (isUser()) {
+          // 일반 유저: 사용자가 선택한 카테고리에 맞는 AI 추천
+          console.log('일반 유저 상태: /api/home 호출 (백엔드에서 AI 추천 처리)');
+          result = await mainAPI.getHome();
+        } else {
+          // 기본값: 일반 홈 API 호출
+          console.log('기본 상태: /api/home 호출');
+          result = await mainAPI.getHome();
+        }
         
         if (result.success && result.data) {
-          const data = buildSearchableData(result.data);
-          console.log('API에서 검색 가능한 데이터 구성 완료:', data.length);
-          setSearchableData(data);
-        } else {
-          console.log('API 응답이 성공이 아니거나 데이터가 없음, 빈 배열로 설정');
-          setSearchableData([]);
-        }
-        
-      } catch (error) {
-        console.error('API 데이터 로드 실패:', error);
-        
-        // 500 에러인 경우 사용자에게 알림
-        if (error.message && error.message.includes('500')) {
-          console.log('서버 오류 발생, 빈 배열로 설정하고 계속 진행');
-        }
-        
-        setSearchableData([]);
-      }
-    };
-    
-    loadSearchableDataFromAPI();
-    
-  }, [buildSearchableData]);
+          console.log('API 응답 데이터 구조:', result.data);
+          
+          // API 명세서에 따른 응답 구조 처리
+          let combinedData = [];
+          
+          if (result.data.stores || result.data.events) {
+            // 명세서 구조: {stores: [], events: []}
+            const stores = result.data.stores || [];
+            const events = result.data.events || [];
+            combinedData = [...stores, ...events];
+            console.log('명세서 구조 데이터 - 가게:', stores.length, '개, 이벤트:', events.length, '개');
+          } else if (Array.isArray(result.data)) {
+            // 대체 구조: 직접 배열
+            combinedData = result.data;
+            console.log('직접 배열 데이터:', combinedData.length, '개');
+          } else {
+            console.log('알 수 없는 데이터 구조:', result.data);
+            combinedData = [];
+          }
+         
+         const data = buildSearchableData(combinedData);
+         console.log('API에서 검색 가능한 데이터 구성 완료:', data.length);
+         setSearchableData(data);
+       } else {
+         console.log('API 응답이 성공이 아니거나 데이터가 없음, 빈 배열로 설정');
+         setSearchableData([]);
+       }
+       
+     } catch (error) {
+       console.error('API 데이터 로드 실패:', error);
+       
+       // 500 에러인 경우 사용자에게 알림
+       if (error.message && error.message.includes('500')) {
+         console.log('서버 오류 발생, 빈 배열로 설정하고 계속 진행');
+       }
+       
+       setSearchableData([]);
+     } finally {
+       console.log('finally 블록 실행: isLoading을 false로 설정');
+       setIsLoading(false); // 로딩 완료
+     }
+   };
+   
+   loadSearchableDataFromAPI();
+   
+ }, [buildSearchableData]);
 
 
   
@@ -143,29 +216,9 @@ const Home = React.memo(() => {
   }, [navigate]);
 
   const handleUpdateClick = useCallback(() => {
-    setIsUpdating(true);
-    
-    const updateData = async () => {
-      try {
-        const result = await mainAPI.updateHome();
-        
-        if (result.success) {
-          console.log('데이터 업데이트 성공:', result.message);
-          // 성공 시 데이터 다시 로드
-          window.location.reload();
-        } else {
-          alert(result.message || '데이터 업데이트에 실패했습니다.');
-        }
-        
-      } catch (error) {
-        console.error('데이터 업데이트 실패:', error);
-        alert('데이터 업데이트에 실패했습니다.');
-      } finally {
-        setIsUpdating(false);
-      }
-    };
-
-    updateData();
+    console.log('업데이트 버튼 클릭: 페이지 새로고침');
+    // 단순히 페이지 새로고침
+    window.location.reload();
   }, []);
 
   return (
@@ -226,9 +279,9 @@ const Home = React.memo(() => {
           {/* 상단 헤더 */}
           <TopHeader>
             <BrandName>홍대 해커톤</BrandName>
-            <UpdateButton onClick={handleUpdateClick} disabled={isUpdating}>
-              <UpdateIcon className={isUpdating ? 'spinning' : ''}>🔄</UpdateIcon>
-              {isUpdating ? '업데이트 중...' : '업데이트'}
+            <UpdateButton onClick={handleUpdateClick} disabled={isLoading}>
+              <UpdateIcon className={isLoading ? 'spinning' : ''}>🔄</UpdateIcon>
+              {isLoading ? '업데이트 중...' : '업데이트'}
             </UpdateButton>
           </TopHeader>
 
@@ -238,7 +291,9 @@ const Home = React.memo(() => {
             <MoreButton onClick={() => navigate('/morelistmain')}>더보기</MoreButton>
           </SectionHeader>
 
-                     {/* 카드 그리드 */}
+                                {/* 카드 그리드 */}
+           {console.log('EventCardList에 전달할 데이터:', eventCardListData)}
+           {console.log('isLoading 상태:', isLoading)}
            <EventCardList events={eventCardListData} maxItems={6}/>
         </MainContent>
       )}

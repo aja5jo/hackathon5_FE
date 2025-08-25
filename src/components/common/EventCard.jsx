@@ -5,10 +5,12 @@ import offlike from '../../assets/offlike.svg'
 import onlike from '../../assets/onlike.svg'
 
 import { useAuth } from '../../contexts/AuthContext'
-import { isMerchant } from '../../services/api'
+import { isMerchant, favoritesAPI } from '../../services/api'
 // import ApiService from '../../utils/apiService'; // 백엔드 배포 시 사용
 
 const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
+  console.log('EventCard 렌더링:', event);
+  
   const navigate = useNavigate();
   
   const { isAuthenticated } = useAuth();
@@ -22,42 +24,28 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
   }, []);
 
   useEffect(() => {
+    // API 응답의 liked 필드를 사용하여 좋아요 상태 설정
     const checkFavoriteStatus = () => {
       try {
-        const savedFavorites = localStorage.getItem('userFavorites');
-        if (savedFavorites) {
-          const favorites = JSON.parse(savedFavorites);
-          const isLiked = favorites.some(fav => fav.id === event.id);
-          setLike(isLiked);
-        } else {
-          setLike(event.liked || false);
-          if (event.liked) {
-            const newFavorite = {
-              id: event.id,
-              name: event.name,
-              category: event.category,
-              type: event.type,
-              description: event.description || event.desc,
-              image: event.thumbnail,
-              location: event.location || { lat: 37.5563, lng: 126.9244 },
-              likeCount: event.likeCount || 0
-            };
-            const existingFavorites = localStorage.getItem('userFavorites') || '[]';
-            const favorites = JSON.parse(existingFavorites);
-            if (!favorites.some(fav => fav.id === event.id)) {
-              favorites.push(newFavorite);
-              localStorage.setItem('userFavorites', JSON.stringify(favorites));
-              window.dispatchEvent(new Event('favoritesChanged'));
-            }
-          }
-        }
+        console.log('EventCard 좋아요 상태 확인:', { 
+          eventId: event.id, 
+          eventType: event.type, 
+          liked: event.liked,
+          likeCount: event.likeCount 
+        });
+        
+        // API 응답에서 받은 liked 상태를 사용
+        setLike(event.liked || false);
+        setLikeCount(event.likeCount || 0);
+        
       } catch (error) {
         console.error('즐겨찾기 상태 확인 중 오류:', error);
-        setLike(event.liked || false);
+        setLike(false);
+        setLikeCount(0);
       }
     };
     checkFavoriteStatus();
-  }, [event.id, event.liked]);
+  }, [event.id, event.liked, event.likeCount]);
 
   const toggleLike = useCallback((e) => {
     e.stopPropagation();
@@ -74,65 +62,53 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
       return;
     }
     
-    // ===== 현재 localStorage 버전 (실제 사용 중) =====
-    try {
-      const savedFavorites = localStorage.getItem('userFavorites') || '[]';
-      const favorites = JSON.parse(savedFavorites);
-      if (like) {
-        const updatedFavorites = favorites.filter(fav => fav.id !== event.id);
-        localStorage.setItem('userFavorites', JSON.stringify(updatedFavorites));
-        setLike(false);
-        setLikeCount(prev => prev - 1);
-        // 부모 컴포넌트에 제거 알림
-        if (onRemove) {
-          onRemove(event.id);
-        }
-      } else {
-        const newFavorite = {
-          id: event.id,
-          name: event.name,
-          category: event.category,
-          type: event.type,
-          description: event.description || event.desc,
-          image: event.thumbnail,
-          location: event.location || { lat: 37.5563, lng: 126.9244 },
-          likeCount: event.likeCount || 0
-        };
-        favorites.push(newFavorite);
-        localStorage.setItem('userFavorites', JSON.stringify(favorites));
-        setLike(true);
-        setLikeCount(prev => prev + 1);
-      }
-      window.dispatchEvent(new Event('favoritesChanged'));
-    } catch (error) {
-      console.error('즐겨찾기 토글 중 오류:', error);
-    }
-    
-    // ===== 백엔드 배포 시 API 버전 (주석처리) =====
-    /*
+    // ===== API 명세서에 맞는 백엔드 API 호출 =====
     const performToggle = async () => {
       try {
-        const eventType = (event.type || '').toLowerCase();
-        let result;
+        console.log('좋아요 토글 시작:', { eventId: event.id, eventType: event.type, currentLike: like });
         
-        if (like) {
-          // 즐겨찾기 제거
-          result = await ApiService.removeFromFavorites(event.id);
+        let result;
+        const eventType = (event.type || '').toLowerCase();
+        
+        // API 명세서에 따른 엔드포인트 호출
+        if (eventType === 'store') {
+          result = await favoritesAPI.toggleStoreFavorite(event.id);
+        } else if (eventType === 'event') {
+          result = await favoritesAPI.toggleEventFavorite(event.id);
+        } else if (eventType === 'popup') {
+          result = await favoritesAPI.togglePopupFavorite(event.id);
         } else {
-          // 즐겨찾기 추가
-          if (eventType === 'store') {
-            result = await ApiService.addStoreToFavorites(event.id);
-          } else if (eventType === 'event') {
-            result = await ApiService.addEventToFavorites(event.id);
-          } else if (eventType === 'popup') {
-            result = await ApiService.addPopupToFavorites(event.id);
-          }
+          console.error('알 수 없는 이벤트 타입:', eventType);
+          return;
         }
         
-        if (result.success) {
-          setLike(!like);
-          setLikeCount(prev => like ? prev - 1 : prev + 1);
+        console.log('API 응답:', result);
+        
+        if (result.success && result.data) {
+          // API 응답에 따라 상태 업데이트
+          const newLiked = result.data.liked;
+          const newLikeCount = result.data.likeCount;
+          
+          setLike(newLiked);
+          setLikeCount(newLikeCount);
+          
+          console.log('좋아요 상태 업데이트:', { liked: newLiked, likeCount: newLikeCount });
+          
+          // 좋아요가 해제된 경우 부모 컴포넌트에 제거 알림
+          if (!newLiked && onRemove) {
+            onRemove(event.id);
+          }
+          
+          // 버킷리스트 업데이트를 위한 이벤트 발생
           window.dispatchEvent(new Event('favoritesChanged'));
+          
+          // 부모 컴포넌트에 상태 변경 알림 (새로 추가)
+          if (onRemove) {
+            // 좋아요 상태가 변경되었음을 알림 (id와 함께)
+            onRemove(event.id, newLiked);
+          }
+        } else {
+          console.error('API 응답이 성공이 아님:', result);
         }
       } catch (error) {
         console.error('즐겨찾기 토글 중 오류:', error);
@@ -141,8 +117,7 @@ const EventCard = memo(({ event, excludeStatuses = [], onRemove }) => {
     };
     
     performToggle();
-    */
-  }, [event.id, event.name, event.category, event.type, event.description, event.desc, event.thumbnail, event.location, event.likeCount, like, isAuthenticated, navigate, onRemove, isMerchantUser]);
+  }, [event.id, event.type, like, isAuthenticated, navigate, onRemove, isMerchantUser]);
 
   const handleCardClick = useCallback(() => {
     // 비로그인 상태에서는 로그인 페이지로 이동

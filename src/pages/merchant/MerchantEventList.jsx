@@ -18,6 +18,7 @@ function MerchantEventList() {
   const fetchMyEvents = async () => {
     try {
       setLoading(true);
+      setError(null);
       
       // ===== 더미 데이터 버전 (주석처리) =====
       /*
@@ -63,9 +64,17 @@ function MerchantEventList() {
       try {
         const result = await storesAPI.getMyEvents();
         
+        console.log('이벤트 목록 조회 API 응답:', result);
+        console.log('이벤트 데이터 타입:', typeof result.data);
+        console.log('이벤트 데이터:', result.data);
+        
         if (result.success) {
           console.log('이벤트 조회 성공:', result.message);
-          setEvents(result.data || []);
+          // API 응답이 배열인지 확인하고 설정
+          const eventsData = Array.isArray(result.data) ? result.data : [];
+          console.log('설정할 이벤트 데이터:', eventsData);
+          console.log('이벤트 개수:', eventsData.length);
+          setEvents(eventsData);
         } else {
           // API 명세서에 따른 에러 메시지 처리
           if (result.code === 401) {
@@ -83,12 +92,15 @@ function MerchantEventList() {
         console.error('이벤트 조회 API 오류:', error);
         alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
         setError('서버 연결에 실패했습니다.');
+        setEvents([]);
       }
       
     } catch (err) {
       console.error('Failed to fetch events:', err);
       setError('이벤트 목록을 불러오는데 실패했습니다.');
+      setEvents([]);
     } finally {
+      console.log('fetchMyEvents 완료 - loading을 false로 설정');
       setLoading(false);
     }
   };
@@ -147,6 +159,7 @@ function MerchantEventList() {
   };
 
   if (loading) {
+    console.log('로딩 중 - loading:', loading);
     return (
       <Container>
         <Header />
@@ -157,6 +170,8 @@ function MerchantEventList() {
       </Container>
     );
   }
+
+  console.log('렌더링 상태:', { loading, events: events.length, error });
 
   return (
     <Container>
@@ -192,19 +207,22 @@ function MerchantEventList() {
           </EmptyState>
         ) : (
           <EventGrid>
-            {events.map((event) => (
-              <EventCard key={event.id}>
-                <EventHeader>
-                  <EventName>{event.name}</EventName>
-                  <StatusBadge>
-                    <CategoryBadge category={event.isPopup ? 'POPUP' : 'EVENT'}>
-                      {event.isPopup ? '팝업' : '일반 이벤트'}
-                    </CategoryBadge>
-                    <StatusIndicator color={getStatusColor(event.startDate, event.endDate)}>
-                      {getStatusLabel(event.startDate, event.endDate)}
-                    </StatusIndicator>
-                  </StatusBadge>
-                </EventHeader>
+            {console.log('이벤트 렌더링 시작 - 이벤트 개수:', events.length)}
+            {events.map((event) => {
+              console.log('이벤트 렌더링:', event);
+              return (
+                <EventCard key={event.id}>
+                  <EventHeader>
+                    <EventName>{event.name}</EventName>
+                    <StatusBadge>
+                      <CategoryBadge category={event.isPopup ? 'POPUP' : 'EVENT'}>
+                        {event.isPopup ? '팝업' : '일반 이벤트'}
+                      </CategoryBadge>
+                      <StatusIndicator color={getStatusColor(event.startDate, event.endDate)}>
+                        {getStatusLabel(event.startDate, event.endDate)}
+                      </StatusIndicator>
+                    </StatusBadge>
+                  </EventHeader>
                 
                 <EventInfo>
                   <InfoRow>
@@ -240,7 +258,8 @@ function MerchantEventList() {
                   </ViewButton>
                 </ActionRow>
               </EventCard>
-            ))}
+            );
+          })}
           </EventGrid>
         )}
       </Content>
