@@ -50,7 +50,25 @@ function MerchantStore() {
   const checkExistingStore = async () => {
     try {
       const response = await storesAPI.getMyStores();
-      if (response.success && response.data && response.data.length > 0) {
+      console.log('가게 상태 확인 API 응답:', response);
+      
+      // API 응답 구조 확인: data가 배열인지 단일 객체인지 확인
+      const hasExistingStore = response.success && response.data && (
+        Array.isArray(response.data) ? response.data.length > 0 : 
+        typeof response.data === 'object' && response.data.id
+      );
+      
+      console.log('기존 가게 존재 여부 판단:', {
+        success: response.success,
+        hasData: !!response.data,
+        isArray: Array.isArray(response.data),
+        isObject: typeof response.data === 'object',
+        hasId: response.data?.id,
+        dataType: typeof response.data,
+        hasExistingStore: hasExistingStore
+      });
+      
+      if (hasExistingStore) {
         setHasExistingStore(true);
         alert('이미 등록된 가게가 있습니다. 소상공은 가게를 하나만 등록할 수 있습니다.');
         window.location.href = '/mypage/stores';

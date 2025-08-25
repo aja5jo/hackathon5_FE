@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { storesAPI, mainAPI, isMerchant, isUser } from '../services/api';
 
 import { debounce } from '../utils/performance';
+import mainBannerImg from '../assets/main_banner.png.png';
 
 
 const Home = React.memo(() => {

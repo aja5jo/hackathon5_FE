@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../components/common/Footer';
-import KakaoMap from '../components/map/KakaoMap';
+
 import { useAuth } from '../contexts/AuthContext';
 import { isMerchant } from '../services/api';
 
 import bannerImg from '../assets/banner.png';
+import hongdaeMapImg from '../assets/hongdaemap.png.png';
 import EventCard from '../components/common/EventCard';
 import { favoritesAPI } from '../services/api';
 // import { bucketListAPI } from '../services/api'; // 명세서에 없는 API이므로 제거
@@ -181,15 +182,10 @@ function BucketList() {
         </StatusInfo>
       </StatusSection>
 
-      {/* 네이버 지도 섹션 - 로그인 여부와 상관없이 항상 표시 */}
+      {/* 홍대 지도 섹션 - 로그인 여부와 상관없이 항상 표시 */}
       <MapSection>
         <SectionTitle>🗺️ 홍대 지역 지도</SectionTitle>
-        <MapDescription>
-          버킷리스트의 장소들이 위치한 홍대 지역을 확인해보세요
-        </MapDescription>
-        <KakaoMap 
-          markers={mapMarkers}
-        />
+        <HongdaeMapImage src={hongdaeMapImg} alt="홍대 지역 지도" />
       </MapSection>
 
       {/* 아이템 그리드 - 로그인된 경우에만 표시 */}
@@ -373,12 +369,14 @@ const SectionTitle = styled.h2`
   text-align: center;
 `;
 
-const MapDescription = styled.p`
-  font-size: 1.4rem;
-  color: #666;
-  text-align: center;
-  margin: 0 0 2rem 0;
-  line-height: 1.5;
+const HongdaeMapImage = styled.img`
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  display: block;
 `;
 
 const ItemGrid = styled.div`

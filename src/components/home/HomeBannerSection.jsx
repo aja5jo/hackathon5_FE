@@ -1,14 +1,13 @@
 import React from 'react'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import styled from 'styled-components'
+import mainBannerImg from '../../assets/main_banner.png.png'
 
 const HomeBannerSection = () => {
   return (
     <Wrapper>
         <ArrowButton><FaChevronLeft /></ArrowButton>
         <BannerText>
-            <strong>메인 배너에 이벤트 홍보</strong>
-            <p>예)” 7.31~8.05일까지 ㅇㅇ백화점 B1 팝업스토어 오픈!” + 사진 뒷배경.</p>
         </BannerText>
         <ArrowButton><FaChevronRight /></ArrowButton>
     </Wrapper>
@@ -23,7 +22,13 @@ const Wrapper = styled.section`
     align-items: center;
     padding: 4rem 1rem;
     aspect-ratio: 4 / 1;
-    background-color: #f8f8f8;
+    background: 
+        linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%),
+        url(${mainBannerImg});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
 `;
 
 const ArrowButton = styled.button`
@@ -37,6 +42,8 @@ const BannerText = styled.div`
   text-align: center;
   flex: 1;
   font-size: 1.4rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 
   strong {
     display: block;
@@ -46,6 +53,6 @@ const BannerText = styled.div`
 
   p {
     margin: 0.3rem 0;
-    color: #555;
+    color: rgba(255, 255, 255, 0.9);
   }
 `;

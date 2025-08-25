@@ -33,33 +33,11 @@ function MerchantPopup() {
   const [showAiPreview, setShowAiPreview] = useState(false);
   const [aiPreviewResult, setAiPreviewResult] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [hasStore, setHasStore] = useState(false);
 
   const disabled = useMemo(() => !category || !name || !description || !intro || !thumbnail || !startDate || !endDate || !address, 
     [category, name, description, intro, thumbnail, startDate, endDate, address]);
 
-  // 컴포넌트 마운트 시 가게 등록 상태 확인
-  useEffect(() => {
-    checkStoreStatus();
-  }, []);
-
-  const checkStoreStatus = async () => {
-    try {
-      const response = await storesAPI.getMyStores();
-      if (response.success && response.data && response.data.length > 0) {
-        setHasStore(true);
-      } else {
-        setHasStore(false);
-        alert('팝업을 등록하려면 먼저 가게를 등록해야 합니다.');
-        navigate('/merchants/stores');
-      }
-    } catch (error) {
-      console.error('가게 상태 확인 실패:', error);
-      setHasStore(false);
-      alert('가게 상태를 확인할 수 없습니다. 먼저 가게를 등록해주세요.');
-      navigate('/merchants/stores');
-    }
-  };
+  // 가게 상태 확인 로직 제거 - 바로 팝업 등록 가능
 
   // AI 미리보기 함수
   const handleAiPreview = async () => {
@@ -95,21 +73,38 @@ function MerchantPopup() {
       
       // ===== 백엔드 API 버전 (활성화) =====
       
-      const response = await storesAPI.previewPopupAi({
+      // 백엔드 요구사항에 맞는 요청 데이터 구성 (이벤트와 동일한 구조)
+      const requestData = {
         name: name.trim(),
         category: category,
         address: address.trim(),
-        description: description.trim() || undefined,
-        intro: intro.trim() || undefined,
-        thumbnail: thumbnail.trim() || undefined,
-        images: images.filter(img => img.trim() !== '')
-      });
+        introHint: intro.trim() || undefined, // intro를 introHint로 매핑
+        imageUrls: images.filter(img => img.trim() !== '') // 빈 문자열 제거
+      };
       
-      setAiPreviewResult(response.data);
+      console.log('AI 팝업 미리보기 요청 데이터:', requestData);
+      
+      const response = await storesAPI.previewPopupAi(requestData);
+      
+      console.log('AI 팝업 미리보기 응답:', response);
+      
+      // 백엔드에서 success 필드 없이 직접 데이터를 반환하는 경우 처리 (이벤트와 동일)
+      if (response.success && response.data) {
+        // success 필드가 있는 경우 (기존 방식)
+        console.log('AI 팝업 미리보기 결과 설정:', response.data);
+        setAiPreviewResult(response.data);
+      } else if (response.intro || response.description) {
+        // success 필드 없이 직접 데이터가 반환되는 경우
+        console.log('AI 팝업 미리보기 결과 설정 (직접 응답):', response);
+        setAiPreviewResult(response);
+      } else {
+        console.error('AI 팝업 미리보기 응답 실패:', response);
+        throw new Error(response.message || 'AI 팝업 미리보기 생성에 실패했습니다.');
+      }
       
     } catch (error) {
-      console.error('AI 미리보기 실패:', error);
-      alert('AI 미리보기 생성에 실패했습니다.');
+      console.error('AI 팝업 미리보기 실패:', error);
+      alert(error.message || 'AI 팝업 미리보기 생성에 실패했습니다.');
     } finally {
       setIsAiLoading(false);
     }
@@ -357,12 +352,20 @@ function MerchantPopup() {
                 <>
                   <AiPreviewCard>
                     <AiPreviewLabel>인트로 (요약/후킹)</AiPreviewLabel>
-                    <AiPreviewContent>{aiPreviewResult.intro}</AiPreviewContent>
+                    <AiPreviewContent>{aiPreviewResult.intro || '인트로 내용이 없습니다.'}</AiPreviewContent>
                   </AiPreviewCard>
 
                   <AiPreviewCard>
                     <AiPreviewLabel>상세 설명</AiPreviewLabel>
-                    <AiPreviewContent>{aiPreviewResult.description}</AiPreviewContent>
+                    <AiPreviewContent>{aiPreviewResult.description || '상세 설명이 없습니다.'}</AiPreviewContent>
+                  </AiPreviewCard>
+
+                  {/* 디버그 정보 (개발 중에만 표시) */}
+                  <AiPreviewCard style={{ backgroundColor: '#f3f4f6' }}>
+                    <AiPreviewLabel>디버그 정보</AiPreviewLabel>
+                    <pre style={{ fontSize: '12px', margin: 0, whiteSpace: 'pre-wrap' }}>
+                      {JSON.stringify(aiPreviewResult, null, 2)}
+                    </pre>
                   </AiPreviewCard>
 
                   <AiActionButtons>
